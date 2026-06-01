@@ -3,6 +3,8 @@ import { Search, Bell, Radio, ShieldCheck, Truck, BadgeCheck, ChevronRight, Star
 import { AppShell, StoreCover } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { stores, products } from "@/lib/data";
+import { formatPrice, useCurrency } from "@/lib/currency";
+import { CurrencySelector } from "@/components/CurrencySelector";
 
 export const Route = createFileRoute("/home")({
   head: () => ({ meta: [{ title: "Início — Live Market" }] }),
@@ -17,6 +19,7 @@ const categories = [
 
 function Home() {
   const lives = stores.filter((s) => s.live);
+  const currency = useCurrency();
   return (
     <AppShell>
       <header className="px-5 pt-6 pb-3 text-white" style={{ background: "var(--gradient-brand)" }}>
@@ -25,10 +28,13 @@ function Home() {
             <p className="text-xs text-white/70">Olá, bem-vindo 👋</p>
             <h1 className="text-xl font-bold">O que vamos comprar hoje?</h1>
           </div>
-          <button className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-md">
-            <Bell size={18} />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[var(--live)]" />
-          </button>
+          <div className="flex items-center gap-2">
+            <CurrencySelector />
+            <button className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-md">
+              <Bell size={18} />
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[var(--live)]" />
+            </button>
+          </div>
         </div>
         <div className="relative mt-4">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
@@ -94,8 +100,8 @@ function Home() {
               <div className="p-2.5">
                 <p className="line-clamp-2 text-xs font-medium text-foreground">{p.name}</p>
                 <div className="mt-1 flex items-baseline gap-1">
-                  <span className="text-sm font-bold text-primary">R$ {p.price.toFixed(2)}</span>
-                  {p.oldPrice && <span className="text-[10px] text-muted-foreground line-through">{p.oldPrice.toFixed(2)}</span>}
+                  <span className="text-sm font-bold text-primary">{formatPrice(p.price, currency)}</span>
+                  {p.oldPrice && <span className="text-[10px] text-muted-foreground line-through">{formatPrice(p.oldPrice, currency)}</span>}
                 </div>
                 <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
                   <Star size={10} className="fill-yellow-400 text-yellow-400" /> {p.rating} · {p.sold} vendidos
