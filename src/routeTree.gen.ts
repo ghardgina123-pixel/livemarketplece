@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as LojasRouteImport } from './routes/lojas'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HomeRouteImport } from './routes/home'
@@ -20,6 +21,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
 import { Route as LojaIdRouteImport } from './routes/loja.$id'
 
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LojasRoute = LojasRouteImport.update({
   id: '/lojas',
   path: '/lojas',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
+  '/perfil': typeof PerfilRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
 }
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
+  '/perfil': typeof PerfilRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
 }
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
+  '/perfil': typeof PerfilRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
 }
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/login'
     | '/lojas'
+    | '/perfil'
     | '/loja/$id'
     | '/produto/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/login'
     | '/lojas'
+    | '/perfil'
     | '/loja/$id'
     | '/produto/$id'
   id:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/login'
     | '/lojas'
+    | '/perfil'
     | '/loja/$id'
     | '/produto/$id'
   fileRoutesById: FileRoutesById
@@ -156,12 +168,20 @@ export interface RootRouteChildren {
   HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
   LojasRoute: typeof LojasRoute
+  PerfilRoute: typeof PerfilRoute
   LojaIdRoute: typeof LojaIdRoute
   ProdutoIdRoute: typeof ProdutoIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lojas': {
       id: '/lojas'
       path: '/lojas'
@@ -244,6 +264,7 @@ const rootRouteChildren: RootRouteChildren = {
   HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
   LojasRoute: LojasRoute,
+  PerfilRoute: PerfilRoute,
   LojaIdRoute: LojaIdRoute,
   ProdutoIdRoute: ProdutoIdRoute,
 }
