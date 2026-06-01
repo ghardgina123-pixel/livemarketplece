@@ -2,6 +2,7 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { ArrowLeft, Share2, Heart, BadgeCheck, Star, Radio, MessageCircle } from "lucide-react";
 import { StoreCover } from "@/components/AppShell";
 import { findStore, productsByStore } from "@/lib/data";
+import { formatPrice, useCurrency } from "@/lib/currency";
 
 export const Route = createFileRoute("/loja/$id")({
   head: () => ({ meta: [{ title: "Loja — Live Market" }] }),
@@ -12,6 +13,7 @@ function LojaPage() {
   const { id } = useParams({ from: "/loja/$id" });
   const store = findStore(id);
   const items = productsByStore(id);
+  const currency = useCurrency();
   if (!store) return <div className="p-6">Loja não encontrada</div>;
 
   return (
@@ -73,7 +75,7 @@ function LojaPage() {
               <div className="flex h-32 items-center justify-center bg-accent text-5xl">{p.emoji}</div>
               <div className="p-2.5">
                 <p className="line-clamp-2 text-xs font-medium">{p.name}</p>
-                <p className="mt-1 text-sm font-bold text-primary">R$ {p.price.toFixed(2)}</p>
+                <p className="mt-1 text-sm font-bold text-primary">{formatPrice(p.price, currency)}</p>
               </div>
             </Link>
           ))}

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Minus, Plus, Trash2, ShieldCheck, ShoppingBag } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { cartStore, useCart, useCartTotal } from "@/lib/cart-store";
+import { formatPrice, useCurrency } from "@/lib/currency";
 
 export const Route = createFileRoute("/carrinho")({
   head: () => ({ meta: [{ title: "Carrinho — Live Market" }] }),
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/carrinho")({
 function Cart() {
   const items = useCart();
   const total = useCartTotal();
+  const currency = useCurrency();
 
   if (items.length === 0) {
     return (
@@ -42,7 +44,7 @@ function Cart() {
             <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-accent text-4xl">{p.emoji}</div>
             <div className="flex-1 min-w-0">
               <p className="line-clamp-2 text-sm font-medium">{p.name}</p>
-              <p className="mt-1 text-sm font-bold text-primary">R$ {p.price.toFixed(2)}</p>
+              <p className="mt-1 text-sm font-bold text-primary">{formatPrice(p.price, currency)}</p>
               <div className="mt-2 flex items-center justify-between">
                 <div className="flex items-center gap-2 rounded-full bg-muted">
                   <button onClick={() => cartStore.setQty(p.id, qty - 1)} className="flex h-7 w-7 items-center justify-center"><Minus size={14} /></button>
@@ -57,9 +59,9 @@ function Cart() {
       </ul>
 
       <div className="mx-5 mt-5 rounded-2xl bg-muted p-4 text-sm">
-        <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>R$ {total.toFixed(2)}</span></div>
+        <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatPrice(total, currency)}</span></div>
         <div className="flex justify-between"><span className="text-muted-foreground">Frete</span><span className="font-semibold text-primary">Grátis</span></div>
-        <div className="mt-2 flex justify-between border-t border-border pt-2 text-base font-bold"><span>Total</span><span>R$ {total.toFixed(2)}</span></div>
+        <div className="mt-2 flex justify-between border-t border-border pt-2 text-base font-bold"><span>Total</span><span>{formatPrice(total, currency)}</span></div>
       </div>
 
       <div className="mx-5 mt-3 flex items-center gap-2 rounded-xl bg-accent p-3 text-[11px] text-accent-foreground">

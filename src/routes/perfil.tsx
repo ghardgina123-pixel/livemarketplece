@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Settings, Package, Heart, MapPin, CreditCard, ShieldCheck, HelpCircle, LogOut, ChevronRight, BadgeCheck } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { CurrencySelector } from "@/components/CurrencySelector";
 
 export const Route = createFileRoute("/perfil")({
   head: () => ({ meta: [{ title: "Perfil — Live Market" }] }),
@@ -54,6 +55,11 @@ function Perfil() {
           </li>
         ))}
       </ul>
+
+      <div className="px-5 pt-4">
+        <h3 className="mb-2 text-xs font-bold uppercase text-muted-foreground">Região e moeda</h3>
+        <CurrencySelector variant="row" />
+      </div>
 
       <div className="px-5 pt-3">
         <Link to="/login" className="flex h-11 items-center justify-center gap-2 rounded-xl border border-border text-sm font-semibold text-destructive">

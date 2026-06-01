@@ -2,6 +2,7 @@ import { createFileRoute, Link, useParams, useNavigate } from "@tanstack/react-r
 import { ArrowLeft, Heart, Share2, Star, ShieldCheck, Truck, RotateCcw, MessageCircle, ShoppingCart } from "lucide-react";
 import { findProduct, findStore } from "@/lib/data";
 import { cartStore } from "@/lib/cart-store";
+import { formatPrice, useCurrency } from "@/lib/currency";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/produto/$id")({
@@ -13,6 +14,7 @@ function ProdutoPage() {
   const { id } = useParams({ from: "/produto/$id" });
   const p = findProduct(id);
   const nav = useNavigate();
+  const currency = useCurrency();
   if (!p) return <div className="p-6">Produto não encontrado</div>;
   const store = findStore(p.storeId);
 
@@ -31,8 +33,8 @@ function ProdutoPage() {
 
       <div className="px-5 pt-5">
         <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-bold text-primary">R$ {p.price.toFixed(2)}</span>
-          {p.oldPrice && <span className="text-sm text-muted-foreground line-through">R$ {p.oldPrice.toFixed(2)}</span>}
+          <span className="text-3xl font-bold text-primary">{formatPrice(p.price, currency)}</span>
+          {p.oldPrice && <span className="text-sm text-muted-foreground line-through">{formatPrice(p.oldPrice, currency)}</span>}
           {p.oldPrice && (
             <span className="rounded-md bg-[var(--live)]/10 px-1.5 py-0.5 text-[10px] font-bold text-[var(--live)]">
               -{Math.round((1 - p.price / p.oldPrice) * 100)}%
