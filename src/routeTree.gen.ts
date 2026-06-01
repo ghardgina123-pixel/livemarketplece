@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LojasRouteImport } from './routes/lojas'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CarrinhoRouteImport } from './routes/carrinho'
 import { Route as CadastroRouteImport } from './routes/cadastro'
@@ -32,6 +33,11 @@ const LoginRoute = LoginRouteImport.update({
 const HomeRoute = HomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/cadastro': typeof CadastroRoute
   '/carrinho': typeof CarrinhoRoute
   '/chat': typeof ChatRoute
+  '/checkout': typeof CheckoutRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/cadastro': typeof CadastroRoute
   '/carrinho': typeof CarrinhoRoute
   '/chat': typeof ChatRoute
+  '/checkout': typeof CheckoutRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/cadastro': typeof CadastroRoute
   '/carrinho': typeof CarrinhoRoute
   '/chat': typeof ChatRoute
+  '/checkout': typeof CheckoutRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/carrinho'
     | '/chat'
+    | '/checkout'
     | '/home'
     | '/login'
     | '/lojas'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/carrinho'
     | '/chat'
+    | '/checkout'
     | '/home'
     | '/login'
     | '/lojas'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/carrinho'
     | '/chat'
+    | '/checkout'
     | '/home'
     | '/login'
     | '/lojas'
@@ -140,6 +152,7 @@ export interface RootRouteChildren {
   CadastroRoute: typeof CadastroRoute
   CarrinhoRoute: typeof CarrinhoRoute
   ChatRoute: typeof ChatRoute
+  CheckoutRoute: typeof CheckoutRoute
   HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
   LojasRoute: typeof LojasRoute
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -220,6 +240,7 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroRoute: CadastroRoute,
   CarrinhoRoute: CarrinhoRoute,
   ChatRoute: ChatRoute,
+  CheckoutRoute: CheckoutRoute,
   HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
   LojasRoute: LojasRoute,
