@@ -6,6 +6,7 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  ClientOnly,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
@@ -121,7 +122,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
-      <Toaster position="top-center" richColors />
+      <ClientOnly fallback={null}>
+        <Toaster position="top-center" richColors />
+      </ClientOnly>
     </QueryClientProvider>
   );
 }
