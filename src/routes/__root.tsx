@@ -79,14 +79,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Live Market place" },
+      { name: "description", content: "Live Commerce Hub is a live shopping marketplace app for seamless online purchases." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Live Market place" },
+      { property: "og:description", content: "Live Commerce Hub is a live shopping marketplace app for seamless online purchases." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Live Market place" },
+      { name: "twitter:description", content: "Live Commerce Hub is a live shopping marketplace app for seamless online purchases." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/GNjrhXp6xhOL3rypq4j80wrUCZh2/social-images/social-1780312701823-1000067935.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/GNjrhXp6xhOL3rypq4j80wrUCZh2/social-images/social-1780312701823-1000067935.webp" },
     ],
     links: [
       {
