@@ -73,7 +73,7 @@ function LojaPage() {
               <div className="flex h-32 items-center justify-center bg-accent text-5xl">{p.emoji}</div>
               <div className="p-2.5">
                 <p className="line-clamp-2 text-xs font-medium">{p.name}</p>
-                <p className="mt-1 text-sm font-bold text-primary">R$ {p.price.toFixed(2)}</p>
+                <p className="mt-1 text-sm font-bold text-primary">{formatPrice(p.price, currency)}</p>
               </div>
             </Link>
           ))}
