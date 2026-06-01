@@ -1,29 +1,42 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { Radio } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Your App" },
-      { name: "description", content: "Replace this with a one-sentence description of your app." },
-      { property: "og:title", content: "Your App" },
-      { property: "og:description", content: "Replace this with a one-sentence description of your app." },
+      { title: "Live Market — Compras ao vivo" },
+      { name: "description", content: "O marketplace ao vivo onde você compra com confiança e em tempo real." },
     ],
   }),
-  component: Index,
+  component: Splash,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function Splash() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const t = setTimeout(() => navigate({ to: "/login" }), 1800);
+    return () => clearTimeout(t);
+  }, [navigate]);
+
   return (
     <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
+      className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col items-center justify-center px-6 text-white"
+      style={{ background: "var(--gradient-brand)" }}
     >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+      <div className="flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-700">
+        <div className="relative">
+          <div className="absolute inset-0 animate-ping rounded-full bg-white/30" />
+          <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl bg-white/15 backdrop-blur-md ring-1 ring-white/30">
+            <Radio size={48} className="text-white" />
+          </div>
+        </div>
+        <div className="text-center">
+          <h1 className="text-4xl font-bold tracking-tight">Live Market</h1>
+          <p className="mt-2 text-sm text-white/80">Compre ao vivo. Confie em cada toque.</p>
+        </div>
+      </div>
+      <div className="absolute bottom-10 text-xs text-white/60">Carregando experiência…</div>
     </div>
   );
 }

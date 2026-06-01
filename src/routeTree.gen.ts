@@ -9,38 +9,228 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as LojasRouteImport } from './routes/lojas'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as HomeRouteImport } from './routes/home'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as CarrinhoRouteImport } from './routes/carrinho'
+import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
+import { Route as LojaIdRouteImport } from './routes/loja.$id'
 
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojasRoute = LojasRouteImport.update({
+  id: '/lojas',
+  path: '/lojas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CarrinhoRoute = CarrinhoRouteImport.update({
+  id: '/carrinho',
+  path: '/carrinho',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroRoute = CadastroRouteImport.update({
+  id: '/cadastro',
+  path: '/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProdutoIdRoute = ProdutoIdRouteImport.update({
+  id: '/produto/$id',
+  path: '/produto/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaIdRoute = LojaIdRouteImport.update({
+  id: '/loja/$id',
+  path: '/loja/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cadastro': typeof CadastroRoute
+  '/carrinho': typeof CarrinhoRoute
+  '/chat': typeof ChatRoute
+  '/checkout': typeof CheckoutRoute
+  '/home': typeof HomeRoute
+  '/login': typeof LoginRoute
+  '/lojas': typeof LojasRoute
+  '/perfil': typeof PerfilRoute
+  '/loja/$id': typeof LojaIdRoute
+  '/produto/$id': typeof ProdutoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cadastro': typeof CadastroRoute
+  '/carrinho': typeof CarrinhoRoute
+  '/chat': typeof ChatRoute
+  '/checkout': typeof CheckoutRoute
+  '/home': typeof HomeRoute
+  '/login': typeof LoginRoute
+  '/lojas': typeof LojasRoute
+  '/perfil': typeof PerfilRoute
+  '/loja/$id': typeof LojaIdRoute
+  '/produto/$id': typeof ProdutoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cadastro': typeof CadastroRoute
+  '/carrinho': typeof CarrinhoRoute
+  '/chat': typeof ChatRoute
+  '/checkout': typeof CheckoutRoute
+  '/home': typeof HomeRoute
+  '/login': typeof LoginRoute
+  '/lojas': typeof LojasRoute
+  '/perfil': typeof PerfilRoute
+  '/loja/$id': typeof LojaIdRoute
+  '/produto/$id': typeof ProdutoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/cadastro'
+    | '/carrinho'
+    | '/chat'
+    | '/checkout'
+    | '/home'
+    | '/login'
+    | '/lojas'
+    | '/perfil'
+    | '/loja/$id'
+    | '/produto/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/cadastro'
+    | '/carrinho'
+    | '/chat'
+    | '/checkout'
+    | '/home'
+    | '/login'
+    | '/lojas'
+    | '/perfil'
+    | '/loja/$id'
+    | '/produto/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/cadastro'
+    | '/carrinho'
+    | '/chat'
+    | '/checkout'
+    | '/home'
+    | '/login'
+    | '/lojas'
+    | '/perfil'
+    | '/loja/$id'
+    | '/produto/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CadastroRoute: typeof CadastroRoute
+  CarrinhoRoute: typeof CarrinhoRoute
+  ChatRoute: typeof ChatRoute
+  CheckoutRoute: typeof CheckoutRoute
+  HomeRoute: typeof HomeRoute
+  LoginRoute: typeof LoginRoute
+  LojasRoute: typeof LojasRoute
+  PerfilRoute: typeof PerfilRoute
+  LojaIdRoute: typeof LojaIdRoute
+  ProdutoIdRoute: typeof ProdutoIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lojas': {
+      id: '/lojas'
+      path: '/lojas'
+      fullPath: '/lojas'
+      preLoaderRoute: typeof LojasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/carrinho': {
+      id: '/carrinho'
+      path: '/carrinho'
+      fullPath: '/carrinho'
+      preLoaderRoute: typeof CarrinhoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro': {
+      id: '/cadastro'
+      path: '/cadastro'
+      fullPath: '/cadastro'
+      preLoaderRoute: typeof CadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +238,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/produto/$id': {
+      id: '/produto/$id'
+      path: '/produto/$id'
+      fullPath: '/produto/$id'
+      preLoaderRoute: typeof ProdutoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/$id': {
+      id: '/loja/$id'
+      path: '/loja/$id'
+      fullPath: '/loja/$id'
+      preLoaderRoute: typeof LojaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CadastroRoute: CadastroRoute,
+  CarrinhoRoute: CarrinhoRoute,
+  ChatRoute: ChatRoute,
+  CheckoutRoute: CheckoutRoute,
+  HomeRoute: HomeRoute,
+  LoginRoute: LoginRoute,
+  LojasRoute: LojasRoute,
+  PerfilRoute: PerfilRoute,
+  LojaIdRoute: LojaIdRoute,
+  ProdutoIdRoute: ProdutoIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
