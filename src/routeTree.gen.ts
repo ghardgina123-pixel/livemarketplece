@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LojaIdRouteImport } from './routes/loja.$id'
 
 const LojasRoute = LojasRouteImport.update({
   id: '/lojas',
@@ -40,6 +41,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LojaIdRoute = LojaIdRouteImport.update({
+  id: '/loja/$id',
+  path: '/loja/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
+  '/loja/$id': typeof LojaIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
+  '/loja/$id': typeof LojaIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,21 @@ export interface FileRoutesById {
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
+  '/loja/$id': typeof LojaIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cadastro' | '/home' | '/login' | '/lojas'
+  fullPaths: '/' | '/cadastro' | '/home' | '/login' | '/lojas' | '/loja/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cadastro' | '/home' | '/login' | '/lojas'
-  id: '__root__' | '/' | '/cadastro' | '/home' | '/login' | '/lojas'
+  to: '/' | '/cadastro' | '/home' | '/login' | '/lojas' | '/loja/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/cadastro'
+    | '/home'
+    | '/login'
+    | '/lojas'
+    | '/loja/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +93,7 @@ export interface RootRouteChildren {
   HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
   LojasRoute: typeof LojasRoute
+  LojaIdRoute: typeof LojaIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +133,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/loja/$id': {
+      id: '/loja/$id'
+      path: '/loja/$id'
+      fullPath: '/loja/$id'
+      preLoaderRoute: typeof LojaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,6 +149,7 @@ const rootRouteChildren: RootRouteChildren = {
   HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
   LojasRoute: LojasRoute,
+  LojaIdRoute: LojaIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
