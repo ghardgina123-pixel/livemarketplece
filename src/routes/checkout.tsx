@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, MapPin, CreditCard, Banknote, Smartphone, ShieldCheck, Check } from "lucide-react";
 import { useState } from "react";
 import { cartStore, useCart, useCartTotal } from "@/lib/cart-store";
+import { formatPrice, useCurrency } from "@/lib/currency";
+import { CurrencySelector } from "@/components/CurrencySelector";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/checkout")({
@@ -13,6 +15,7 @@ function Checkout() {
   const nav = useNavigate();
   const items = useCart();
   const total = useCartTotal();
+  const currency = useCurrency();
   const [pay, setPay] = useState<"pix" | "card" | "boleto">("pix");
   const [done, setDone] = useState(false);
 
@@ -35,7 +38,10 @@ function Checkout() {
     <div className="mx-auto min-h-screen w-full max-w-[480px] bg-background pb-32">
       <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-background px-5 py-4">
         <button onClick={() => history.back()}><ArrowLeft size={20} /></button>
-        <h1 className="text-lg font-bold">Finalizar compra</h1>
+        <h1 className="flex-1 text-lg font-bold">Finalizar compra</h1>
+        <div className="rounded-full bg-muted px-2 py-1 text-xs font-semibold">
+          {currency.flag} {currency.code}
+        </div>
       </header>
 
       <section className="px-5 pt-5">
@@ -60,7 +66,7 @@ function Checkout() {
                 <p className="line-clamp-1 text-sm font-medium">{p.name}</p>
                 <p className="text-xs text-muted-foreground">Qtd {qty}</p>
               </div>
-              <span className="text-sm font-bold">R$ {(p.price * qty).toFixed(2)}</span>
+              <span className="text-sm font-bold">{formatPrice(p.price * qty, currency)}</span>
             </li>
           ))}
         </ul>
@@ -68,19 +74,39 @@ function Checkout() {
 
       <section className="px-5 pt-5">
         <h2 className="text-xs font-bold uppercase text-muted-foreground">Forma de pagamento</h2>
+        <div className="mt-2">
+          <CurrencySelector variant="row" />
+        </div>
         <div className="mt-2 space-y-2">
-          <PayOption active={pay === "pix"} onClick={() => setPay("pix")} icon={<Smartphone size={20} />} label="Pix" desc="Aprovação imediata · 5% off" />
-          <PayOption active={pay === "card"} onClick={() => setPay("card")} icon={<CreditCard size={20} />} label="Cartão de crédito" desc="Até 12x sem juros" />
-          <PayOption active={pay === "boleto"} onClick={() => setPay("boleto")} icon={<Banknote size={20} />} label="Boleto" desc="Aprovação em até 2 dias" />
+          {currency.code === "BRL" && <>
+            <PayOption active={pay === "pix"} onClick={() => setPay("pix")} icon={<Smartphone size={20} />} label="Pix" desc="Aprovação imediata · 5% off" />
+            <PayOption active={pay === "card"} onClick={() => setPay("card")} icon={<CreditCard size={20} />} label="Cartão de crédito" desc="Até 12x sem juros" />
+            <PayOption active={pay === "boleto"} onClick={() => setPay("boleto")} icon={<Banknote size={20} />} label="Boleto" desc="Aprovação em até 2 dias" />
+          </>}
+          {currency.code === "AOA" && <>
+            <PayOption active={pay === "pix"} onClick={() => setPay("pix")} icon={<Smartphone size={20} />} label="Multicaixa Express" desc="Pagamento instantâneo · 5% off" />
+            <PayOption active={pay === "card"} onClick={() => setPay("card")} icon={<CreditCard size={20} />} label="Cartão Multicaixa / Visa" desc="Débito ou crédito" />
+            <PayOption active={pay === "boleto"} onClick={() => setPay("boleto")} icon={<Banknote size={20} />} label="Transferência bancária" desc="BAI · BFA · BIC · Atlântico" />
+          </>}
+          {currency.code === "USD" && <>
+            <PayOption active={pay === "pix"} onClick={() => setPay("pix")} icon={<Smartphone size={20} />} label="Apple Pay / Google Pay" desc="Pagamento em 1 toque · 5% off" />
+            <PayOption active={pay === "card"} onClick={() => setPay("card")} icon={<CreditCard size={20} />} label="Credit / Debit card" desc="Visa · Mastercard · Amex" />
+            <PayOption active={pay === "boleto"} onClick={() => setPay("boleto")} icon={<Banknote size={20} />} label="Bank transfer (ACH)" desc="Approval in 1–2 business days" />
+          </>}
+          {currency.code === "EUR" && <>
+            <PayOption active={pay === "pix"} onClick={() => setPay("pix")} icon={<Smartphone size={20} />} label="Apple Pay / Google Pay" desc="Pagamento instantâneo · 5% off" />
+            <PayOption active={pay === "card"} onClick={() => setPay("card")} icon={<CreditCard size={20} />} label="Cartão de crédito / débito" desc="Visa · Mastercard" />
+            <PayOption active={pay === "boleto"} onClick={() => setPay("boleto")} icon={<Banknote size={20} />} label="SEPA · Transferência bancária" desc="Aprovação em 1–2 dias" />
+          </>}
         </div>
       </section>
 
       <section className="mx-5 mt-5 rounded-2xl bg-muted p-4 text-sm">
-        <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>R$ {total.toFixed(2)}</span></div>
+        <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatPrice(total, currency)}</span></div>
         <div className="flex justify-between"><span className="text-muted-foreground">Frete</span><span className="text-primary">Grátis</span></div>
-        {pay === "pix" && <div className="flex justify-between"><span className="text-muted-foreground">Desconto Pix</span><span className="text-primary">- R$ {(total * 0.05).toFixed(2)}</span></div>}
+        {pay === "pix" && <div className="flex justify-between"><span className="text-muted-foreground">Desconto à vista</span><span className="text-primary">- {formatPrice(total * 0.05, currency)}</span></div>}
         <div className="mt-2 flex justify-between border-t border-border pt-2 text-base font-bold">
-          <span>Total</span><span>R$ {(pay === "pix" ? total * 0.95 : total).toFixed(2)}</span>
+          <span>Total</span><span>{formatPrice(pay === "pix" ? total * 0.95 : total, currency)}</span>
         </div>
       </section>
 
@@ -93,7 +119,7 @@ function Checkout() {
           onClick={() => { setDone(true); cartStore.clear(); toast.success("Pedido realizado!"); }}
           className="flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
         >
-          Pagar R$ {(pay === "pix" ? total * 0.95 : total).toFixed(2)}
+          Pagar {formatPrice(pay === "pix" ? total * 0.95 : total, currency)}
         </button>
       </div>
     </div>
