@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Settings, Package, Heart, MapPin, CreditCard, ShieldCheck, HelpCircle, LogOut, ChevronRight, BadgeCheck } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { CurrencySelector } from "@/components/CurrencySelector";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/perfil")({
   head: () => ({ meta: [{ title: "Perfil — Live Market" }] }),
@@ -18,6 +19,14 @@ const menu = [
 ];
 
 function Perfil() {
+  const { user, signOut } = useAuth();
+  const nav = useNavigate();
+  const displayName = (user?.user_metadata?.display_name as string) || user?.email?.split("@")[0] || "Convidado";
+  const initials = displayName.slice(0, 2).toUpperCase();
+  const handleLogout = async () => {
+    await signOut();
+    nav({ to: "/login", replace: true });
+  };
   return (
     <AppShell>
       <header className="px-5 pt-6 pb-6 text-white" style={{ background: "var(--gradient-brand)" }}>
@@ -26,13 +35,13 @@ function Perfil() {
           <button className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 backdrop-blur"><Settings size={18} /></button>
         </div>
         <div className="mt-5 flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-2xl font-bold text-secondary">AM</div>
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-2xl font-bold text-secondary">{initials}</div>
           <div>
             <div className="flex items-center gap-1.5">
-              <p className="text-lg font-bold">Ana Mendes</p>
+              <p className="text-lg font-bold">{displayName}</p>
               <BadgeCheck size={16} />
             </div>
-            <p className="text-xs text-white/80">ana.mendes@email.com</p>
+            <p className="text-xs text-white/80">{user?.email ?? "Faça login para continuar"}</p>
             <span className="mt-1 inline-block rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold">Cliente Gold</span>
           </div>
         </div>
@@ -62,9 +71,15 @@ function Perfil() {
       </div>
 
       <div className="px-5 pt-3">
-        <Link to="/login" className="flex h-11 items-center justify-center gap-2 rounded-xl border border-border text-sm font-semibold text-destructive">
-          <LogOut size={16} /> Sair da conta
-        </Link>
+        {user ? (
+          <button onClick={handleLogout} className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-border text-sm font-semibold text-destructive">
+            <LogOut size={16} /> Sair da conta
+          </button>
+        ) : (
+          <Link to="/login" className="flex h-11 items-center justify-center gap-2 rounded-xl border border-border text-sm font-semibold text-primary">
+            Entrar
+          </Link>
+        )}
         <p className="mt-4 text-center text-[10px] text-muted-foreground">Live Market v1.0 · Feito com 💚</p>
       </div>
     </AppShell>
