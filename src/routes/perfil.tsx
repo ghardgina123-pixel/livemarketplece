@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Settings, Package, Heart, MapPin, CreditCard, ShieldCheck, HelpCircle, LogOut, ChevronRight, BadgeCheck } from "lucide-react";
+import { Settings, Package, Heart, MapPin, CreditCard, ShieldCheck, HelpCircle, LogOut, ChevronRight, BadgeCheck, Store as StoreIcon } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { CurrencySelector } from "@/components/CurrencySelector";
 import { useAuth } from "@/hooks/use-auth";
@@ -53,6 +53,15 @@ function Perfil() {
       </header>
 
       <ul className="divide-y divide-border px-2">
+        {user && (
+          <li>
+            <Link to="/lojista" className="flex w-full items-center gap-3 px-3 py-4 text-left">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl text-white" style={{ background: "var(--gradient-brand)" }}><StoreIcon size={18} /></div>
+              <span className="flex-1 text-sm font-semibold text-foreground">Quero vender / Minha loja</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </Link>
+          </li>
+        )}
         {menu.map(({ icon: Icon, label, badge }) => (
           <li key={label}>
             <button className="flex w-full items-center gap-3 px-3 py-4 text-left">
