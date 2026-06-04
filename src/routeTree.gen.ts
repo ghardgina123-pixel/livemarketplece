@@ -22,6 +22,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
 import { Route as LojaIdRouteImport } from './routes/loja.$id'
 import { Route as AuthenticatedLojistaRouteImport } from './routes/_authenticated/lojista'
+import { Route as AuthenticatedEnderecosRouteImport } from './routes/_authenticated/enderecos'
 
 const PerfilRoute = PerfilRouteImport.update({
   id: '/perfil',
@@ -87,6 +88,11 @@ const AuthenticatedLojistaRoute = AuthenticatedLojistaRouteImport.update({
   path: '/lojista',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEnderecosRoute = AuthenticatedEnderecosRouteImport.update({
+  id: '/enderecos',
+  path: '/enderecos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
+  '/enderecos': typeof AuthenticatedEnderecosRoute
   '/lojista': typeof AuthenticatedLojistaRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
+  '/enderecos': typeof AuthenticatedEnderecosRoute
   '/lojista': typeof AuthenticatedLojistaRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
@@ -128,6 +136,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
+  '/_authenticated/enderecos': typeof AuthenticatedEnderecosRoute
   '/_authenticated/lojista': typeof AuthenticatedLojistaRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/lojas'
     | '/perfil'
+    | '/enderecos'
     | '/lojista'
     | '/loja/$id'
     | '/produto/$id'
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/lojas'
     | '/perfil'
+    | '/enderecos'
     | '/lojista'
     | '/loja/$id'
     | '/produto/$id'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/lojas'
     | '/perfil'
+    | '/_authenticated/enderecos'
     | '/_authenticated/lojista'
     | '/loja/$id'
     | '/produto/$id'
@@ -286,14 +298,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLojistaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/enderecos': {
+      id: '/_authenticated/enderecos'
+      path: '/enderecos'
+      fullPath: '/enderecos'
+      preLoaderRoute: typeof AuthenticatedEnderecosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedEnderecosRoute: typeof AuthenticatedEnderecosRoute
   AuthenticatedLojistaRoute: typeof AuthenticatedLojistaRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedEnderecosRoute: AuthenticatedEnderecosRoute,
   AuthenticatedLojistaRoute: AuthenticatedLojistaRoute,
 }
 
@@ -317,3 +338,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
