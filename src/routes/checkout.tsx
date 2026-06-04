@@ -1,23 +1,55 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, MapPin, CreditCard, Banknote, Smartphone, ShieldCheck, Check } from "lucide-react";
-import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, MapPin, CreditCard, Banknote, Smartphone, ShieldCheck, Check, Plus, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { cartStore, useCart, useCartTotal } from "@/lib/cart-store";
 import { formatPrice, useCurrency } from "@/lib/currency";
 import { CurrencySelector } from "@/components/CurrencySelector";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({ meta: [{ title: "Checkout — Live Market" }] }),
   component: Checkout,
 });
 
+type Address = {
+  id: string; label: string; street: string; district: string | null; is_default: boolean;
+  provinces: { name: string } | null;
+  municipalities: { name: string; shipping_fee_aoa: number } | null;
+};
+
 function Checkout() {
   const nav = useNavigate();
+  const { user } = useAuth();
   const items = useCart();
-  const total = useCartTotal();
+  const subtotal = useCartTotal();
   const currency = useCurrency();
   const [pay, setPay] = useState<"pix" | "card" | "boleto">("pix");
   const [done, setDone] = useState(false);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [addrLoading, setAddrLoading] = useState(true);
+  const [selectedAddrId, setSelectedAddrId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) { setAddrLoading(false); return; }
+    supabase.from("addresses")
+      .select("id, label, street, district, is_default, provinces(name), municipalities(name, shipping_fee_aoa)")
+      .eq("user_id", user.id)
+      .order("is_default", { ascending: false })
+      .then(({ data }) => {
+        const list = (data as Address[]) ?? [];
+        setAddresses(list);
+        setSelectedAddrId(list.find((a) => a.is_default)?.id ?? list[0]?.id ?? null);
+        setAddrLoading(false);
+      });
+  }, [user?.id]);
+
+  const selectedAddr = addresses.find((a) => a.id === selectedAddrId) ?? null;
+  // Frete em AOA convertido para a moeda exibida (rates relativas a BRL: 1 BRL = 175 AOA)
+  const shippingAoa = selectedAddr?.municipalities?.shipping_fee_aoa ?? 0;
+  const shippingBrl = Number(shippingAoa) / 175;
+  const totalBrl = subtotal + shippingBrl;
 
   if (done) {
     return (
@@ -45,15 +77,39 @@ function Checkout() {
       </header>
 
       <section className="px-5 pt-5">
-        <h2 className="text-xs font-bold uppercase text-muted-foreground">Entregar em</h2>
-        <div className="mt-2 flex items-start gap-3 rounded-2xl border border-border p-3">
-          <MapPin size={20} className="mt-0.5 text-primary" />
-          <div className="flex-1">
-            <p className="text-sm font-semibold">Casa · Rua das Flores, 123</p>
-            <p className="text-xs text-muted-foreground">São Paulo, SP · 01234-567</p>
-          </div>
-          <button className="text-xs font-semibold text-primary">Alterar</button>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-bold uppercase text-muted-foreground">Entregar em</h2>
+          <Link to="/enderecos" className="text-xs font-semibold text-primary">Gerenciar</Link>
         </div>
+        {addrLoading ? (
+          <div className="mt-2 flex justify-center py-4"><Loader2 className="animate-spin text-primary" size={18} /></div>
+        ) : addresses.length === 0 ? (
+          <Link to="/enderecos" className="mt-2 flex items-center justify-center gap-2 rounded-2xl border border-dashed border-border p-4 text-sm font-semibold text-primary">
+            <Plus size={16} /> Adicionar endereço de entrega
+          </Link>
+        ) : (
+          <div className="mt-2 space-y-2">
+            {addresses.map((a) => (
+              <button
+                key={a.id}
+                onClick={() => setSelectedAddrId(a.id)}
+                className={`flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition ${selectedAddrId === a.id ? "border-primary bg-accent" : "border-border"}`}
+              >
+                <MapPin size={18} className="mt-0.5 text-primary" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold">{a.label} · {a.street}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {a.district ? `${a.district}, ` : ""}{a.municipalities?.name} · {a.provinces?.name}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-primary">Frete: Kz {Number(a.municipalities?.shipping_fee_aoa ?? 0).toLocaleString("pt-AO")}</p>
+                </div>
+                <div className={`mt-1 h-4 w-4 shrink-0 rounded-full border-2 ${selectedAddrId === a.id ? "border-primary bg-primary" : "border-border"}`}>
+                  {selectedAddrId === a.id && <Check size={10} className="m-auto text-primary-foreground" strokeWidth={3} />}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="px-5 pt-5">
@@ -102,11 +158,14 @@ function Checkout() {
       </section>
 
       <section className="mx-5 mt-5 rounded-2xl bg-muted p-4 text-sm">
-        <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatPrice(total, currency)}</span></div>
-        <div className="flex justify-between"><span className="text-muted-foreground">Frete</span><span className="text-primary">Grátis</span></div>
-        {pay === "pix" && <div className="flex justify-between"><span className="text-muted-foreground">Desconto à vista</span><span className="text-primary">- {formatPrice(total * 0.05, currency)}</span></div>}
+        <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatPrice(subtotal, currency)}</span></div>
+        <div className="flex justify-between">
+          <span className="text-muted-foreground">Frete</span>
+          <span>{selectedAddr ? formatPrice(shippingBrl, currency) : <span className="text-muted-foreground">Selecione um endereço</span>}</span>
+        </div>
+        {pay === "pix" && <div className="flex justify-between"><span className="text-muted-foreground">Desconto à vista</span><span className="text-primary">- {formatPrice(totalBrl * 0.05, currency)}</span></div>}
         <div className="mt-2 flex justify-between border-t border-border pt-2 text-base font-bold">
-          <span>Total</span><span>{formatPrice(pay === "pix" ? total * 0.95 : total, currency)}</span>
+          <span>Total</span><span>{formatPrice(pay === "pix" ? totalBrl * 0.95 : totalBrl, currency)}</span>
         </div>
       </section>
 
@@ -116,10 +175,14 @@ function Checkout() {
 
       <div className="fixed bottom-0 left-1/2 w-full max-w-[480px] -translate-x-1/2 border-t border-border bg-background p-3">
         <button
-          onClick={() => { setDone(true); cartStore.clear(); toast.success("Pedido realizado!"); }}
+          onClick={() => {
+            if (!selectedAddr) return toast.error("Selecione um endereço de entrega");
+            setDone(true); cartStore.clear(); toast.success("Pedido realizado!");
+          }}
+          disabled={!selectedAddr || items.length === 0}
           className="flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
         >
-          Pagar {formatPrice(pay === "pix" ? total * 0.95 : total, currency)}
+          Pagar {formatPrice(pay === "pix" ? totalBrl * 0.95 : totalBrl, currency)}
         </button>
       </div>
     </div>

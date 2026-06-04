@@ -31,7 +31,7 @@ const COUNTRY_TO_CURRENCY: Record<string, CurrencyCode> = {
 const STORAGE_KEY = "lm:currency";
 
 function detectCurrency(): CurrencyCode {
-  if (typeof window === "undefined") return "BRL";
+  if (typeof window === "undefined") return "AOA";
   try {
     const saved = localStorage.getItem(STORAGE_KEY) as CurrencyCode | null;
     if (saved && CURRENCIES[saved]) return saved;
@@ -39,10 +39,10 @@ function detectCurrency(): CurrencyCode {
     const region = lang.split("-")[1]?.toUpperCase();
     if (region && COUNTRY_TO_CURRENCY[region]) return COUNTRY_TO_CURRENCY[region];
   } catch { /* noop */ }
-  return "BRL";
+  return "AOA";
 }
 
-let current: CurrencyCode = "BRL";
+let current: CurrencyCode = "AOA";
 const listeners = new Set<() => void>();
 let initialized = false;
 
@@ -72,7 +72,7 @@ export function useCurrency(): Currency {
   const code = useSyncExternalStore(
     currencyStore.subscribe,
     () => currencyStore.get(),
-    () => "BRL" as CurrencyCode,
+    () => "AOA" as CurrencyCode,
   );
   return CURRENCIES[code];
 }

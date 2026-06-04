@@ -216,7 +216,7 @@ function Dashboard({ store }: { store: Store }) {
   );
 }
 
-type Product = { id: string; name: string; description: string | null; price_brl: number; stock: number; status: string; rejection_reason: string | null; image_url: string | null };
+type Product = { id: string; name: string; description: string | null; price_brl: number; price_aoa: number; stock: number; status: string; rejection_reason: string | null; image_url: string | null };
 
 function ProductsTab({ storeId }: { storeId: string }) {
   const [items, setItems] = useState<Product[]>([]);
@@ -264,7 +264,7 @@ function ProductsTab({ storeId }: { storeId: string }) {
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-xl">📦</div>
               <div className="flex-1 min-w-0">
                 <p className="truncate text-sm font-semibold">{p.name}</p>
-                <p className="text-xs text-muted-foreground">R$ {Number(p.price_brl).toFixed(2)} · Estoque {p.stock}</p>
+                <p className="text-xs text-muted-foreground">Kz {Number(p.price_aoa).toLocaleString("pt-AO")} · Estoque {p.stock}</p>
                 <StatusBadge status={p.status} />
               </div>
               <button onClick={() => del(p.id)} className="text-destructive"><Trash2 size={16} /></button>
@@ -277,17 +277,19 @@ function ProductsTab({ storeId }: { storeId: string }) {
 }
 
 function ProductForm({ storeId, onDone }: { storeId: string; onDone: () => void }) {
-  const [form, setForm] = useState({ name: "", description: "", price_brl: "", stock: "1" });
+  const [form, setForm] = useState({ name: "", description: "", price_aoa: "", stock: "1" });
   const [busy, setBusy] = useState(false);
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.price_brl) return toast.error("Nome e preço obrigatórios");
+    if (!form.name || !form.price_aoa) return toast.error("Nome e preço obrigatórios");
     setBusy(true);
+    const priceAoa = Number(form.price_aoa);
     const { error } = await supabase.from("products").insert({
       store_id: storeId,
       name: form.name,
       description: form.description || null,
-      price_brl: Number(form.price_brl),
+      price_aoa: priceAoa,
+      price_brl: Math.round((priceAoa / 175) * 100) / 100,
       stock: Number(form.stock) || 0,
     });
     setBusy(false);
@@ -300,7 +302,7 @@ function ProductForm({ storeId, onDone }: { storeId: string; onDone: () => void 
       <Field label="Nome *"><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></Field>
       <Field label="Descrição"><Textarea rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></Field>
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Preço (R$) *"><Input type="number" step="0.01" value={form.price_brl} onChange={(e) => setForm({ ...form, price_brl: e.target.value })} /></Field>
+        <Field label="Preço (Kz) *"><Input type="number" step="1" value={form.price_aoa} onChange={(e) => setForm({ ...form, price_aoa: e.target.value })} placeholder="Ex: 5000" /></Field>
         <Field label="Estoque"><Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} /></Field>
       </div>
       <Button type="submit" disabled={busy} className="w-full">{busy ? <Loader2 className="animate-spin" /> : "Cadastrar"}</Button>
@@ -322,7 +324,7 @@ function StatusBadge({ status }: { status: string }) {
   return <span className={`mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${s.cls}`}><Icon size={10} /> {s.label}</span>;
 }
 
-type Order = { id: string; total_brl: number; status: string; created_at: string; customer_id: string };
+type Order = { id: string; total_aoa: number; status: string; created_at: string; customer_id: string };
 
 function OrdersTab({ storeId }: { storeId: string }) {
   const [items, setItems] = useState<Order[]>([]);
@@ -344,7 +346,7 @@ function OrdersTab({ storeId }: { storeId: string }) {
                 <p className="text-xs font-mono text-muted-foreground">#{o.id.slice(0, 8)}</p>
                 <StatusBadge status={o.status} />
               </div>
-              <p className="mt-1 text-sm font-bold">R$ {Number(o.total_brl).toFixed(2)}</p>
+              <p className="mt-1 text-sm font-bold">Kz {Number(o.total_aoa).toLocaleString("pt-AO")}</p>
               <p className="text-[10px] text-muted-foreground">{new Date(o.created_at).toLocaleString("pt-BR")}</p>
             </li>
           ))}

@@ -12,7 +12,6 @@ export const Route = createFileRoute("/perfil")({
 const menu = [
   { icon: Package, label: "Meus pedidos", badge: "3" },
   { icon: Heart, label: "Favoritos" },
-  { icon: MapPin, label: "Endereços" },
   { icon: CreditCard, label: "Pagamentos" },
   { icon: ShieldCheck, label: "Segurança e privacidade" },
   { icon: HelpCircle, label: "Ajuda e suporte" },
@@ -58,6 +57,15 @@ function Perfil() {
             <Link to="/lojista" className="flex w-full items-center gap-3 px-3 py-4 text-left">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl text-white" style={{ background: "var(--gradient-brand)" }}><StoreIcon size={18} /></div>
               <span className="flex-1 text-sm font-semibold text-foreground">Quero vender / Minha loja</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </Link>
+          </li>
+        )}
+        {user && (
+          <li>
+            <Link to="/enderecos" className="flex w-full items-center gap-3 px-3 py-4 text-left">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground"><MapPin size={18} /></div>
+              <span className="flex-1 text-sm font-medium text-foreground">Meus endereços</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </Link>
           </li>

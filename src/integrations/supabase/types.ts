@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      addresses: {
+        Row: {
+          created_at: string
+          district: string | null
+          id: string
+          is_default: boolean
+          label: string
+          lat: number | null
+          lng: number | null
+          municipality_id: string
+          phone: string | null
+          province_id: string
+          recipient_name: string | null
+          reference: string | null
+          street: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          district?: string | null
+          id?: string
+          is_default?: boolean
+          label?: string
+          lat?: number | null
+          lng?: number | null
+          municipality_id: string
+          phone?: string | null
+          province_id: string
+          recipient_name?: string | null
+          reference?: string | null
+          street: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          district?: string | null
+          id?: string
+          is_default?: boolean
+          label?: string
+          lat?: number | null
+          lng?: number | null
+          municipality_id?: string
+          phone?: string | null
+          province_id?: string
+          recipient_name?: string | null
+          reference?: string | null
+          street?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "addresses_municipality_id_fkey"
+            columns: ["municipality_id"]
+            isOneToOne: false
+            referencedRelation: "municipalities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "addresses_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "provinces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       live_products: {
         Row: {
           live_id: string
@@ -88,12 +157,45 @@ export type Database = {
           },
         ]
       }
+      municipalities: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          province_id: string
+          shipping_fee_aoa: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          province_id: string
+          shipping_fee_aoa?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          province_id?: string
+          shipping_fee_aoa?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "municipalities_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "provinces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           id: string
           order_id: string
           product_id: string
           quantity: number
+          unit_price_aoa: number
           unit_price_brl: number
         }
         Insert: {
@@ -101,6 +203,7 @@ export type Database = {
           order_id: string
           product_id: string
           quantity: number
+          unit_price_aoa?: number
           unit_price_brl: number
         }
         Update: {
@@ -108,6 +211,7 @@ export type Database = {
           order_id?: string
           product_id?: string
           quantity?: number
+          unit_price_aoa?: number
           unit_price_brl?: number
         }
         Relationships: [
@@ -129,36 +233,55 @@ export type Database = {
       }
       orders: {
         Row: {
+          address_id: string | null
           created_at: string
           customer_id: string
           id: string
           paid_at: string | null
           payment_method: string | null
+          shipping_aoa: number
           status: Database["public"]["Enums"]["order_status"]
           store_id: string
+          subtotal_aoa: number
+          total_aoa: number
           total_brl: number
         }
         Insert: {
+          address_id?: string | null
           created_at?: string
           customer_id: string
           id?: string
           paid_at?: string | null
           payment_method?: string | null
+          shipping_aoa?: number
           status?: Database["public"]["Enums"]["order_status"]
           store_id: string
+          subtotal_aoa?: number
+          total_aoa?: number
           total_brl: number
         }
         Update: {
+          address_id?: string | null
           created_at?: string
           customer_id?: string
           id?: string
           paid_at?: string | null
           payment_method?: string | null
+          shipping_aoa?: number
           status?: Database["public"]["Enums"]["order_status"]
           store_id?: string
+          subtotal_aoa?: number
+          total_aoa?: number
           total_brl?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_address_id_fkey"
+            columns: ["address_id"]
+            isOneToOne: false
+            referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_store_id_fkey"
             columns: ["store_id"]
@@ -229,6 +352,7 @@ export type Database = {
           id: string
           image_url: string | null
           name: string
+          price_aoa: number
           price_brl: number
           rejection_reason: string | null
           status: Database["public"]["Enums"]["product_status"]
@@ -242,6 +366,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           name: string
+          price_aoa?: number
           price_brl: number
           rejection_reason?: string | null
           status?: Database["public"]["Enums"]["product_status"]
@@ -255,6 +380,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           name?: string
+          price_aoa?: number
           price_brl?: number
           rejection_reason?: string | null
           status?: Database["public"]["Enums"]["product_status"]
@@ -299,6 +425,24 @@ export type Database = {
         }
         Relationships: []
       }
+      provinces: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       stores: {
         Row: {
           bank_account: string | null
@@ -309,11 +453,15 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          lat: number | null
+          lng: number | null
           logo_url: string | null
+          municipality_id: string | null
           name: string
           nif: string | null
           owner_id: string
           phone: string | null
+          province_id: string | null
           rating: number | null
           rejection_reason: string | null
           slug: string | null
@@ -329,11 +477,15 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          lat?: number | null
+          lng?: number | null
           logo_url?: string | null
+          municipality_id?: string | null
           name: string
           nif?: string | null
           owner_id: string
           phone?: string | null
+          province_id?: string | null
           rating?: number | null
           rejection_reason?: string | null
           slug?: string | null
@@ -349,18 +501,37 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          lat?: number | null
+          lng?: number | null
           logo_url?: string | null
+          municipality_id?: string | null
           name?: string
           nif?: string | null
           owner_id?: string
           phone?: string | null
+          province_id?: string | null
           rating?: number | null
           rejection_reason?: string | null
           slug?: string | null
           status?: Database["public"]["Enums"]["store_status"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "stores_municipality_id_fkey"
+            columns: ["municipality_id"]
+            isOneToOne: false
+            referencedRelation: "municipalities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stores_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "provinces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -388,6 +559,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_order_with_items: {
+        Args: {
+          p_address_id: string
+          p_items: Json
+          p_payment_method?: string
+          p_store_id: string
+        }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
