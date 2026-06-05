@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, CreditCard, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
+import { BrandLogo, getBrand } from "@/lib/payment-brands";
 
 export const Route = createFileRoute("/_authenticated/pagamentos")({
   head: () => ({ meta: [{ title: "Métodos de pagamento — Live Market" }] }),
@@ -34,13 +35,21 @@ function Pagamentos() {
         ) : (
           <ul className="space-y-2">
             {items.map((m) => (
-              <li key={m.id} className="flex items-center gap-3 rounded-xl border border-border p-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent"><CreditCard size={16} /></div>
-                <div className="flex-1">
+              <li
+                key={m.id}
+                className="flex items-center gap-3 rounded-2xl border p-3"
+                style={{ borderColor: getBrand(m.method_type).ring, background: getBrand(m.method_type).tint }}
+              >
+                <BrandLogo methodType={m.method_type} />
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold">{m.display_name}</p>
-                  {m.description && <p className="text-[11px] text-muted-foreground">{m.description}</p>}
+                  <p className="text-[11px] text-muted-foreground">
+                    {m.description || getBrand(m.method_type).tagline}
+                  </p>
                 </div>
-                {m.is_cash_on_delivery && <span className="rounded-full bg-accent px-2 py-0.5 text-[9px] font-bold uppercase">Na entrega</span>}
+                {m.is_cash_on_delivery && (
+                  <span className="rounded-full bg-white/70 px-2 py-0.5 text-[9px] font-bold uppercase">Na entrega</span>
+                )}
               </li>
             ))}
           </ul>

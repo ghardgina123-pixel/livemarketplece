@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { BrandLogo, getBrand } from "@/lib/payment-brands";
 
 export const Route = createFileRoute("/_authenticated/admin-crm")({
   head: () => ({ meta: [{ title: "Admin · CRM — Live Market" }] }),
@@ -105,7 +106,15 @@ function AdminCRM() {
                   <p className="text-[11px] text-muted-foreground">
                     {new Date(r.created_at).toLocaleString("pt-AO")} · Kz {Number(r.price_aoa).toLocaleString("pt-AO")}
                   </p>
-                  {r.payment_method && <p className="text-[11px] text-muted-foreground">via {r.payment_method}</p>}
+                  {r.payment_method && (
+                    <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                      <span
+                        className="inline-flex h-4 w-4 items-center justify-center rounded"
+                        style={{ background: getBrand(r.payment_method).bg }}
+                      />
+                      via {getBrand(r.payment_method).name}
+                    </p>
+                  )}
                 </div>
                 <StatusBadge status={r.status} />
               </button>
@@ -176,7 +185,19 @@ function ReviewSheet({ sub, onClose, onDone }: { sub: Row; onClose: () => void; 
         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-muted" />
         <h2 className="text-lg font-bold">{sub.stores?.name ?? "Loja"}</h2>
         <p className="text-xs text-muted-foreground">Plano CRM · Kz {Number(sub.price_aoa).toLocaleString("pt-AO")}</p>
-        <p className="mt-1 text-xs text-muted-foreground">Método: {sub.payment_method ?? "—"}</p>
+        <div className="mt-2 flex items-center gap-2">
+          {sub.payment_method ? (
+            <>
+              <BrandLogo methodType={sub.payment_method} size={32} rounded="rounded-lg" />
+              <div>
+                <p className="text-xs font-semibold">{getBrand(sub.payment_method).name}</p>
+                <p className="text-[11px] text-muted-foreground">{getBrand(sub.payment_method).tagline}</p>
+              </div>
+            </>
+          ) : (
+            <p className="text-xs text-muted-foreground">Método: —</p>
+          )}
+        </div>
 
         <div className="mt-4">
           <p className="text-xs font-semibold text-muted-foreground">Comprovativo</p>
