@@ -148,5 +148,24 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
+  }
+
+  html {
+    overflow-x: hidden;
+  }
+
+  /* Comfortable touch targets on coarse pointers (phones/tablets) */
+  @media (pointer: coarse) {
+    button,
+    [role="button"],
+    a,
+    input[type="button"],
+    input[type="submit"],
+    label[for] {
+      min-height: 44px;
+    }
   }
 }
