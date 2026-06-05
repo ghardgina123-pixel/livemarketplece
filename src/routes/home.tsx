@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { stores, products } from "@/lib/data";
 import { formatPrice, useCurrency } from "@/lib/currency";
 import { CurrencySelector } from "@/components/CurrencySelector";
+import logoAsset from "@/assets/live-market-logo.png.asset.json";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -30,9 +31,21 @@ function Home() {
     <AppShell>
       <header className="px-5 pt-6 pb-3 text-white" style={{ background: "var(--gradient-brand)" }}>
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs text-white/70">Olá, bem-vindo 👋</p>
-            <h1 className="text-xl font-bold">O que vamos comprar hoje?</h1>
+          <div className="flex items-center gap-3">
+            <img
+              src={logoAsset.url}
+              alt="Live Market"
+              width={44}
+              height={44}
+              loading="eager"
+              decoding="async"
+              className="h-11 w-11 rounded-xl bg-white/90 object-contain p-1 shadow-sm"
+            />
+            <div>
+              <p className="text-xs text-white/70">Olá, bem-vindo 👋</p>
+              <h1 className="text-lg font-bold leading-tight">Live Market</h1>
+              <p className="text-[10px] uppercase tracking-wider text-white/70">Compre · Converse · Receba</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <CurrencySelector />
