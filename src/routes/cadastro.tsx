@@ -5,14 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { z } from "zod";
-
-const signupSchema = z.object({
-  name: z.string().trim().min(2, "Nome muito curto").max(100, "Nome muito longo"),
-  email: z.string().trim().email("E-mail inválido").max(255),
-  phone: z.string().trim().max(20).regex(/^[+\d\s()-]*$/, "Telefone inválido").optional().or(z.literal("")),
-  pwd: z.string().min(6, "Senha mínima de 6 caracteres").max(72, "Senha muito longa"),
-});
+import { signupSchema } from "@/lib/schemas";
 
 export const Route = createFileRoute("/cadastro")({
   head: () => ({
