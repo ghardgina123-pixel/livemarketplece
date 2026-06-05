@@ -27,6 +27,7 @@ import { Route as LojaIdRouteImport } from './routes/loja.$id'
 import { Route as AuthenticatedSegurancaRouteImport } from './routes/_authenticated/seguranca'
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as AuthenticatedLojistaCrmRouteImport } from './routes/_authenticated/lojista-crm'
+import { Route as AuthenticatedLojistaRouteImport } from './routes/_authenticated/lojista'
 import { Route as AuthenticatedIdiomaRouteImport } from './routes/_authenticated/idioma'
 import { Route as AuthenticatedFavoritosRouteImport } from './routes/_authenticated/favoritos'
 import { Route as AuthenticatedEnderecosRouteImport } from './routes/_authenticated/enderecos'
@@ -124,6 +125,11 @@ const AuthenticatedLojistaCrmRoute = AuthenticatedLojistaCrmRouteImport.update({
   path: '/lojista-crm',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedLojistaRoute = AuthenticatedLojistaRouteImport.update({
+  id: '/lojista',
+  path: '/lojista',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedIdiomaRoute = AuthenticatedIdiomaRouteImport.update({
   id: '/idioma',
   path: '/idioma',
@@ -181,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/enderecos': typeof AuthenticatedEnderecosRoute
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/idioma': typeof AuthenticatedIdiomaRoute
+  '/lojista': typeof AuthenticatedLojistaRoute
   '/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/seguranca': typeof AuthenticatedSegurancaRoute
@@ -207,6 +214,7 @@ export interface FileRoutesByTo {
   '/enderecos': typeof AuthenticatedEnderecosRoute
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/idioma': typeof AuthenticatedIdiomaRoute
+  '/lojista': typeof AuthenticatedLojistaRoute
   '/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/seguranca': typeof AuthenticatedSegurancaRoute
@@ -235,6 +243,7 @@ export interface FileRoutesById {
   '/_authenticated/enderecos': typeof AuthenticatedEnderecosRoute
   '/_authenticated/favoritos': typeof AuthenticatedFavoritosRoute
   '/_authenticated/idioma': typeof AuthenticatedIdiomaRoute
+  '/_authenticated/lojista': typeof AuthenticatedLojistaRoute
   '/_authenticated/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/seguranca': typeof AuthenticatedSegurancaRoute
@@ -263,6 +272,7 @@ export interface FileRouteTypes {
     | '/enderecos'
     | '/favoritos'
     | '/idioma'
+    | '/lojista'
     | '/lojista-crm'
     | '/pagamentos'
     | '/seguranca'
@@ -289,6 +299,7 @@ export interface FileRouteTypes {
     | '/enderecos'
     | '/favoritos'
     | '/idioma'
+    | '/lojista'
     | '/lojista-crm'
     | '/pagamentos'
     | '/seguranca'
@@ -316,6 +327,7 @@ export interface FileRouteTypes {
     | '/_authenticated/enderecos'
     | '/_authenticated/favoritos'
     | '/_authenticated/idioma'
+    | '/_authenticated/lojista'
     | '/_authenticated/lojista-crm'
     | '/_authenticated/pagamentos'
     | '/_authenticated/seguranca'
@@ -469,6 +481,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLojistaCrmRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/lojista': {
+      id: '/_authenticated/lojista'
+      path: '/lojista'
+      fullPath: '/lojista'
+      preLoaderRoute: typeof AuthenticatedLojistaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/idioma': {
       id: '/_authenticated/idioma'
       path: '/idioma'
@@ -529,6 +548,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEnderecosRoute: typeof AuthenticatedEnderecosRoute
   AuthenticatedFavoritosRoute: typeof AuthenticatedFavoritosRoute
   AuthenticatedIdiomaRoute: typeof AuthenticatedIdiomaRoute
+  AuthenticatedLojistaRoute: typeof AuthenticatedLojistaRoute
   AuthenticatedLojistaCrmRoute: typeof AuthenticatedLojistaCrmRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
   AuthenticatedSegurancaRoute: typeof AuthenticatedSegurancaRoute
@@ -542,6 +562,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEnderecosRoute: AuthenticatedEnderecosRoute,
   AuthenticatedFavoritosRoute: AuthenticatedFavoritosRoute,
   AuthenticatedIdiomaRoute: AuthenticatedIdiomaRoute,
+  AuthenticatedLojistaRoute: AuthenticatedLojistaRoute,
   AuthenticatedLojistaCrmRoute: AuthenticatedLojistaCrmRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
   AuthenticatedSegurancaRoute: AuthenticatedSegurancaRoute,
