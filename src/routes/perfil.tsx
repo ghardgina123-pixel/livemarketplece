@@ -19,7 +19,6 @@ export const Route = createFileRoute("/perfil")({
 const menu = [
   { icon: Package, label: "Meus pedidos", badge: "3", to: "/compras" as const },
   { icon: Heart, label: "Favoritos", to: "/favoritos" as const },
-  { icon: ShieldCheck, label: "Segurança e privacidade" },
   { icon: HelpCircle, label: "Ajuda e suporte" },
 ];
 
