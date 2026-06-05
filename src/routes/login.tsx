@@ -9,7 +9,13 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Entrar — Live Market" }] }),
+  head: () => ({
+    meta: [
+      { title: "Entrar — Live Market" },
+      { property: "og:url", content: "https://livemarket.app/login" },
+    ],
+    links: [{ rel: "canonical", href: "https://livemarket.app/login" }],
+  }),
   component: Login,
 });
 

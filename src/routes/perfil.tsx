@@ -5,7 +5,13 @@ import { CurrencySelector } from "@/components/CurrencySelector";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/perfil")({
-  head: () => ({ meta: [{ title: "Perfil — Live Market" }] }),
+  head: () => ({
+    meta: [
+      { title: "Perfil — Live Market" },
+      { property: "og:url", content: "https://livemarket.app/perfil" },
+    ],
+    links: [{ rel: "canonical", href: "https://livemarket.app/perfil" }],
+  }),
   component: Perfil,
 });
 

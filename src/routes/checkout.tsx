@@ -9,7 +9,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/checkout")({
-  head: () => ({ meta: [{ title: "Checkout — Live Market" }] }),
+  head: () => ({
+    meta: [
+      { title: "Checkout — Live Market" },
+      { property: "og:url", content: "https://livemarket.app/checkout" },
+    ],
+    links: [{ rel: "canonical", href: "https://livemarket.app/checkout" }],
+  }),
   component: Checkout,
 });
 

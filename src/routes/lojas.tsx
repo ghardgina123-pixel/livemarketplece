@@ -6,7 +6,13 @@ import { stores } from "@/lib/data";
 import { useState } from "react";
 
 export const Route = createFileRoute("/lojas")({
-  head: () => ({ meta: [{ title: "Lojas — Live Market" }] }),
+  head: () => ({
+    meta: [
+      { title: "Lojas — Live Market" },
+      { property: "og:url", content: "https://livemarket.app/lojas" },
+    ],
+    links: [{ rel: "canonical", href: "https://livemarket.app/lojas" }],
+  }),
   component: Lojas,
 });
 
