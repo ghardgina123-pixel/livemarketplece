@@ -115,6 +115,38 @@ export type Database = {
           },
         ]
       }
+      live_messages: {
+        Row: {
+          created_at: string
+          id: string
+          live_id: string
+          sender_id: string
+          text: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          live_id: string
+          sender_id: string
+          text: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          live_id?: string
+          sender_id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_messages_live_id_fkey"
+            columns: ["live_id"]
+            isOneToOne: false
+            referencedRelation: "lives"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       live_products: {
         Row: {
           live_id: string
@@ -456,6 +488,54 @@ export type Database = {
           },
           {
             foreignKeyName: "payouts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_videos: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          product_id: string
+          store_id: string
+          thumbnail_url: string | null
+          video_url: string
+          views: number
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          product_id: string
+          store_id: string
+          thumbnail_url?: string | null
+          video_url: string
+          views?: number
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          product_id?: string
+          store_id?: string
+          thumbnail_url?: string | null
+          video_url?: string
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_videos_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_videos_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"

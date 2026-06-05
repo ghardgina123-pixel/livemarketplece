@@ -5,6 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const signupSchema = z.object({
+  name: z.string().trim().min(2, "Nome muito curto").max(100, "Nome muito longo"),
+  email: z.string().trim().email("E-mail inválido").max(255),
+  phone: z.string().trim().max(20).regex(/^[+\d\s()-]*$/, "Telefone inválido").optional().or(z.literal("")),
+  pwd: z.string().min(6, "Senha mínima de 6 caracteres").max(72, "Senha muito longa"),
+});
 
 export const Route = createFileRoute("/cadastro")({
   head: () => ({
@@ -25,14 +33,15 @@ function Signup() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (f.pwd.length < 6) { toast.error("Senha deve ter pelo menos 6 caracteres"); return; }
+    const parsed = signupSchema.safeParse(f);
+    if (!parsed.success) { toast.error(parsed.error.issues[0]?.message ?? "Dados inválidos"); return; }
     setBusy(true);
     const { error } = await supabase.auth.signUp({
-      email: f.email.trim(),
-      password: f.pwd,
+      email: parsed.data.email,
+      password: parsed.data.pwd,
       options: {
         emailRedirectTo: window.location.origin + "/home",
-        data: { display_name: f.name, phone: f.phone, account_intent: accountType },
+        data: { display_name: parsed.data.name, phone: parsed.data.phone ?? "", account_intent: accountType },
       },
     });
     setBusy(false);

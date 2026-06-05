@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ShortsRouteImport } from './routes/shorts'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as LojasRouteImport } from './routes/lojas'
 import { Route as LoginRouteImport } from './routes/login'
@@ -24,6 +25,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
 import { Route as LojaIdRouteImport } from './routes/loja.$id'
+import { Route as LiveIdRouteImport } from './routes/live.$id'
 import { Route as AuthenticatedSegurancaRouteImport } from './routes/_authenticated/seguranca'
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as AuthenticatedLojistaCrmRouteImport } from './routes/_authenticated/lojista-crm'
@@ -48,6 +50,11 @@ const TermosRoute = TermosRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShortsRoute = ShortsRouteImport.update({
+  id: '/shorts',
+  path: '/shorts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfilRoute = PerfilRouteImport.update({
@@ -112,6 +119,11 @@ const ProdutoIdRoute = ProdutoIdRouteImport.update({
 const LojaIdRoute = LojaIdRouteImport.update({
   id: '/loja/$id',
   path: '/loja/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LiveIdRoute = LiveIdRouteImport.update({
+  id: '/live/$id',
+  path: '/live/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedSegurancaRoute = AuthenticatedSegurancaRouteImport.update({
@@ -206,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
+  '/shorts': typeof ShortsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/admin-crm': typeof AuthenticatedAdminCrmRoute
@@ -219,6 +232,7 @@ export interface FileRoutesByFullPath {
   '/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/seguranca': typeof AuthenticatedSegurancaRoute
+  '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
@@ -237,6 +251,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
+  '/shorts': typeof ShortsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/admin-crm': typeof AuthenticatedAdminCrmRoute
@@ -249,6 +264,7 @@ export interface FileRoutesByTo {
   '/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/seguranca': typeof AuthenticatedSegurancaRoute
+  '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
@@ -269,6 +285,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
+  '/shorts': typeof ShortsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/_authenticated/admin-crm': typeof AuthenticatedAdminCrmRoute
@@ -282,6 +299,7 @@ export interface FileRoutesById {
   '/_authenticated/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/seguranca': typeof AuthenticatedSegurancaRoute
+  '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
   '/_authenticated/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
@@ -302,6 +320,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/lojas'
     | '/perfil'
+    | '/shorts'
     | '/sitemap.xml'
     | '/termos'
     | '/admin-crm'
@@ -315,6 +334,7 @@ export interface FileRouteTypes {
     | '/lojista-crm'
     | '/pagamentos'
     | '/seguranca'
+    | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
     | '/lojista/dashboard'
@@ -333,6 +353,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/lojas'
     | '/perfil'
+    | '/shorts'
     | '/sitemap.xml'
     | '/termos'
     | '/admin-crm'
@@ -345,6 +366,7 @@ export interface FileRouteTypes {
     | '/lojista-crm'
     | '/pagamentos'
     | '/seguranca'
+    | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
     | '/lojista/dashboard'
@@ -364,6 +386,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/lojas'
     | '/perfil'
+    | '/shorts'
     | '/sitemap.xml'
     | '/termos'
     | '/_authenticated/admin-crm'
@@ -377,6 +400,7 @@ export interface FileRouteTypes {
     | '/_authenticated/lojista-crm'
     | '/_authenticated/pagamentos'
     | '/_authenticated/seguranca'
+    | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
     | '/_authenticated/lojista/dashboard'
@@ -397,8 +421,10 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   LojasRoute: typeof LojasRoute
   PerfilRoute: typeof PerfilRoute
+  ShortsRoute: typeof ShortsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermosRoute: typeof TermosRoute
+  LiveIdRoute: typeof LiveIdRoute
   LojaIdRoute: typeof LojaIdRoute
   ProdutoIdRoute: typeof ProdutoIdRoute
 }
@@ -417,6 +443,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shorts': {
+      id: '/shorts'
+      path: '/shorts'
+      fullPath: '/shorts'
+      preLoaderRoute: typeof ShortsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil': {
@@ -508,6 +541,13 @@ declare module '@tanstack/react-router' {
       path: '/loja/$id'
       fullPath: '/loja/$id'
       preLoaderRoute: typeof LojaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/live/$id': {
+      id: '/live/$id'
+      path: '/live/$id'
+      fullPath: '/live/$id'
+      preLoaderRoute: typeof LiveIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/seguranca': {
@@ -678,8 +718,10 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   LojasRoute: LojasRoute,
   PerfilRoute: PerfilRoute,
+  ShortsRoute: ShortsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermosRoute: TermosRoute,
+  LiveIdRoute: LiveIdRoute,
   LojaIdRoute: LojaIdRoute,
   ProdutoIdRoute: ProdutoIdRoute,
 }
