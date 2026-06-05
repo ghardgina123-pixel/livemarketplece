@@ -500,7 +500,7 @@ export type Database = {
           caption: string | null
           created_at: string
           id: string
-          product_id: string
+          product_id: string | null
           store_id: string
           thumbnail_url: string | null
           video_url: string
@@ -510,7 +510,7 @@ export type Database = {
           caption?: string | null
           created_at?: string
           id?: string
-          product_id: string
+          product_id?: string | null
           store_id: string
           thumbnail_url?: string | null
           video_url: string
@@ -520,7 +520,7 @@ export type Database = {
           caption?: string | null
           created_at?: string
           id?: string
-          product_id?: string
+          product_id?: string | null
           store_id?: string
           thumbnail_url?: string | null
           video_url?: string

@@ -38,6 +38,7 @@ import { Route as AuthenticatedComprasRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAfiliadosRouteImport } from './routes/_authenticated/afiliados'
 import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin-crm'
 import { Route as AuthenticatedLojistaIndexRouteImport } from './routes/_authenticated/lojista.index'
+import { Route as AuthenticatedLojistaVideosRouteImport } from './routes/_authenticated/lojista.videos'
 import { Route as AuthenticatedLojistaProdutosRouteImport } from './routes/_authenticated/lojista.produtos'
 import { Route as AuthenticatedLojistaPedidosRouteImport } from './routes/_authenticated/lojista.pedidos'
 import { Route as AuthenticatedLojistaDashboardRouteImport } from './routes/_authenticated/lojista.dashboard'
@@ -188,6 +189,12 @@ const AuthenticatedLojistaIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedLojistaRoute,
   } as any)
+const AuthenticatedLojistaVideosRoute =
+  AuthenticatedLojistaVideosRouteImport.update({
+    id: '/videos',
+    path: '/videos',
+    getParentRoute: () => AuthenticatedLojistaRoute,
+  } as any)
 const AuthenticatedLojistaProdutosRoute =
   AuthenticatedLojistaProdutosRouteImport.update({
     id: '/produtos',
@@ -238,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
   '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
   '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
+  '/lojista/videos': typeof AuthenticatedLojistaVideosRoute
   '/lojista/': typeof AuthenticatedLojistaIndexRoute
 }
 export interface FileRoutesByTo {
@@ -270,6 +278,7 @@ export interface FileRoutesByTo {
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
   '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
   '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
+  '/lojista/videos': typeof AuthenticatedLojistaVideosRoute
   '/lojista': typeof AuthenticatedLojistaIndexRoute
 }
 export interface FileRoutesById {
@@ -305,6 +314,7 @@ export interface FileRoutesById {
   '/_authenticated/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
   '/_authenticated/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
   '/_authenticated/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
+  '/_authenticated/lojista/videos': typeof AuthenticatedLojistaVideosRoute
   '/_authenticated/lojista/': typeof AuthenticatedLojistaIndexRoute
 }
 export interface FileRouteTypes {
@@ -340,6 +350,7 @@ export interface FileRouteTypes {
     | '/lojista/dashboard'
     | '/lojista/pedidos'
     | '/lojista/produtos'
+    | '/lojista/videos'
     | '/lojista/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -372,6 +383,7 @@ export interface FileRouteTypes {
     | '/lojista/dashboard'
     | '/lojista/pedidos'
     | '/lojista/produtos'
+    | '/lojista/videos'
     | '/lojista'
   id:
     | '__root__'
@@ -406,6 +418,7 @@ export interface FileRouteTypes {
     | '/_authenticated/lojista/dashboard'
     | '/_authenticated/lojista/pedidos'
     | '/_authenticated/lojista/produtos'
+    | '/_authenticated/lojista/videos'
     | '/_authenticated/lojista/'
   fileRoutesById: FileRoutesById
 }
@@ -634,6 +647,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLojistaIndexRouteImport
       parentRoute: typeof AuthenticatedLojistaRoute
     }
+    '/_authenticated/lojista/videos': {
+      id: '/_authenticated/lojista/videos'
+      path: '/videos'
+      fullPath: '/lojista/videos'
+      preLoaderRoute: typeof AuthenticatedLojistaVideosRouteImport
+      parentRoute: typeof AuthenticatedLojistaRoute
+    }
     '/_authenticated/lojista/produtos': {
       id: '/_authenticated/lojista/produtos'
       path: '/produtos'
@@ -662,6 +682,7 @@ interface AuthenticatedLojistaRouteChildren {
   AuthenticatedLojistaDashboardRoute: typeof AuthenticatedLojistaDashboardRoute
   AuthenticatedLojistaPedidosRoute: typeof AuthenticatedLojistaPedidosRoute
   AuthenticatedLojistaProdutosRoute: typeof AuthenticatedLojistaProdutosRoute
+  AuthenticatedLojistaVideosRoute: typeof AuthenticatedLojistaVideosRoute
   AuthenticatedLojistaIndexRoute: typeof AuthenticatedLojistaIndexRoute
 }
 
@@ -669,6 +690,7 @@ const AuthenticatedLojistaRouteChildren: AuthenticatedLojistaRouteChildren = {
   AuthenticatedLojistaDashboardRoute: AuthenticatedLojistaDashboardRoute,
   AuthenticatedLojistaPedidosRoute: AuthenticatedLojistaPedidosRoute,
   AuthenticatedLojistaProdutosRoute: AuthenticatedLojistaProdutosRoute,
+  AuthenticatedLojistaVideosRoute: AuthenticatedLojistaVideosRoute,
   AuthenticatedLojistaIndexRoute: AuthenticatedLojistaIndexRoute,
 }
 
