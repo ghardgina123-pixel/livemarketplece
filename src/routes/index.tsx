@@ -5,8 +5,8 @@ import { Radio } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Live Market — Compras ao vivo" },
-      { name: "description", content: "O marketplace ao vivo onde você compra com confiança e em tempo real." },
+      { title: "Live Market — Compre, Converse e Receba." },
+      { name: "description", content: "O marketplace onde clientes e lojas se conectam em tempo real." },
     ],
   }),
   component: Splash,
@@ -33,7 +33,8 @@ function Splash() {
         </div>
         <div className="text-center">
           <h1 className="text-4xl font-bold tracking-tight">Live Market</h1>
-          <p className="mt-2 text-sm text-white/80">Compre ao vivo. Confie em cada toque.</p>
+          <p className="mt-2 text-sm font-medium text-white/90">Compre, Converse e Receba.</p>
+          <p className="mt-1 text-xs text-white/70">O marketplace onde clientes e lojas se conectam em tempo real.</p>
         </div>
       </div>
       <div className="absolute bottom-10 text-xs text-white/60">Carregando experiência…</div>

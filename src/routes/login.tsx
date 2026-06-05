@@ -55,7 +55,7 @@ function Login() {
           <Radio size={28} />
         </div>
         <h1 className="mt-3 text-2xl font-bold">Live Market</h1>
-        <p className="text-xs text-white/80">Bem-vindo de volta</p>
+        <p className="text-xs text-white/80">Compre, Converse e Receba.</p>
       </div>
       <form onSubmit={onSubmit} className="-mt-6 flex-1 rounded-t-3xl bg-background px-6 pt-8">
         <h2 className="text-2xl font-bold text-foreground">Entrar</h2>
