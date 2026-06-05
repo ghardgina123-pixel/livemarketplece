@@ -6,7 +6,7 @@ import {
 import {
   User as UserIcon, MapPin, ShieldCheck, Languages, ShoppingBag, Heart, CreditCard,
   Users, Store as StoreIcon, Package, ClipboardList, Wallet, Sparkles, HelpCircle,
-  FileText, LogOut, ChevronRight,
+  FileText, LogOut, ChevronRight, ShieldAlert,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,11 +18,14 @@ export function SettingsSheet({ trigger }: Props) {
   const nav = useNavigate();
   const [open, setOpen] = useState(false);
   const [hasStore, setHasStore] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (!open || !user) return;
     supabase.from("stores").select("id").eq("owner_id", user.id).maybeSingle()
       .then(({ data }) => setHasStore(!!data));
+    supabase.from("user_roles").select("role").eq("user_id", user.id)
+      .then(({ data }) => setIsAdmin((data ?? []).some((r) => r.role === "admin")));
   }, [open, user?.id]);
 
   const handleLogout = async () => {
@@ -76,6 +79,12 @@ export function SettingsSheet({ trigger }: Props) {
           <Row icon={HelpCircle} label="Ajuda e suporte" onClick={close} />
           <Row icon={FileText} label="Termos e privacidade" onClick={close} />
         </Section>
+
+        {isAdmin && (
+          <Section title="Administração">
+            <Row icon={ShieldAlert} label="Aprovar CRM Premium" to="/admin-crm" onClick={close} />
+          </Section>
+        )}
 
         <div className="px-4 pb-8 pt-2">
           {user ? (
