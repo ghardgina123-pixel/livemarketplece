@@ -81,6 +81,11 @@ export function useCurrency(): Currency {
 export function formatPrice(amountBRL: number, currency?: Currency): string {
   const c = currency ?? CURRENCIES[current];
   const value = amountBRL * c.rate;
+  // Deterministic formatting for AOA to avoid SSR/CSR Intl divergence (Kz vs AOA).
+  if (c.code === "AOA") {
+    const n = Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    return `Kz ${n}`;
+  }
   try {
     return new Intl.NumberFormat(c.locale, {
       style: "currency",
