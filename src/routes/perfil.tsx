@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Settings, Package, Heart, MapPin, CreditCard, ShieldCheck, HelpCircle, LogOut, ChevronRight, BadgeCheck, Store as StoreIcon } from "lucide-react";
+import { Settings, Package, Heart, MapPin, ShieldCheck, HelpCircle, LogOut, ChevronRight, BadgeCheck, Store as StoreIcon } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { CurrencySelector } from "@/components/CurrencySelector";
 import { SettingsSheet } from "@/components/SettingsSheet";
@@ -18,8 +18,7 @@ export const Route = createFileRoute("/perfil")({
 
 const menu = [
   { icon: Package, label: "Meus pedidos", badge: "3", to: "/compras" as const },
-  { icon: Heart, label: "Favoritos" },
-  { icon: CreditCard, label: "Pagamentos" },
+  { icon: Heart, label: "Favoritos", to: "/favoritos" as const },
   { icon: ShieldCheck, label: "Segurança e privacidade" },
   { icon: HelpCircle, label: "Ajuda e suporte" },
 ];
@@ -83,10 +82,10 @@ function Perfil() {
             </Link>
           </li>
         )}
-        {menu.map(({ icon: Icon, label, badge }) => (
+        {menu.map(({ icon: Icon, label, badge, to }) => (
           <li key={label}>
-            {label === "Meus pedidos" ? (
-              <Link to="/compras" className="flex w-full items-center gap-3 px-3 py-4 text-left">
+            {to ? (
+              <Link to={to} className="flex w-full items-center gap-3 px-3 py-4 text-left">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground"><Icon size={18} /></div>
                 <span className="flex-1 text-sm font-medium text-foreground">{label}</span>
                 {badge && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{badge}</span>}
@@ -94,11 +93,11 @@ function Perfil() {
               </Link>
             ) : (
               <button className="flex w-full items-center gap-3 px-3 py-4 text-left">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground"><Icon size={18} /></div>
-              <span className="flex-1 text-sm font-medium text-foreground">{label}</span>
-              {badge && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{badge}</span>}
-              <ChevronRight size={16} className="text-muted-foreground" />
-            </button>
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground"><Icon size={18} /></div>
+                <span className="flex-1 text-sm font-medium text-foreground">{label}</span>
+                {badge && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{badge}</span>}
+                <ChevronRight size={16} className="text-muted-foreground" />
+              </button>
             )}
           </li>
         ))}
