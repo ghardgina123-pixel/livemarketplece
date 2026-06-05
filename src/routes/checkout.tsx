@@ -7,6 +7,7 @@ import { CurrencySelector } from "@/components/CurrencySelector";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { BrandLogo, getBrand } from "@/lib/payment-brands";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -192,9 +193,9 @@ function Checkout() {
             methods.map((m) => (
               <PayOption
                 key={m.id}
+                methodType={m.method_type}
                 active={selectedMethodId === m.id}
                 onClick={() => setSelectedMethodId(m.id)}
-                icon={ICONS[m.icon ?? ""] ?? <CreditCard size={20} />}
                 label={m.display_name}
                 desc={m.description ?? ""}
                 badge={m.is_cash_on_delivery ? "Pagar na entrega" : m.requires_proof_upload ? "Envia comprovativo" : null}
@@ -237,19 +238,31 @@ function Checkout() {
   );
 }
 
-function PayOption({ active, onClick, icon, label, desc, badge }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string; desc: string; badge?: string | null }) {
+function PayOption({ active, onClick, methodType, label, desc, badge }: { active: boolean; onClick: () => void; methodType: string; label: string; desc: string; badge?: string | null }) {
+  const brand = getBrand(methodType);
   return (
-    <button onClick={onClick} className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition ${active ? "border-primary bg-accent" : "border-border"}`}>
-      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${active ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}>{icon}</div>
+    <button
+      onClick={onClick}
+      className="flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition"
+      style={{
+        borderColor: active ? brand.bg : "hsl(var(--border))",
+        background: active ? brand.tint : "transparent",
+        boxShadow: active ? `0 0 0 2px ${brand.ring}` : undefined,
+      }}
+    >
+      <BrandLogo methodType={methodType} />
       <div className="flex-1">
         <div className="flex items-center gap-2">
           <p className="text-sm font-semibold">{label}</p>
           {badge && <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-primary">{badge}</span>}
         </div>
-        {desc && <p className="text-[11px] text-muted-foreground">{desc}</p>}
+        <p className="text-[11px] text-muted-foreground">{desc || brand.tagline}</p>
       </div>
-      <div className={`h-5 w-5 rounded-full border-2 ${active ? "border-primary bg-primary" : "border-border"}`}>
-        {active && <Check size={14} className="m-auto text-primary-foreground" strokeWidth={3} />}
+      <div
+        className="h-5 w-5 rounded-full border-2"
+        style={{ borderColor: active ? brand.bg : "hsl(var(--border))", background: active ? brand.bg : "transparent" }}
+      >
+        {active && <Check size={14} className="m-auto text-white" strokeWidth={3} />}
       </div>
     </button>
   );
