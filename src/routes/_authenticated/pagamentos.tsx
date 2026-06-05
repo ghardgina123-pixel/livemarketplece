@@ -1,9 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, Loader2, ChevronRight, Check, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { BrandLogo, getBrand } from "@/lib/payment-brands";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/_authenticated/pagamentos")({
   head: () => ({ meta: [{ title: "Métodos de pagamento — Live Market" }] }),
@@ -11,16 +17,78 @@ export const Route = createFileRoute("/_authenticated/pagamentos")({
 });
 
 type Method = { id: string; display_name: string; description: string | null; method_type: string; is_cash_on_delivery: boolean };
+type Account = {
+  id: string;
+  payment_method_id: string;
+  method_type: string;
+  label: string | null;
+  phone: string | null;
+  account_holder: string | null;
+  account_number: string | null;
+  iban: string | null;
+  bank_name: string | null;
+  card_brand: string | null;
+  card_last4: string | null;
+  card_exp: string | null;
+};
+
+type FieldKey = "phone" | "account_holder" | "account_number" | "iban" | "bank_name" | "card_number" | "card_exp" | "label";
+
+function fieldsFor(methodType: string): FieldKey[] {
+  switch (methodType) {
+    case "multicaixa_express":
+    case "ekwanza":
+    case "unitel_money":
+    case "afrimoney":
+    case "kwik":
+      return ["account_holder", "phone", "label"];
+    case "multicaixa_reference":
+      return ["account_holder", "label"];
+    case "stripe_card":
+      return ["account_holder", "card_number", "card_exp", "label"];
+    case "bank_transfer":
+      return ["account_holder", "bank_name", "iban", "label"];
+    case "cash_on_delivery":
+      return ["account_holder", "phone", "label"];
+    default:
+      return ["account_holder", "label"];
+  }
+}
 
 function Pagamentos() {
+  const { user } = useAuth();
   const [items, setItems] = useState<Method[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
+  const [active, setActive] = useState<Method | null>(null);
+
+  const loadAccounts = () => {
+    if (!user) return;
+    (supabase as any)
+      .from("user_payment_accounts")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }: { data: Account[] | null }) => setAccounts(data ?? []));
+  };
 
   useEffect(() => {
     supabase.from("payment_methods").select("id, display_name, description, method_type, is_cash_on_delivery")
       .eq("is_active", true).order("sort_order")
       .then(({ data }) => { setItems((data as Method[]) ?? []); setLoading(false); });
-  }, []);
+    loadAccounts();
+     
+  }, [user?.id]);
+
+  const accountsByMethod = useMemo(() => {
+    const map = new Map<string, Account[]>();
+    accounts.forEach((a) => {
+      const arr = map.get(a.payment_method_id) ?? [];
+      arr.push(a);
+      map.set(a.payment_method_id, arr);
+    });
+    return map;
+  }, [accounts]);
 
   return (
     <AppShell>
@@ -29,32 +97,202 @@ function Pagamentos() {
         <h1 className="text-lg font-semibold">Métodos de pagamento</h1>
       </header>
       <div className="px-5 py-5">
-        <p className="mb-3 text-xs text-muted-foreground">Métodos disponíveis no checkout (Angola):</p>
+        <p className="mb-3 text-xs text-muted-foreground">Toque num método para adicionar ou editar os seus dados de pagamento.</p>
         {loading ? (
           <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" /></div>
         ) : (
           <ul className="space-y-2">
-            {items.map((m) => (
-              <li
-                key={m.id}
-                className="flex items-center gap-3 rounded-2xl border p-3"
-                style={{ borderColor: getBrand(m.method_type).ring, background: getBrand(m.method_type).tint }}
-              >
-                <BrandLogo methodType={m.method_type} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold">{m.display_name}</p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {m.description || getBrand(m.method_type).tagline}
-                  </p>
-                </div>
-                {m.is_cash_on_delivery && (
-                  <span className="rounded-full bg-white/70 px-2 py-0.5 text-[9px] font-bold uppercase">Na entrega</span>
-                )}
-              </li>
-            ))}
+            {items.map((m) => {
+              const saved = accountsByMethod.get(m.id) ?? [];
+              return (
+                <li key={m.id}>
+                  <button
+                    type="button"
+                    onClick={() => setActive(m)}
+                    className="flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition active:scale-[0.99]"
+                    style={{ borderColor: getBrand(m.method_type).ring, background: getBrand(m.method_type).tint }}
+                  >
+                    <BrandLogo methodType={m.method_type} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold">{m.display_name}</p>
+                        {saved.length > 0 && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-primary">
+                            <Check size={10} /> {saved.length}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground line-clamp-1">
+                        {saved.length > 0
+                          ? (saved[0].phone || saved[0].iban || (saved[0].card_last4 ? `•••• ${saved[0].card_last4}` : saved[0].label) || "Configurado")
+                          : (m.description || getBrand(m.method_type).tagline)}
+                      </p>
+                    </div>
+                    {m.is_cash_on_delivery ? (
+                      <span className="rounded-full bg-white/70 px-2 py-0.5 text-[9px] font-bold uppercase">Na entrega</span>
+                    ) : (
+                      <ChevronRight size={18} className="text-muted-foreground" />
+                    )}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
+
+      <PaymentSheet
+        method={active}
+        accounts={active ? (accountsByMethod.get(active.id) ?? []) : []}
+        userId={user?.id ?? null}
+        onClose={() => setActive(null)}
+        onChanged={loadAccounts}
+      />
     </AppShell>
+  );
+}
+
+function PaymentSheet({
+  method, accounts, userId, onClose, onChanged,
+}: {
+  method: Method | null;
+  accounts: Account[];
+  userId: string | null;
+  onClose: () => void;
+  onChanged: () => void;
+}) {
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    setForm({});
+  }, [method?.id]);
+
+  if (!method) return null;
+  const brand = getBrand(method.method_type);
+  const keys = fieldsFor(method.method_type);
+
+  const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  const save = async () => {
+    if (!userId) return toast.error("Faça login para continuar");
+    const required = keys.filter((k) => k !== "label");
+    for (const k of required) {
+      if (!form[k]?.trim()) return toast.error("Preencha todos os campos");
+    }
+    setSaving(true);
+    const payload: Record<string, unknown> = {
+      user_id: userId,
+      payment_method_id: method.id,
+      method_type: method.method_type,
+      label: form.label || method.display_name,
+      account_holder: form.account_holder || null,
+      phone: form.phone || null,
+      iban: form.iban || null,
+      bank_name: form.bank_name || null,
+    };
+    if (form.card_number) {
+      const digits = form.card_number.replace(/\D/g, "");
+      payload.card_last4 = digits.slice(-4);
+      payload.card_exp = form.card_exp || null;
+      payload.card_brand = digits.startsWith("4") ? "visa" : digits.startsWith("5") ? "mastercard" : "card";
+    }
+    const { error } = await (supabase as any).from("user_payment_accounts").insert(payload);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Método configurado");
+    onChanged();
+    onClose();
+  };
+
+  const remove = async (id: string) => {
+    const { error } = await (supabase as any).from("user_payment_accounts").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Removido");
+    onChanged();
+  };
+
+  return (
+    <Sheet open={!!method} onOpenChange={(o) => !o && onClose()}>
+      <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto rounded-t-3xl p-0">
+        <div className="flex items-center gap-3 px-5 pt-5 pb-3 text-white" style={{ background: brand.bg }}>
+          <BrandLogo methodType={method.method_type} />
+          <div className="flex-1">
+            <SheetHeader className="space-y-0 text-left">
+              <SheetTitle className="text-base text-white">{method.display_name}</SheetTitle>
+              <SheetDescription className="text-xs text-white/80">
+                {method.description || brand.tagline || "Preencha os dados de pagamento"}
+              </SheetDescription>
+            </SheetHeader>
+          </div>
+        </div>
+
+        <div className="space-y-4 px-5 py-5">
+          {accounts.length > 0 && (
+            <section>
+              <h3 className="mb-2 text-xs font-bold uppercase text-muted-foreground">Guardados</h3>
+              <ul className="space-y-2">
+                {accounts.map((a) => (
+                  <li key={a.id} className="flex items-center justify-between rounded-xl border border-border p-3 text-sm">
+                    <div>
+                      <p className="font-semibold">{a.label || a.account_holder || method.display_name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {a.phone || a.iban || (a.card_last4 ? `•••• ${a.card_last4}` : "")}
+                      </p>
+                    </div>
+                    <button onClick={() => remove(a.id)} className="rounded-lg p-2 text-destructive hover:bg-destructive/10" aria-label="Remover">
+                      <Trash2 size={16} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <section className="space-y-3">
+            <h3 className="text-xs font-bold uppercase text-muted-foreground">
+              {accounts.length > 0 ? "Adicionar outra conta" : "Dados de pagamento"}
+            </h3>
+
+            {keys.includes("account_holder") && (
+              <Field label="Nome do titular" value={form.account_holder ?? ""} onChange={(v) => set("account_holder", v)} placeholder="Nome completo" />
+            )}
+            {keys.includes("phone") && (
+              <Field label="Telemóvel" value={form.phone ?? ""} onChange={(v) => set("phone", v)} placeholder="+244 9XX XXX XXX" inputMode="tel" />
+            )}
+            {keys.includes("iban") && (
+              <Field label="IBAN" value={form.iban ?? ""} onChange={(v) => set("iban", v.toUpperCase())} placeholder="AO06 0000 0000 0000 0000 0000 0" />
+            )}
+            {keys.includes("bank_name") && (
+              <Field label="Banco" value={form.bank_name ?? ""} onChange={(v) => set("bank_name", v)} placeholder="Ex.: BAI, BFA, BIC" />
+            )}
+            {keys.includes("card_number") && (
+              <Field label="Número do cartão" value={form.card_number ?? ""} onChange={(v) => set("card_number", v)} placeholder="0000 0000 0000 0000" inputMode="numeric" />
+            )}
+            {keys.includes("card_exp") && (
+              <Field label="Validade (MM/AA)" value={form.card_exp ?? ""} onChange={(v) => set("card_exp", v)} placeholder="MM/AA" inputMode="numeric" />
+            )}
+            {keys.includes("label") && (
+              <Field label="Apelido (opcional)" value={form.label ?? ""} onChange={(v) => set("label", v)} placeholder="Ex.: Pessoal" />
+            )}
+
+            <Button onClick={save} disabled={saving} className="h-12 w-full text-sm font-semibold">
+              {saving ? <Loader2 className="animate-spin" size={18} /> : "Guardar"}
+            </Button>
+          </section>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+function Field({
+  label, value, onChange, placeholder, inputMode,
+}: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; inputMode?: "tel" | "numeric" | "text" }) {
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs">{label}</Label>
+      <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} inputMode={inputMode} className="h-11" />
+    </div>
   );
 }

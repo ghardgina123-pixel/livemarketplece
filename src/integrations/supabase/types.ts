@@ -835,6 +835,74 @@ export type Database = {
           },
         ]
       }
+      user_payment_accounts: {
+        Row: {
+          account_holder: string | null
+          account_number: string | null
+          bank_name: string | null
+          card_brand: string | null
+          card_exp: string | null
+          card_last4: string | null
+          created_at: string
+          extra: Json
+          iban: string | null
+          id: string
+          is_default: boolean
+          label: string | null
+          method_type: string
+          payment_method_id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_holder?: string | null
+          account_number?: string | null
+          bank_name?: string | null
+          card_brand?: string | null
+          card_exp?: string | null
+          card_last4?: string | null
+          created_at?: string
+          extra?: Json
+          iban?: string | null
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          method_type: string
+          payment_method_id: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_holder?: string | null
+          account_number?: string | null
+          bank_name?: string | null
+          card_brand?: string | null
+          card_exp?: string | null
+          card_last4?: string | null
+          created_at?: string
+          extra?: Json
+          iban?: string | null
+          id?: string
+          is_default?: boolean
+          label?: string | null
+          method_type?: string
+          payment_method_id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_payment_accounts_payment_method_id_fkey"
+            columns: ["payment_method_id"]
+            isOneToOne: false
+            referencedRelation: "payment_methods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
