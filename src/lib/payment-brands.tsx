@@ -1,4 +1,4 @@
-import { Banknote, CreditCard, Building2, Receipt } from "lucide-react";
+import { Building2, Receipt } from "lucide-react";
 import type { ReactNode } from "react";
 import afrimoneyAsset from "@/assets/payments/afrimoney.jpg.asset.json";
 import unitelMoneyAsset from "@/assets/payments/unitelmoney.jpg.asset.json";
