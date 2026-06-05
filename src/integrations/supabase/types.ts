@@ -509,6 +509,7 @@ export type Database = {
           plan: string
           price_aoa: number
           proof_url: string | null
+          rejection_reason: string | null
           started_at: string | null
           status: string
           store_id: string
@@ -522,6 +523,7 @@ export type Database = {
           plan?: string
           price_aoa?: number
           proof_url?: string | null
+          rejection_reason?: string | null
           started_at?: string | null
           status?: string
           store_id: string
@@ -535,6 +537,7 @@ export type Database = {
           plan?: string
           price_aoa?: number
           proof_url?: string | null
+          rejection_reason?: string | null
           started_at?: string | null
           status?: string
           store_id?: string
