@@ -48,16 +48,16 @@ export function SettingsSheet({ trigger }: Props) {
         </SheetHeader>
 
         <Section title="Minha conta">
-          <Row icon={UserIcon} label="Editar perfil" onClick={close} />
+          <Row icon={UserIcon} label="Editar perfil" to="/editar-perfil" onClick={close} />
           <Row icon={MapPin} label="Meus endereços" to="/enderecos" onClick={close} />
-          <Row icon={ShieldCheck} label="Segurança e privacidade" onClick={close} />
-          <Row icon={Languages} label="Idioma, região e moeda" onClick={close} />
+          <Row icon={ShieldCheck} label="Segurança e privacidade" to="/seguranca" onClick={close} />
+          <Row icon={Languages} label="Idioma, região e moeda" to="/idioma" onClick={close} />
         </Section>
 
         <Section title="Como cliente">
           <Row icon={ShoppingBag} label="Minhas compras" to="/compras" onClick={close} badge="3" />
-          <Row icon={Heart} label="Favoritos" onClick={close} />
-          <Row icon={CreditCard} label="Métodos de pagamento" onClick={close} />
+          <Row icon={Heart} label="Favoritos" to="/favoritos" onClick={close} />
+          <Row icon={CreditCard} label="Métodos de pagamento" to="/pagamentos" onClick={close} />
           <Row icon={Users} label="Afiliados" to="/afiliados" onClick={close} />
         </Section>
 
@@ -76,8 +76,8 @@ export function SettingsSheet({ trigger }: Props) {
         </Section>
 
         <Section title="Suporte">
-          <Row icon={HelpCircle} label="Ajuda e suporte" onClick={close} />
-          <Row icon={FileText} label="Termos e privacidade" onClick={close} />
+          <Row icon={HelpCircle} label="Ajuda e suporte" to="/ajuda" onClick={close} />
+          <Row icon={FileText} label="Termos e privacidade" to="/termos" onClick={close} />
         </Section>
 
         {isAdmin && (

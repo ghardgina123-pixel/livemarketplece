@@ -1,0 +1,41 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowLeft, Mail, MessageCircle, Phone } from "lucide-react";
+import { AppShell } from "@/components/AppShell";
+
+export const Route = createFileRoute("/ajuda")({
+  head: () => ({ meta: [{ title: "Ajuda e suporte — Live Market" }] }),
+  component: Ajuda,
+});
+
+function Ajuda() {
+  return (
+    <AppShell>
+      <header className="flex items-center gap-3 px-5 pt-6 pb-4 text-white" style={{ background: "var(--gradient-brand)" }}>
+        <Link to="/perfil" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15"><ArrowLeft size={18} /></Link>
+        <h1 className="text-lg font-semibold">Ajuda e suporte</h1>
+      </header>
+      <div className="space-y-3 px-5 py-5">
+        <a href="mailto:suporte@livemarket.app" className="flex items-center gap-3 rounded-xl border border-border p-3">
+          <Mail size={18} className="text-primary" />
+          <div><p className="text-sm font-semibold">Email</p><p className="text-xs text-muted-foreground">suporte@livemarket.app</p></div>
+        </a>
+        <a href="https://wa.me/244900000000" className="flex items-center gap-3 rounded-xl border border-border p-3">
+          <MessageCircle size={18} className="text-primary" />
+          <div><p className="text-sm font-semibold">WhatsApp</p><p className="text-xs text-muted-foreground">+244 900 000 000</p></div>
+        </a>
+        <a href="tel:+244900000000" className="flex items-center gap-3 rounded-xl border border-border p-3">
+          <Phone size={18} className="text-primary" />
+          <div><p className="text-sm font-semibold">Telefone</p><p className="text-xs text-muted-foreground">+244 900 000 000</p></div>
+        </a>
+        <section className="rounded-2xl border border-border p-4">
+          <h2 className="mb-2 text-sm font-bold">Perguntas frequentes</h2>
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li>• Como faço para vender? Acesse Configurações → Quero vender.</li>
+            <li>• Como pago? No checkout, escolha entre Express, e-Kwanza, Unitel Money, Afrimoney, Kwik ou Multicaixa Ref.</li>
+            <li>• Como acompanho meu pedido? Em Minhas compras.</li>
+          </ul>
+        </section>
+      </div>
+    </AppShell>
+  );
+}

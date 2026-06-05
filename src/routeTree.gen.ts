@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as LojasRouteImport } from './routes/lojas'
@@ -18,17 +19,28 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CarrinhoRouteImport } from './routes/carrinho'
 import { Route as CadastroRouteImport } from './routes/cadastro'
+import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
 import { Route as LojaIdRouteImport } from './routes/loja.$id'
+import { Route as AuthenticatedSegurancaRouteImport } from './routes/_authenticated/seguranca'
+import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as AuthenticatedLojistaCrmRouteImport } from './routes/_authenticated/lojista-crm'
 import { Route as AuthenticatedLojistaRouteImport } from './routes/_authenticated/lojista'
+import { Route as AuthenticatedIdiomaRouteImport } from './routes/_authenticated/idioma'
+import { Route as AuthenticatedFavoritosRouteImport } from './routes/_authenticated/favoritos'
 import { Route as AuthenticatedEnderecosRouteImport } from './routes/_authenticated/enderecos'
+import { Route as AuthenticatedEditarPerfilRouteImport } from './routes/_authenticated/editar-perfil'
 import { Route as AuthenticatedComprasRouteImport } from './routes/_authenticated/compras'
 import { Route as AuthenticatedAfiliadosRouteImport } from './routes/_authenticated/afiliados'
 import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin-crm'
 
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -74,6 +86,11 @@ const CadastroRoute = CadastroRouteImport.update({
   path: '/cadastro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AjudaRoute = AjudaRouteImport.update({
+  id: '/ajuda',
+  path: '/ajuda',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -93,6 +110,16 @@ const LojaIdRoute = LojaIdRouteImport.update({
   path: '/loja/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedSegurancaRoute = AuthenticatedSegurancaRouteImport.update({
+  id: '/seguranca',
+  path: '/seguranca',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPagamentosRoute = AuthenticatedPagamentosRouteImport.update({
+  id: '/pagamentos',
+  path: '/pagamentos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedLojistaCrmRoute = AuthenticatedLojistaCrmRouteImport.update({
   id: '/lojista-crm',
   path: '/lojista-crm',
@@ -103,11 +130,27 @@ const AuthenticatedLojistaRoute = AuthenticatedLojistaRouteImport.update({
   path: '/lojista',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedIdiomaRoute = AuthenticatedIdiomaRouteImport.update({
+  id: '/idioma',
+  path: '/idioma',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFavoritosRoute = AuthenticatedFavoritosRouteImport.update({
+  id: '/favoritos',
+  path: '/favoritos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedEnderecosRoute = AuthenticatedEnderecosRouteImport.update({
   id: '/enderecos',
   path: '/enderecos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEditarPerfilRoute =
+  AuthenticatedEditarPerfilRouteImport.update({
+    id: '/editar-perfil',
+    path: '/editar-perfil',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedComprasRoute = AuthenticatedComprasRouteImport.update({
   id: '/compras',
   path: '/compras',
@@ -126,6 +169,7 @@ const AuthenticatedAdminCrmRoute = AuthenticatedAdminCrmRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ajuda': typeof AjudaRoute
   '/cadastro': typeof CadastroRoute
   '/carrinho': typeof CarrinhoRoute
   '/chat': typeof ChatRoute
@@ -135,17 +179,24 @@ export interface FileRoutesByFullPath {
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos': typeof TermosRoute
   '/admin-crm': typeof AuthenticatedAdminCrmRoute
   '/afiliados': typeof AuthenticatedAfiliadosRoute
   '/compras': typeof AuthenticatedComprasRoute
+  '/editar-perfil': typeof AuthenticatedEditarPerfilRoute
   '/enderecos': typeof AuthenticatedEnderecosRoute
+  '/favoritos': typeof AuthenticatedFavoritosRoute
+  '/idioma': typeof AuthenticatedIdiomaRoute
   '/lojista': typeof AuthenticatedLojistaRoute
   '/lojista-crm': typeof AuthenticatedLojistaCrmRoute
+  '/pagamentos': typeof AuthenticatedPagamentosRoute
+  '/seguranca': typeof AuthenticatedSegurancaRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ajuda': typeof AjudaRoute
   '/cadastro': typeof CadastroRoute
   '/carrinho': typeof CarrinhoRoute
   '/chat': typeof ChatRoute
@@ -155,12 +206,18 @@ export interface FileRoutesByTo {
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos': typeof TermosRoute
   '/admin-crm': typeof AuthenticatedAdminCrmRoute
   '/afiliados': typeof AuthenticatedAfiliadosRoute
   '/compras': typeof AuthenticatedComprasRoute
+  '/editar-perfil': typeof AuthenticatedEditarPerfilRoute
   '/enderecos': typeof AuthenticatedEnderecosRoute
+  '/favoritos': typeof AuthenticatedFavoritosRoute
+  '/idioma': typeof AuthenticatedIdiomaRoute
   '/lojista': typeof AuthenticatedLojistaRoute
   '/lojista-crm': typeof AuthenticatedLojistaCrmRoute
+  '/pagamentos': typeof AuthenticatedPagamentosRoute
+  '/seguranca': typeof AuthenticatedSegurancaRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
 }
@@ -168,6 +225,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/ajuda': typeof AjudaRoute
   '/cadastro': typeof CadastroRoute
   '/carrinho': typeof CarrinhoRoute
   '/chat': typeof ChatRoute
@@ -177,12 +235,18 @@ export interface FileRoutesById {
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos': typeof TermosRoute
   '/_authenticated/admin-crm': typeof AuthenticatedAdminCrmRoute
   '/_authenticated/afiliados': typeof AuthenticatedAfiliadosRoute
   '/_authenticated/compras': typeof AuthenticatedComprasRoute
+  '/_authenticated/editar-perfil': typeof AuthenticatedEditarPerfilRoute
   '/_authenticated/enderecos': typeof AuthenticatedEnderecosRoute
+  '/_authenticated/favoritos': typeof AuthenticatedFavoritosRoute
+  '/_authenticated/idioma': typeof AuthenticatedIdiomaRoute
   '/_authenticated/lojista': typeof AuthenticatedLojistaRoute
   '/_authenticated/lojista-crm': typeof AuthenticatedLojistaCrmRoute
+  '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
+  '/_authenticated/seguranca': typeof AuthenticatedSegurancaRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
 }
@@ -190,6 +254,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ajuda'
     | '/cadastro'
     | '/carrinho'
     | '/chat'
@@ -199,17 +264,24 @@ export interface FileRouteTypes {
     | '/lojas'
     | '/perfil'
     | '/sitemap.xml'
+    | '/termos'
     | '/admin-crm'
     | '/afiliados'
     | '/compras'
+    | '/editar-perfil'
     | '/enderecos'
+    | '/favoritos'
+    | '/idioma'
     | '/lojista'
     | '/lojista-crm'
+    | '/pagamentos'
+    | '/seguranca'
     | '/loja/$id'
     | '/produto/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ajuda'
     | '/cadastro'
     | '/carrinho'
     | '/chat'
@@ -219,18 +291,25 @@ export interface FileRouteTypes {
     | '/lojas'
     | '/perfil'
     | '/sitemap.xml'
+    | '/termos'
     | '/admin-crm'
     | '/afiliados'
     | '/compras'
+    | '/editar-perfil'
     | '/enderecos'
+    | '/favoritos'
+    | '/idioma'
     | '/lojista'
     | '/lojista-crm'
+    | '/pagamentos'
+    | '/seguranca'
     | '/loja/$id'
     | '/produto/$id'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/ajuda'
     | '/cadastro'
     | '/carrinho'
     | '/chat'
@@ -240,12 +319,18 @@ export interface FileRouteTypes {
     | '/lojas'
     | '/perfil'
     | '/sitemap.xml'
+    | '/termos'
     | '/_authenticated/admin-crm'
     | '/_authenticated/afiliados'
     | '/_authenticated/compras'
+    | '/_authenticated/editar-perfil'
     | '/_authenticated/enderecos'
+    | '/_authenticated/favoritos'
+    | '/_authenticated/idioma'
     | '/_authenticated/lojista'
     | '/_authenticated/lojista-crm'
+    | '/_authenticated/pagamentos'
+    | '/_authenticated/seguranca'
     | '/loja/$id'
     | '/produto/$id'
   fileRoutesById: FileRoutesById
@@ -253,6 +338,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AjudaRoute: typeof AjudaRoute
   CadastroRoute: typeof CadastroRoute
   CarrinhoRoute: typeof CarrinhoRoute
   ChatRoute: typeof ChatRoute
@@ -262,12 +348,20 @@ export interface RootRouteChildren {
   LojasRoute: typeof LojasRoute
   PerfilRoute: typeof PerfilRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermosRoute: typeof TermosRoute
   LojaIdRoute: typeof LojaIdRoute
   ProdutoIdRoute: typeof ProdutoIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -331,6 +425,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CadastroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ajuda': {
+      id: '/ajuda'
+      path: '/ajuda'
+      fullPath: '/ajuda'
+      preLoaderRoute: typeof AjudaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -359,6 +460,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LojaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/seguranca': {
+      id: '/_authenticated/seguranca'
+      path: '/seguranca'
+      fullPath: '/seguranca'
+      preLoaderRoute: typeof AuthenticatedSegurancaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pagamentos': {
+      id: '/_authenticated/pagamentos'
+      path: '/pagamentos'
+      fullPath: '/pagamentos'
+      preLoaderRoute: typeof AuthenticatedPagamentosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/lojista-crm': {
       id: '/_authenticated/lojista-crm'
       path: '/lojista-crm'
@@ -373,11 +488,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLojistaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/idioma': {
+      id: '/_authenticated/idioma'
+      path: '/idioma'
+      fullPath: '/idioma'
+      preLoaderRoute: typeof AuthenticatedIdiomaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/favoritos': {
+      id: '/_authenticated/favoritos'
+      path: '/favoritos'
+      fullPath: '/favoritos'
+      preLoaderRoute: typeof AuthenticatedFavoritosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/enderecos': {
       id: '/_authenticated/enderecos'
       path: '/enderecos'
       fullPath: '/enderecos'
       preLoaderRoute: typeof AuthenticatedEnderecosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/editar-perfil': {
+      id: '/_authenticated/editar-perfil'
+      path: '/editar-perfil'
+      fullPath: '/editar-perfil'
+      preLoaderRoute: typeof AuthenticatedEditarPerfilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/compras': {
@@ -408,18 +544,28 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminCrmRoute: typeof AuthenticatedAdminCrmRoute
   AuthenticatedAfiliadosRoute: typeof AuthenticatedAfiliadosRoute
   AuthenticatedComprasRoute: typeof AuthenticatedComprasRoute
+  AuthenticatedEditarPerfilRoute: typeof AuthenticatedEditarPerfilRoute
   AuthenticatedEnderecosRoute: typeof AuthenticatedEnderecosRoute
+  AuthenticatedFavoritosRoute: typeof AuthenticatedFavoritosRoute
+  AuthenticatedIdiomaRoute: typeof AuthenticatedIdiomaRoute
   AuthenticatedLojistaRoute: typeof AuthenticatedLojistaRoute
   AuthenticatedLojistaCrmRoute: typeof AuthenticatedLojistaCrmRoute
+  AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
+  AuthenticatedSegurancaRoute: typeof AuthenticatedSegurancaRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminCrmRoute: AuthenticatedAdminCrmRoute,
   AuthenticatedAfiliadosRoute: AuthenticatedAfiliadosRoute,
   AuthenticatedComprasRoute: AuthenticatedComprasRoute,
+  AuthenticatedEditarPerfilRoute: AuthenticatedEditarPerfilRoute,
   AuthenticatedEnderecosRoute: AuthenticatedEnderecosRoute,
+  AuthenticatedFavoritosRoute: AuthenticatedFavoritosRoute,
+  AuthenticatedIdiomaRoute: AuthenticatedIdiomaRoute,
   AuthenticatedLojistaRoute: AuthenticatedLojistaRoute,
   AuthenticatedLojistaCrmRoute: AuthenticatedLojistaCrmRoute,
+  AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
+  AuthenticatedSegurancaRoute: AuthenticatedSegurancaRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -428,6 +574,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AjudaRoute: AjudaRoute,
   CadastroRoute: CadastroRoute,
   CarrinhoRoute: CarrinhoRoute,
   ChatRoute: ChatRoute,
@@ -437,6 +584,7 @@ const rootRouteChildren: RootRouteChildren = {
   LojasRoute: LojasRoute,
   PerfilRoute: PerfilRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermosRoute: TermosRoute,
   LojaIdRoute: LojaIdRoute,
   ProdutoIdRoute: ProdutoIdRoute,
 }
