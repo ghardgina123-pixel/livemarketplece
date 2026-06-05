@@ -54,12 +54,30 @@ function AdminLojas() {
     setLoading(true);
     let q = supabase
       .from("stores")
-      .select("id, name, status, nif, phone, category, bank_name, bank_account, bank_holder, logo_url, created_at, owner_id, rejection_reason")
+      .select("id, name, status, phone, category, logo_url, created_at, owner_id, rejection_reason")
       .order("created_at", { ascending: false });
     if (filter !== "all") q = q.eq("status", filter);
     const { data, error } = await q;
     if (error) toast.error(error.message);
-    setRows((data as StoreRow[]) ?? []);
+    const stores = (data ?? []) as Omit<StoreRow, "nif" | "bank_name" | "bank_account" | "bank_holder">[];
+    const ids = stores.map((s) => s.id);
+    let priv: Record<string, { nif: string | null; bank_name: string | null; bank_account: string | null; bank_holder: string | null }> = {};
+    if (ids.length) {
+      const { data: pdata } = await supabase
+        .from("store_private")
+        .select("store_id, nif, bank_name, bank_account, bank_holder")
+        .in("store_id", ids);
+      priv = Object.fromEntries((pdata ?? []).map((p) => [p.store_id, p]));
+    }
+    setRows(
+      stores.map((s) => ({
+        ...s,
+        nif: priv[s.id]?.nif ?? null,
+        bank_name: priv[s.id]?.bank_name ?? null,
+        bank_account: priv[s.id]?.bank_account ?? null,
+        bank_holder: priv[s.id]?.bank_holder ?? null,
+      })),
+    );
     setLoading(false);
   };
 
