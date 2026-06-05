@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mail, Lock, User as UserIcon, Phone, ShieldCheck, Loader2 } from "lucide-react";
+import { Mail, Lock, User as UserIcon, Phone, ShieldCheck, Loader2, ShoppingBag, Store as StoreIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,7 @@ export const Route = createFileRoute("/cadastro")({
 
 function Signup() {
   const nav = useNavigate();
+  const [accountType, setAccountType] = useState<"customer" | "seller">("customer");
   const [f, setF] = useState({ name: "", email: "", phone: "", pwd: "" });
   const [busy, setBusy] = useState(false);
 
@@ -31,12 +32,16 @@ function Signup() {
       password: f.pwd,
       options: {
         emailRedirectTo: window.location.origin + "/home",
-        data: { display_name: f.name, phone: f.phone },
+        data: { display_name: f.name, phone: f.phone, account_intent: accountType },
       },
     });
     setBusy(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Conta criada! Verifique seu e-mail para confirmar.");
+    if (accountType === "seller") {
+      toast.success("Conta criada! Verifique seu e-mail e depois complete os dados da loja.");
+    } else {
+      toast.success("Conta criada! Verifique seu e-mail para confirmar.");
+    }
     nav({ to: "/login", replace: true });
   };
 
@@ -47,25 +52,66 @@ function Signup() {
         <h1 className="text-lg font-semibold">Criar conta</h1>
       </header>
       <form onSubmit={onSubmit} className="flex-1 px-6">
-        <p className="text-sm text-muted-foreground">É rápido e seguro. Sem complicação.</p>
+        <p className="text-sm text-muted-foreground">Escolha como você quer usar a Live Market.</p>
+
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <TypeCard
+            active={accountType === "customer"}
+            icon={<ShoppingBag size={20} />}
+            title="Sou Cliente"
+            desc="Quero comprar"
+            onClick={() => setAccountType("customer")}
+          />
+          <TypeCard
+            active={accountType === "seller"}
+            icon={<StoreIcon size={20} />}
+            title="Sou Lojista"
+            desc="Quero vender"
+            onClick={() => setAccountType("seller")}
+          />
+        </div>
+
         <div className="mt-6 space-y-4">
           <Field icon={<UserIcon size={18} />} placeholder="Nome completo" value={f.name} onChange={(v) => setF({ ...f, name: v })} required />
           <Field icon={<Mail size={18} />} placeholder="E-mail" type="email" value={f.email} onChange={(v) => setF({ ...f, email: v })} required />
           <Field icon={<Phone size={18} />} placeholder="Telefone" value={f.phone} onChange={(v) => setF({ ...f, phone: v })} />
           <Field icon={<Lock size={18} />} type="password" placeholder="Crie uma senha (mín. 6)" value={f.pwd} onChange={(v) => setF({ ...f, pwd: v })} required />
         </div>
-        <div className="mt-5 flex items-start gap-2 rounded-xl bg-accent p-3 text-xs text-accent-foreground">
-          <ShieldCheck size={16} className="mt-0.5 shrink-0" />
-          Seus dados são protegidos. Não compartilhamos com terceiros.
-        </div>
+        {accountType === "seller" ? (
+          <div className="mt-5 flex items-start gap-2 rounded-xl bg-primary/10 p-3 text-xs text-foreground">
+            <StoreIcon size={16} className="mt-0.5 shrink-0 text-primary" />
+            Após criar a conta você completa os dados da empresa (NIF, endereço, banco e localização no mapa) no painel da loja.
+          </div>
+        ) : (
+          <div className="mt-5 flex items-start gap-2 rounded-xl bg-accent p-3 text-xs text-accent-foreground">
+            <ShieldCheck size={16} className="mt-0.5 shrink-0" />
+            Seus dados são protegidos. Não compartilhamos com terceiros.
+          </div>
+        )}
         <Button type="submit" disabled={busy} className="mt-6 h-12 w-full rounded-xl text-base font-semibold shadow-[var(--shadow-glow)]">
-          {busy ? <Loader2 className="animate-spin" size={18} /> : "Criar conta"}
+          {busy ? <Loader2 className="animate-spin" size={18} /> : accountType === "seller" ? "Criar conta de lojista" : "Criar conta"}
         </Button>
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Já tem conta? <Link to="/login" className="font-semibold text-primary">Entrar</Link>
         </p>
       </form>
     </div>
+  );
+}
+
+function TypeCard({ active, icon, title, desc, onClick }: { active: boolean; icon: React.ReactNode; title: string; desc: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex flex-col items-start gap-1 rounded-2xl border-2 p-3 text-left transition ${active ? "border-primary bg-primary/5" : "border-border bg-card"}`}
+    >
+      <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${active ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground"}`}>
+        {icon}
+      </div>
+      <p className="text-sm font-bold">{title}</p>
+      <p className="text-[11px] text-muted-foreground">{desc}</p>
+    </button>
   );
 }
 

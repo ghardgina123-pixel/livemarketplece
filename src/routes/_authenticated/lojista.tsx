@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Plus, Package, ShoppingBag, Wallet, Radio, Loader2, Trash2, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, Plus, Package, ShoppingBag, Wallet, Radio, Loader2, Trash2, Clock, CheckCircle2, XCircle, MapPin, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -105,6 +105,8 @@ function PendingState({ reason, rejected }: { reason: string | null; rejected?: 
 function StoreRegistration({ onCreated }: { onCreated: () => void }) {
   const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [geoBusy, setGeoBusy] = useState(false);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -115,6 +117,16 @@ function StoreRegistration({ onCreated }: { onCreated: () => void }) {
     bank_account: "",
     bank_holder: "",
   });
+
+  const captureLocation = () => {
+    if (!navigator.geolocation) return toast.error("Geolocalização não suportada");
+    setGeoBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      (p) => { setCoords({ lat: p.coords.latitude, lng: p.coords.longitude }); setGeoBusy(false); toast.success("Localização capturada"); },
+      (e) => { setGeoBusy(false); toast.error("Não foi possível obter localização: " + e.message); },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,6 +145,8 @@ function StoreRegistration({ onCreated }: { onCreated: () => void }) {
       bank_name: form.bank_name || null,
       bank_account: form.bank_account || null,
       bank_holder: form.bank_holder || null,
+      lat: coords?.lat ?? null,
+      lng: coords?.lng ?? null,
     });
     setSubmitting(false);
     if (error) return toast.error(error.message);
@@ -182,6 +196,16 @@ function StoreRegistration({ onCreated }: { onCreated: () => void }) {
       <Field label="Titular da conta">
         <Input value={form.bank_holder} onChange={(e) => setForm({ ...form, bank_holder: e.target.value })} />
       </Field>
+
+      <h3 className="pt-2 text-xs font-bold uppercase text-muted-foreground">Localização no mapa</h3>
+      <Button type="button" variant="outline" onClick={captureLocation} disabled={geoBusy} className="h-11 w-full">
+        {geoBusy ? <Loader2 className="animate-spin" /> : <><MapPin size={16} className="mr-2" /> {coords ? "Atualizar localização" : "Usar minha localização atual"}</>}
+      </Button>
+      {coords && (
+        <p className="text-[11px] text-muted-foreground">
+          Lat: {coords.lat.toFixed(5)} · Lng: {coords.lng.toFixed(5)}
+        </p>
+      )}
 
       <Button type="submit" disabled={submitting} className="h-12 w-full">
         {submitting ? <Loader2 className="animate-spin" /> : "Enviar para aprovação"}
