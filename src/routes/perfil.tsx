@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Settings, Package, Heart, MapPin, CreditCard, ShieldCheck, HelpCircle, LogOut, ChevronRight, BadgeCheck, Store as StoreIcon } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { CurrencySelector } from "@/components/CurrencySelector";
+import { SettingsSheet } from "@/components/SettingsSheet";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/perfil")({
@@ -16,7 +17,7 @@ export const Route = createFileRoute("/perfil")({
 });
 
 const menu = [
-  { icon: Package, label: "Meus pedidos", badge: "3" },
+  { icon: Package, label: "Meus pedidos", badge: "3", to: "/compras" as const },
   { icon: Heart, label: "Favoritos" },
   { icon: CreditCard, label: "Pagamentos" },
   { icon: ShieldCheck, label: "Segurança e privacidade" },
@@ -37,7 +38,13 @@ function Perfil() {
       <header className="px-5 pt-6 pb-6 text-white" style={{ background: "var(--gradient-brand)" }}>
         <div className="flex items-center justify-between">
           <h1 className="text-lg font-semibold">Perfil</h1>
-          <button className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 backdrop-blur"><Settings size={18} /></button>
+          <SettingsSheet
+            trigger={
+              <button aria-label="Configurações" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 backdrop-blur">
+                <Settings size={18} />
+              </button>
+            }
+          />
         </div>
         <div className="mt-5 flex items-center gap-4">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-2xl font-bold text-secondary">{initials}</div>
@@ -78,12 +85,21 @@ function Perfil() {
         )}
         {menu.map(({ icon: Icon, label, badge }) => (
           <li key={label}>
-            <button className="flex w-full items-center gap-3 px-3 py-4 text-left">
+            {label === "Meus pedidos" ? (
+              <Link to="/compras" className="flex w-full items-center gap-3 px-3 py-4 text-left">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground"><Icon size={18} /></div>
+                <span className="flex-1 text-sm font-medium text-foreground">{label}</span>
+                {badge && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{badge}</span>}
+                <ChevronRight size={16} className="text-muted-foreground" />
+              </Link>
+            ) : (
+              <button className="flex w-full items-center gap-3 px-3 py-4 text-left">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground"><Icon size={18} /></div>
               <span className="flex-1 text-sm font-medium text-foreground">{label}</span>
               {badge && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{badge}</span>}
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
+            )}
           </li>
         ))}
       </ul>
