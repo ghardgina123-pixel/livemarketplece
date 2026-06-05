@@ -36,6 +36,8 @@ import { Route as AuthenticatedComprasRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAfiliadosRouteImport } from './routes/_authenticated/afiliados'
 import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin-crm'
 import { Route as AuthenticatedLojistaIndexRouteImport } from './routes/_authenticated/lojista.index'
+import { Route as AuthenticatedLojistaProdutosRouteImport } from './routes/_authenticated/lojista.produtos'
+import { Route as AuthenticatedLojistaDashboardRouteImport } from './routes/_authenticated/lojista.dashboard'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -173,6 +175,18 @@ const AuthenticatedLojistaIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedLojistaRoute,
   } as any)
+const AuthenticatedLojistaProdutosRoute =
+  AuthenticatedLojistaProdutosRouteImport.update({
+    id: '/produtos',
+    path: '/produtos',
+    getParentRoute: () => AuthenticatedLojistaRoute,
+  } as any)
+const AuthenticatedLojistaDashboardRoute =
+  AuthenticatedLojistaDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedLojistaRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -200,6 +214,8 @@ export interface FileRoutesByFullPath {
   '/seguranca': typeof AuthenticatedSegurancaRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
+  '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/lojista/': typeof AuthenticatedLojistaIndexRoute
 }
 export interface FileRoutesByTo {
@@ -227,6 +243,8 @@ export interface FileRoutesByTo {
   '/seguranca': typeof AuthenticatedSegurancaRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
+  '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/lojista': typeof AuthenticatedLojistaIndexRoute
 }
 export interface FileRoutesById {
@@ -257,6 +275,8 @@ export interface FileRoutesById {
   '/_authenticated/seguranca': typeof AuthenticatedSegurancaRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/_authenticated/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
+  '/_authenticated/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/_authenticated/lojista/': typeof AuthenticatedLojistaIndexRoute
 }
 export interface FileRouteTypes {
@@ -287,6 +307,8 @@ export interface FileRouteTypes {
     | '/seguranca'
     | '/loja/$id'
     | '/produto/$id'
+    | '/lojista/dashboard'
+    | '/lojista/produtos'
     | '/lojista/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -314,6 +336,8 @@ export interface FileRouteTypes {
     | '/seguranca'
     | '/loja/$id'
     | '/produto/$id'
+    | '/lojista/dashboard'
+    | '/lojista/produtos'
     | '/lojista'
   id:
     | '__root__'
@@ -343,6 +367,8 @@ export interface FileRouteTypes {
     | '/_authenticated/seguranca'
     | '/loja/$id'
     | '/produto/$id'
+    | '/_authenticated/lojista/dashboard'
+    | '/_authenticated/lojista/produtos'
     | '/_authenticated/lojista/'
   fileRoutesById: FileRoutesById
 }
@@ -555,14 +581,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLojistaIndexRouteImport
       parentRoute: typeof AuthenticatedLojistaRoute
     }
+    '/_authenticated/lojista/produtos': {
+      id: '/_authenticated/lojista/produtos'
+      path: '/produtos'
+      fullPath: '/lojista/produtos'
+      preLoaderRoute: typeof AuthenticatedLojistaProdutosRouteImport
+      parentRoute: typeof AuthenticatedLojistaRoute
+    }
+    '/_authenticated/lojista/dashboard': {
+      id: '/_authenticated/lojista/dashboard'
+      path: '/dashboard'
+      fullPath: '/lojista/dashboard'
+      preLoaderRoute: typeof AuthenticatedLojistaDashboardRouteImport
+      parentRoute: typeof AuthenticatedLojistaRoute
+    }
   }
 }
 
 interface AuthenticatedLojistaRouteChildren {
+  AuthenticatedLojistaDashboardRoute: typeof AuthenticatedLojistaDashboardRoute
+  AuthenticatedLojistaProdutosRoute: typeof AuthenticatedLojistaProdutosRoute
   AuthenticatedLojistaIndexRoute: typeof AuthenticatedLojistaIndexRoute
 }
 
 const AuthenticatedLojistaRouteChildren: AuthenticatedLojistaRouteChildren = {
+  AuthenticatedLojistaDashboardRoute: AuthenticatedLojistaDashboardRoute,
+  AuthenticatedLojistaProdutosRoute: AuthenticatedLojistaProdutosRoute,
   AuthenticatedLojistaIndexRoute: AuthenticatedLojistaIndexRoute,
 }
 
@@ -620,3 +664,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
