@@ -35,6 +35,10 @@ import { Route as AuthenticatedEditarPerfilRouteImport } from './routes/_authent
 import { Route as AuthenticatedComprasRouteImport } from './routes/_authenticated/compras'
 import { Route as AuthenticatedAfiliadosRouteImport } from './routes/_authenticated/afiliados'
 import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin-crm'
+import { Route as AuthenticatedLojistaIndexRouteImport } from './routes/_authenticated/lojista.index'
+import { Route as AuthenticatedLojistaProdutosRouteImport } from './routes/_authenticated/lojista.produtos'
+import { Route as AuthenticatedLojistaPedidosRouteImport } from './routes/_authenticated/lojista.pedidos'
+import { Route as AuthenticatedLojistaDashboardRouteImport } from './routes/_authenticated/lojista.dashboard'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -166,6 +170,30 @@ const AuthenticatedAdminCrmRoute = AuthenticatedAdminCrmRouteImport.update({
   path: '/admin-crm',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedLojistaIndexRoute =
+  AuthenticatedLojistaIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedLojistaRoute,
+  } as any)
+const AuthenticatedLojistaProdutosRoute =
+  AuthenticatedLojistaProdutosRouteImport.update({
+    id: '/produtos',
+    path: '/produtos',
+    getParentRoute: () => AuthenticatedLojistaRoute,
+  } as any)
+const AuthenticatedLojistaPedidosRoute =
+  AuthenticatedLojistaPedidosRouteImport.update({
+    id: '/pedidos',
+    path: '/pedidos',
+    getParentRoute: () => AuthenticatedLojistaRoute,
+  } as any)
+const AuthenticatedLojistaDashboardRoute =
+  AuthenticatedLojistaDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedLojistaRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -187,12 +215,16 @@ export interface FileRoutesByFullPath {
   '/enderecos': typeof AuthenticatedEnderecosRoute
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/idioma': typeof AuthenticatedIdiomaRoute
-  '/lojista': typeof AuthenticatedLojistaRoute
+  '/lojista': typeof AuthenticatedLojistaRouteWithChildren
   '/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/seguranca': typeof AuthenticatedSegurancaRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
+  '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
+  '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
+  '/lojista/': typeof AuthenticatedLojistaIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -214,12 +246,15 @@ export interface FileRoutesByTo {
   '/enderecos': typeof AuthenticatedEnderecosRoute
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/idioma': typeof AuthenticatedIdiomaRoute
-  '/lojista': typeof AuthenticatedLojistaRoute
   '/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/seguranca': typeof AuthenticatedSegurancaRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
+  '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
+  '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
+  '/lojista': typeof AuthenticatedLojistaIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -243,12 +278,16 @@ export interface FileRoutesById {
   '/_authenticated/enderecos': typeof AuthenticatedEnderecosRoute
   '/_authenticated/favoritos': typeof AuthenticatedFavoritosRoute
   '/_authenticated/idioma': typeof AuthenticatedIdiomaRoute
-  '/_authenticated/lojista': typeof AuthenticatedLojistaRoute
+  '/_authenticated/lojista': typeof AuthenticatedLojistaRouteWithChildren
   '/_authenticated/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/seguranca': typeof AuthenticatedSegurancaRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/_authenticated/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
+  '/_authenticated/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
+  '/_authenticated/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
+  '/_authenticated/lojista/': typeof AuthenticatedLojistaIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -278,6 +317,10 @@ export interface FileRouteTypes {
     | '/seguranca'
     | '/loja/$id'
     | '/produto/$id'
+    | '/lojista/dashboard'
+    | '/lojista/pedidos'
+    | '/lojista/produtos'
+    | '/lojista/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -299,12 +342,15 @@ export interface FileRouteTypes {
     | '/enderecos'
     | '/favoritos'
     | '/idioma'
-    | '/lojista'
     | '/lojista-crm'
     | '/pagamentos'
     | '/seguranca'
     | '/loja/$id'
     | '/produto/$id'
+    | '/lojista/dashboard'
+    | '/lojista/pedidos'
+    | '/lojista/produtos'
+    | '/lojista'
   id:
     | '__root__'
     | '/'
@@ -333,6 +379,10 @@ export interface FileRouteTypes {
     | '/_authenticated/seguranca'
     | '/loja/$id'
     | '/produto/$id'
+    | '/_authenticated/lojista/dashboard'
+    | '/_authenticated/lojista/pedidos'
+    | '/_authenticated/lojista/produtos'
+    | '/_authenticated/lojista/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -537,8 +587,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCrmRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/lojista/': {
+      id: '/_authenticated/lojista/'
+      path: '/'
+      fullPath: '/lojista/'
+      preLoaderRoute: typeof AuthenticatedLojistaIndexRouteImport
+      parentRoute: typeof AuthenticatedLojistaRoute
+    }
+    '/_authenticated/lojista/produtos': {
+      id: '/_authenticated/lojista/produtos'
+      path: '/produtos'
+      fullPath: '/lojista/produtos'
+      preLoaderRoute: typeof AuthenticatedLojistaProdutosRouteImport
+      parentRoute: typeof AuthenticatedLojistaRoute
+    }
+    '/_authenticated/lojista/pedidos': {
+      id: '/_authenticated/lojista/pedidos'
+      path: '/pedidos'
+      fullPath: '/lojista/pedidos'
+      preLoaderRoute: typeof AuthenticatedLojistaPedidosRouteImport
+      parentRoute: typeof AuthenticatedLojistaRoute
+    }
+    '/_authenticated/lojista/dashboard': {
+      id: '/_authenticated/lojista/dashboard'
+      path: '/dashboard'
+      fullPath: '/lojista/dashboard'
+      preLoaderRoute: typeof AuthenticatedLojistaDashboardRouteImport
+      parentRoute: typeof AuthenticatedLojistaRoute
+    }
   }
 }
+
+interface AuthenticatedLojistaRouteChildren {
+  AuthenticatedLojistaDashboardRoute: typeof AuthenticatedLojistaDashboardRoute
+  AuthenticatedLojistaPedidosRoute: typeof AuthenticatedLojistaPedidosRoute
+  AuthenticatedLojistaProdutosRoute: typeof AuthenticatedLojistaProdutosRoute
+  AuthenticatedLojistaIndexRoute: typeof AuthenticatedLojistaIndexRoute
+}
+
+const AuthenticatedLojistaRouteChildren: AuthenticatedLojistaRouteChildren = {
+  AuthenticatedLojistaDashboardRoute: AuthenticatedLojistaDashboardRoute,
+  AuthenticatedLojistaPedidosRoute: AuthenticatedLojistaPedidosRoute,
+  AuthenticatedLojistaProdutosRoute: AuthenticatedLojistaProdutosRoute,
+  AuthenticatedLojistaIndexRoute: AuthenticatedLojistaIndexRoute,
+}
+
+const AuthenticatedLojistaRouteWithChildren =
+  AuthenticatedLojistaRoute._addFileChildren(AuthenticatedLojistaRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminCrmRoute: typeof AuthenticatedAdminCrmRoute
@@ -548,7 +643,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEnderecosRoute: typeof AuthenticatedEnderecosRoute
   AuthenticatedFavoritosRoute: typeof AuthenticatedFavoritosRoute
   AuthenticatedIdiomaRoute: typeof AuthenticatedIdiomaRoute
-  AuthenticatedLojistaRoute: typeof AuthenticatedLojistaRoute
+  AuthenticatedLojistaRoute: typeof AuthenticatedLojistaRouteWithChildren
   AuthenticatedLojistaCrmRoute: typeof AuthenticatedLojistaCrmRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
   AuthenticatedSegurancaRoute: typeof AuthenticatedSegurancaRoute
@@ -562,7 +657,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEnderecosRoute: AuthenticatedEnderecosRoute,
   AuthenticatedFavoritosRoute: AuthenticatedFavoritosRoute,
   AuthenticatedIdiomaRoute: AuthenticatedIdiomaRoute,
-  AuthenticatedLojistaRoute: AuthenticatedLojistaRoute,
+  AuthenticatedLojistaRoute: AuthenticatedLojistaRouteWithChildren,
   AuthenticatedLojistaCrmRoute: AuthenticatedLojistaCrmRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
   AuthenticatedSegurancaRoute: AuthenticatedSegurancaRoute,
