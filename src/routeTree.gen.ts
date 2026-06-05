@@ -22,6 +22,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
 import { Route as LojaIdRouteImport } from './routes/loja.$id'
+import { Route as AuthenticatedLojistaCrmRouteImport } from './routes/_authenticated/lojista-crm'
 import { Route as AuthenticatedLojistaRouteImport } from './routes/_authenticated/lojista'
 import { Route as AuthenticatedEnderecosRouteImport } from './routes/_authenticated/enderecos'
 import { Route as AuthenticatedComprasRouteImport } from './routes/_authenticated/compras'
@@ -91,6 +92,11 @@ const LojaIdRoute = LojaIdRouteImport.update({
   path: '/loja/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedLojistaCrmRoute = AuthenticatedLojistaCrmRouteImport.update({
+  id: '/lojista-crm',
+  path: '/lojista-crm',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedLojistaRoute = AuthenticatedLojistaRouteImport.update({
   id: '/lojista',
   path: '/lojista',
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/compras': typeof AuthenticatedComprasRoute
   '/enderecos': typeof AuthenticatedEnderecosRoute
   '/lojista': typeof AuthenticatedLojistaRoute
+  '/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
 }
@@ -145,6 +152,7 @@ export interface FileRoutesByTo {
   '/compras': typeof AuthenticatedComprasRoute
   '/enderecos': typeof AuthenticatedEnderecosRoute
   '/lojista': typeof AuthenticatedLojistaRoute
+  '/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
 }
@@ -165,6 +173,7 @@ export interface FileRoutesById {
   '/_authenticated/compras': typeof AuthenticatedComprasRoute
   '/_authenticated/enderecos': typeof AuthenticatedEnderecosRoute
   '/_authenticated/lojista': typeof AuthenticatedLojistaRoute
+  '/_authenticated/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
 }
@@ -185,6 +194,7 @@ export interface FileRouteTypes {
     | '/compras'
     | '/enderecos'
     | '/lojista'
+    | '/lojista-crm'
     | '/loja/$id'
     | '/produto/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -203,6 +213,7 @@ export interface FileRouteTypes {
     | '/compras'
     | '/enderecos'
     | '/lojista'
+    | '/lojista-crm'
     | '/loja/$id'
     | '/produto/$id'
   id:
@@ -222,6 +233,7 @@ export interface FileRouteTypes {
     | '/_authenticated/compras'
     | '/_authenticated/enderecos'
     | '/_authenticated/lojista'
+    | '/_authenticated/lojista-crm'
     | '/loja/$id'
     | '/produto/$id'
   fileRoutesById: FileRoutesById
@@ -335,6 +347,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LojaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/lojista-crm': {
+      id: '/_authenticated/lojista-crm'
+      path: '/lojista-crm'
+      fullPath: '/lojista-crm'
+      preLoaderRoute: typeof AuthenticatedLojistaCrmRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/lojista': {
       id: '/_authenticated/lojista'
       path: '/lojista'
@@ -371,6 +390,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedComprasRoute: typeof AuthenticatedComprasRoute
   AuthenticatedEnderecosRoute: typeof AuthenticatedEnderecosRoute
   AuthenticatedLojistaRoute: typeof AuthenticatedLojistaRoute
+  AuthenticatedLojistaCrmRoute: typeof AuthenticatedLojistaCrmRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -378,6 +398,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedComprasRoute: AuthenticatedComprasRoute,
   AuthenticatedEnderecosRoute: AuthenticatedEnderecosRoute,
   AuthenticatedLojistaRoute: AuthenticatedLojistaRoute,
+  AuthenticatedLojistaCrmRoute: AuthenticatedLojistaCrmRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
