@@ -27,7 +27,7 @@ type Conversation = {
   customer_id: string;
   last_message_at: string;
   store: { id: string; name: string; logo_url: string | null; owner_id: string } | null;
-  customer: { id: string; display_name: string | null; avatar_url: string | null } | null;
+  customer?: { id: string; display_name: string | null; avatar_url: string | null } | null;
 };
 type Message = {
   id: string;
@@ -66,9 +66,16 @@ function ConversationList({ userId, onOpen }: { userId: string; onOpen: (id: str
   const load = async () => {
     const { data } = await supabase
       .from("conversations")
-      .select("id, store_id, customer_id, last_message_at, store:stores(id, name, logo_url, owner_id), customer:profiles!conversations_customer_id_fkey(id, display_name, avatar_url)")
+      .select("id, store_id, customer_id, last_message_at, store:stores(id, name, logo_url, owner_id)")
       .order("last_message_at", { ascending: false });
-    setItems((data as unknown as Conversation[]) ?? []);
+    const rows = (data as unknown as Conversation[]) ?? [];
+    const customerIds = Array.from(new Set(rows.map((r) => r.customer_id)));
+    if (customerIds.length) {
+      const { data: profs } = await supabase.from("profiles").select("id, display_name, avatar_url").in("id", customerIds);
+      const map = new Map((profs ?? []).map((p) => [p.id, p]));
+      rows.forEach((r) => { r.customer = (map.get(r.customer_id) as Conversation["customer"]) ?? null; });
+    }
+    setItems(rows);
   };
 
   useEffect(() => {
@@ -140,10 +147,15 @@ function ConversationView({ conversationId, userId, onBack }: { conversationId: 
     (async () => {
       const { data: c } = await supabase
         .from("conversations")
-        .select("id, store_id, customer_id, last_message_at, store:stores(id, name, logo_url, owner_id), customer:profiles!conversations_customer_id_fkey(id, display_name, avatar_url)")
+        .select("id, store_id, customer_id, last_message_at, store:stores(id, name, logo_url, owner_id)")
         .eq("id", conversationId)
         .maybeSingle();
-      setConv(c as unknown as Conversation);
+      const conv = c as unknown as Conversation | null;
+      if (conv) {
+        const { data: p } = await supabase.from("profiles").select("id, display_name, avatar_url").eq("id", conv.customer_id).maybeSingle();
+        conv.customer = (p as Conversation["customer"]) ?? null;
+      }
+      setConv(conv);
       const { data: m } = await supabase
         .from("messages")
         .select("id, conversation_id, sender_id, text, created_at")
