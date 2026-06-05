@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Settings, Package, Heart, MapPin, CreditCard, ShieldCheck, HelpCircle, LogOut, ChevronRight, BadgeCheck, Store as StoreIcon } from "lucide-react";
+import { Settings, Package, Heart, MapPin, ShieldCheck, HelpCircle, LogOut, ChevronRight, BadgeCheck, Store as StoreIcon } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { CurrencySelector } from "@/components/CurrencySelector";
 import { SettingsSheet } from "@/components/SettingsSheet";
