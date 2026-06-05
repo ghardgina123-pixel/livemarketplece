@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { ArrowLeft, BarChart3, Package, ShoppingBag, Menu, Wallet, Radio, Settings, Loader2 } from "lucide-react";
+import { ArrowLeft, BarChart3, Package, ShoppingBag, Menu, Wallet, Radio, Settings, Loader2, Film } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,7 @@ const NAV = [
   { to: "/lojista/dashboard", label: "Visão geral", icon: BarChart3 },
   { to: "/lojista/produtos", label: "Produtos", icon: Package },
   { to: "/lojista/pedidos", label: "Pedidos", icon: ShoppingBag },
+  { to: "/lojista/videos", label: "Shorts da loja", icon: Film },
   { to: "/lojista-crm", label: "CRM Premium", icon: Wallet },
 ] as const;
 
