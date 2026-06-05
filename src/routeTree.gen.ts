@@ -24,6 +24,7 @@ import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
 import { Route as LojaIdRouteImport } from './routes/loja.$id'
 import { Route as AuthenticatedLojistaRouteImport } from './routes/_authenticated/lojista'
 import { Route as AuthenticatedEnderecosRouteImport } from './routes/_authenticated/enderecos'
+import { Route as AuthenticatedComprasRouteImport } from './routes/_authenticated/compras'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -99,6 +100,11 @@ const AuthenticatedEnderecosRoute = AuthenticatedEnderecosRouteImport.update({
   path: '/enderecos',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedComprasRoute = AuthenticatedComprasRouteImport.update({
+  id: '/compras',
+  path: '/compras',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -111,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/compras': typeof AuthenticatedComprasRoute
   '/enderecos': typeof AuthenticatedEnderecosRoute
   '/lojista': typeof AuthenticatedLojistaRoute
   '/loja/$id': typeof LojaIdRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByTo {
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/compras': typeof AuthenticatedComprasRoute
   '/enderecos': typeof AuthenticatedEnderecosRoute
   '/lojista': typeof AuthenticatedLojistaRoute
   '/loja/$id': typeof LojaIdRoute
@@ -145,6 +153,7 @@ export interface FileRoutesById {
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/compras': typeof AuthenticatedComprasRoute
   '/_authenticated/enderecos': typeof AuthenticatedEnderecosRoute
   '/_authenticated/lojista': typeof AuthenticatedLojistaRoute
   '/loja/$id': typeof LojaIdRoute
@@ -163,6 +172,7 @@ export interface FileRouteTypes {
     | '/lojas'
     | '/perfil'
     | '/sitemap.xml'
+    | '/compras'
     | '/enderecos'
     | '/lojista'
     | '/loja/$id'
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/lojas'
     | '/perfil'
     | '/sitemap.xml'
+    | '/compras'
     | '/enderecos'
     | '/lojista'
     | '/loja/$id'
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/lojas'
     | '/perfil'
     | '/sitemap.xml'
+    | '/_authenticated/compras'
     | '/_authenticated/enderecos'
     | '/_authenticated/lojista'
     | '/loja/$id'
@@ -325,15 +337,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEnderecosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/compras': {
+      id: '/_authenticated/compras'
+      path: '/compras'
+      fullPath: '/compras'
+      preLoaderRoute: typeof AuthenticatedComprasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedComprasRoute: typeof AuthenticatedComprasRoute
   AuthenticatedEnderecosRoute: typeof AuthenticatedEnderecosRoute
   AuthenticatedLojistaRoute: typeof AuthenticatedLojistaRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedComprasRoute: AuthenticatedComprasRoute,
   AuthenticatedEnderecosRoute: AuthenticatedEnderecosRoute,
   AuthenticatedLojistaRoute: AuthenticatedLojistaRoute,
 }
@@ -359,3 +380,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
