@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { BrandLogo, getBrand } from "@/lib/payment-brands";
 
 export const Route = createFileRoute("/_authenticated/lojista-crm")({
   head: () => ({ meta: [{ title: "CRM Premium — Live Market" }] }),
@@ -25,12 +26,12 @@ type Sub = {
 };
 
 const PAYMENT_METHODS = [
-  { value: "express", label: "Express (Multicaixa)" },
+  { value: "multicaixa_express", label: "Multicaixa Express" },
   { value: "ekwanza", label: "e-Kwanza" },
   { value: "unitel_money", label: "Unitel Money" },
   { value: "afrimoney", label: "Afrimoney" },
   { value: "kwik", label: "Kwik" },
-  { value: "multicaixa_ref", label: "Referência Multicaixa" },
+  { value: "multicaixa_reference", label: "Referência Multicaixa" },
 ];
 
 function CRM() {
@@ -261,14 +262,28 @@ function PaymentForm({ sub, storeId, onSaved, forceResubmit }: { sub: Sub; store
     <div className="space-y-4 rounded-2xl border border-border p-4">
       <div>
         <label className="text-xs font-semibold text-muted-foreground">Método de pagamento</label>
-        <select
-          value={method}
-          onChange={(e) => setMethod(e.target.value)}
-          className="mt-1 h-11 w-full rounded-xl border border-border bg-background px-3 text-sm"
-        >
-          <option value="">Selecione…</option>
-          {PAYMENT_METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-        </select>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          {PAYMENT_METHODS.map((m) => {
+            const brand = getBrand(m.value);
+            const active = method === m.value;
+            return (
+              <button
+                type="button"
+                key={m.value}
+                onClick={() => setMethod(m.value)}
+                className="flex items-center gap-2 rounded-xl border p-2 text-left transition"
+                style={{
+                  borderColor: active ? brand.bg : "hsl(var(--border))",
+                  background: active ? brand.tint : "transparent",
+                  boxShadow: active ? `0 0 0 2px ${brand.ring}` : undefined,
+                }}
+              >
+                <BrandLogo methodType={m.value} size={32} rounded="rounded-lg" />
+                <span className="text-[12px] font-semibold leading-tight">{m.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div>
