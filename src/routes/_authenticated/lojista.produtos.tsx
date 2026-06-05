@@ -9,14 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { z } from "zod";
-
-const productSchema = z.object({
-  name: z.string().trim().min(2, "Nome muito curto").max(200, "Nome muito longo"),
-  description: z.string().trim().max(2000).optional().or(z.literal("")),
-  price_aoa: z.number().positive("Preço inválido").max(100_000_000),
-  stock: z.number().int().min(0).max(1_000_000),
-});
+import { productSchema } from "@/lib/schemas";
 
 export const Route = createFileRoute("/_authenticated/lojista/produtos")({
   head: () => ({ meta: [{ title: "Produtos — Lojista" }] }),
