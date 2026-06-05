@@ -43,7 +43,6 @@ function Checkout() {
   const items = useCart();
   const subtotal = useCartTotal();
   const currency = useCurrency();
-  const [pay, setPay] = useState<"pix" | "card" | "boleto">("pix");
   const [done, setDone] = useState(false);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [addrLoading, setAddrLoading] = useState(true);
