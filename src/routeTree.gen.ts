@@ -37,6 +37,7 @@ import { Route as AuthenticatedAfiliadosRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin-crm'
 import { Route as AuthenticatedLojistaIndexRouteImport } from './routes/_authenticated/lojista.index'
 import { Route as AuthenticatedLojistaProdutosRouteImport } from './routes/_authenticated/lojista.produtos'
+import { Route as AuthenticatedLojistaPedidosRouteImport } from './routes/_authenticated/lojista.pedidos'
 import { Route as AuthenticatedLojistaDashboardRouteImport } from './routes/_authenticated/lojista.dashboard'
 
 const TermosRoute = TermosRouteImport.update({
@@ -181,6 +182,12 @@ const AuthenticatedLojistaProdutosRoute =
     path: '/produtos',
     getParentRoute: () => AuthenticatedLojistaRoute,
   } as any)
+const AuthenticatedLojistaPedidosRoute =
+  AuthenticatedLojistaPedidosRouteImport.update({
+    id: '/pedidos',
+    path: '/pedidos',
+    getParentRoute: () => AuthenticatedLojistaRoute,
+  } as any)
 const AuthenticatedLojistaDashboardRoute =
   AuthenticatedLojistaDashboardRouteImport.update({
     id: '/dashboard',
@@ -215,6 +222,7 @@ export interface FileRoutesByFullPath {
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
+  '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
   '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/lojista/': typeof AuthenticatedLojistaIndexRoute
 }
@@ -244,6 +252,7 @@ export interface FileRoutesByTo {
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
+  '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
   '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/lojista': typeof AuthenticatedLojistaIndexRoute
 }
@@ -276,6 +285,7 @@ export interface FileRoutesById {
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
   '/_authenticated/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
+  '/_authenticated/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
   '/_authenticated/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/_authenticated/lojista/': typeof AuthenticatedLojistaIndexRoute
 }
@@ -308,6 +318,7 @@ export interface FileRouteTypes {
     | '/loja/$id'
     | '/produto/$id'
     | '/lojista/dashboard'
+    | '/lojista/pedidos'
     | '/lojista/produtos'
     | '/lojista/'
   fileRoutesByTo: FileRoutesByTo
@@ -337,6 +348,7 @@ export interface FileRouteTypes {
     | '/loja/$id'
     | '/produto/$id'
     | '/lojista/dashboard'
+    | '/lojista/pedidos'
     | '/lojista/produtos'
     | '/lojista'
   id:
@@ -368,6 +380,7 @@ export interface FileRouteTypes {
     | '/loja/$id'
     | '/produto/$id'
     | '/_authenticated/lojista/dashboard'
+    | '/_authenticated/lojista/pedidos'
     | '/_authenticated/lojista/produtos'
     | '/_authenticated/lojista/'
   fileRoutesById: FileRoutesById
@@ -588,6 +601,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLojistaProdutosRouteImport
       parentRoute: typeof AuthenticatedLojistaRoute
     }
+    '/_authenticated/lojista/pedidos': {
+      id: '/_authenticated/lojista/pedidos'
+      path: '/pedidos'
+      fullPath: '/lojista/pedidos'
+      preLoaderRoute: typeof AuthenticatedLojistaPedidosRouteImport
+      parentRoute: typeof AuthenticatedLojistaRoute
+    }
     '/_authenticated/lojista/dashboard': {
       id: '/_authenticated/lojista/dashboard'
       path: '/dashboard'
@@ -600,12 +620,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedLojistaRouteChildren {
   AuthenticatedLojistaDashboardRoute: typeof AuthenticatedLojistaDashboardRoute
+  AuthenticatedLojistaPedidosRoute: typeof AuthenticatedLojistaPedidosRoute
   AuthenticatedLojistaProdutosRoute: typeof AuthenticatedLojistaProdutosRoute
   AuthenticatedLojistaIndexRoute: typeof AuthenticatedLojistaIndexRoute
 }
 
 const AuthenticatedLojistaRouteChildren: AuthenticatedLojistaRouteChildren = {
   AuthenticatedLojistaDashboardRoute: AuthenticatedLojistaDashboardRoute,
+  AuthenticatedLojistaPedidosRoute: AuthenticatedLojistaPedidosRoute,
   AuthenticatedLojistaProdutosRoute: AuthenticatedLojistaProdutosRoute,
   AuthenticatedLojistaIndexRoute: AuthenticatedLojistaIndexRoute,
 }
