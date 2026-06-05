@@ -96,14 +96,12 @@ function VideosManager() {
       if (sErr || !signed?.signedUrl) throw sErr ?? new Error("Falha ao gerar URL");
       setProgress(85);
 
-      const payload: { store_id: string; product_id?: string; video_url: string; caption?: string } = {
+      const { error: insErr } = await supabase.from("product_videos").insert({
         store_id: storeId,
+        product_id: productId || null,
         video_url: signed.signedUrl,
-      };
-      if (productId) payload.product_id = productId;
-      const trimmed = caption.trim().slice(0, 280);
-      if (trimmed) payload.caption = trimmed;
-      const { error: insErr } = await supabase.from("product_videos").insert(payload);
+        caption: caption.trim().slice(0, 280) || null,
+      });
       if (insErr) throw insErr;
 
       setProgress(100);
@@ -121,7 +119,7 @@ function VideosManager() {
   };
 
   const unlink = async (v: Video) => {
-      const { error } = await supabase.from("product_videos").update({ product_id: null as unknown as string }).eq("id", v.id);
+      const { error } = await supabase.from("product_videos").update({ product_id: null }).eq("id", v.id);
     if (error) return toast.error(error.message);
     toast.success("Produto desvinculado");
     if (storeId) loadVideos(storeId);
