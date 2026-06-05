@@ -83,6 +83,38 @@ export type Database = {
           },
         ]
       }
+      conversations: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          last_message_at: string
+          store_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          id?: string
+          last_message_at?: string
+          store_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          last_message_at?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       live_products: {
         Row: {
           live_id: string
@@ -153,6 +185,38 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          sender_id: string
+          text: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          sender_id: string
+          text: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
         ]
