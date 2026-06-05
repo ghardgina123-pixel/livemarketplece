@@ -90,7 +90,7 @@ export function formatPrice(amountBRL: number, currency?: Currency): string {
     return new Intl.NumberFormat(c.locale, {
       style: "currency",
       currency: c.code,
-      maximumFractionDigits: c.code === "AOA" ? 0 : 2,
+      maximumFractionDigits: 2,
     }).format(value);
   } catch {
     return `${c.symbol} ${value.toFixed(2)}`;
