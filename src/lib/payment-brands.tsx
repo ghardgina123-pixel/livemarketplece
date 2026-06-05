@@ -1,5 +1,10 @@
 import { Banknote, CreditCard, Building2, Receipt } from "lucide-react";
 import type { ReactNode } from "react";
+import expressAsset from "@/assets/payments/express.jpg.asset.json";
+import afrimoneyAsset from "@/assets/payments/afrimoney.jpg.asset.json";
+import unitelMoneyAsset from "@/assets/payments/unitelmoney.jpg.asset.json";
+import kwikAsset from "@/assets/payments/kwik.jpg.asset.json";
+import tpaAsset from "@/assets/payments/tpa.jpg.asset.json";
 
 export type PaymentBrand = {
   name: string;
@@ -17,12 +22,16 @@ const Mono = ({ children, className = "" }: { children: ReactNode; className?: s
   <span className={`text-[11px] font-extrabold leading-none tracking-tight ${className}`}>{children}</span>
 );
 
+const BrandImg = ({ src, alt }: { src: string; alt: string }) => (
+  <img src={src} alt={alt} className="h-full w-full rounded-[inherit] object-cover" loading="lazy" />
+);
+
 export const PAYMENT_BRANDS: Record<string, PaymentBrand> = {
   multicaixa_express: {
     name: "Multicaixa Express",
     bg: "#E2231A", fg: "#FFFFFF",
     ring: "rgba(226,35,26,0.25)", tint: "#FEECEB",
-    logo: <Mono className="text-white">EXP</Mono>,
+    logo: <BrandImg src={expressAsset.url} alt="Multicaixa Express" />,
     tagline: "Pagamento instantâneo",
   },
   multicaixa_reference: {
@@ -43,28 +52,28 @@ export const PAYMENT_BRANDS: Record<string, PaymentBrand> = {
     name: "Unitel Money",
     bg: "#E30613", fg: "#FFFFFF",
     ring: "rgba(227,6,19,0.25)", tint: "#FDE7E9",
-    logo: <Mono className="text-white">UM</Mono>,
+    logo: <BrandImg src={unitelMoneyAsset.url} alt="Unitel Money" />,
     tagline: "Dinheiro móvel Unitel",
   },
   afrimoney: {
     name: "Afrimoney",
     bg: "#F58220", fg: "#FFFFFF",
     ring: "rgba(245,130,32,0.25)", tint: "#FEEFE1",
-    logo: <Mono className="text-white">AM</Mono>,
+    logo: <BrandImg src={afrimoneyAsset.url} alt="Afrimoney" />,
     tagline: "Dinheiro móvel Africell",
   },
   kwik: {
     name: "Kwik",
     bg: "#FFD200", fg: "#111111",
     ring: "rgba(255,210,0,0.4)", tint: "#FFF8D6",
-    logo: <Mono className="text-black">Kw</Mono>,
+    logo: <BrandImg src={kwikAsset.url} alt="Kwik" />,
     tagline: "Pagamento rápido",
   },
   stripe_card: {
     name: "Cartão (Visa / Mastercard)",
     bg: "#635BFF", fg: "#FFFFFF",
     ring: "rgba(99,91,255,0.25)", tint: "#ECEBFF",
-    logo: <CreditCard size={18} className="text-white" />,
+    logo: <BrandImg src={tpaAsset.url} alt="TPA / Cartão" />,
     tagline: "Crédito ou débito",
   },
   bank_transfer: {
