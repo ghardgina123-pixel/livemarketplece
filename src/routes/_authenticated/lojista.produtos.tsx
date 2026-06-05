@@ -9,6 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const productSchema = z.object({
+  name: z.string().trim().min(2, "Nome muito curto").max(200, "Nome muito longo"),
+  description: z.string().trim().max(2000).optional().or(z.literal("")),
+  price_aoa: z.number().positive("Preço inválido").max(100_000_000),
+  stock: z.number().int().min(0).max(1_000_000),
+});
 
 export const Route = createFileRoute("/_authenticated/lojista/produtos")({
   head: () => ({ meta: [{ title: "Produtos — Lojista" }] }),
@@ -110,7 +118,10 @@ function ProductForm({ storeId, initial, onDone }: { storeId: string; initial: P
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.price_aoa) return toast.error("Nome e preço obrigatórios");
+    const priceAoa = Number(form.price_aoa);
+    const stock = Number(form.stock);
+    const parsed = productSchema.safeParse({ name: form.name, description: form.description, price_aoa: priceAoa, stock });
+    if (!parsed.success) return toast.error(parsed.error.issues[0]?.message ?? "Dados inválidos");
     setBusy(true);
     try {
       let image_url = initial?.image_url ?? null;
@@ -125,13 +136,12 @@ function ProductForm({ storeId, initial, onDone }: { storeId: string; initial: P
         if (sErr) throw sErr;
         image_url = signed.signedUrl;
       }
-      const priceAoa = Number(form.price_aoa);
       const payload = {
-        name: form.name,
-        description: form.description || null,
-        price_aoa: priceAoa,
-        price_brl: Math.round((priceAoa / 175) * 100) / 100,
-        stock: Number(form.stock) || 0,
+        name: parsed.data.name,
+        description: parsed.data.description || null,
+        price_aoa: parsed.data.price_aoa,
+        price_brl: Math.round((parsed.data.price_aoa / 175) * 100) / 100,
+        stock: parsed.data.stock,
         image_url,
       };
       if (initial) {

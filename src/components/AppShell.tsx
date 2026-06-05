@@ -1,12 +1,12 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Store, MessageCircle, ShoppingCart, User } from "lucide-react";
+import { Home, Store, Play, ShoppingCart, User } from "lucide-react";
 import { useCartCount } from "@/lib/cart-store";
 import type { ReactNode } from "react";
 
 const tabs = [
   { to: "/home", icon: Home, label: "Início" },
   { to: "/lojas", icon: Store, label: "Lojas" },
-  { to: "/chat", icon: MessageCircle, label: "Chat" },
+  { to: "/shorts", icon: Play, label: "Shorts" },
   { to: "/carrinho", icon: ShoppingCart, label: "Carrinho" },
   { to: "/perfil", icon: User, label: "Perfil" },
 ] as const;
