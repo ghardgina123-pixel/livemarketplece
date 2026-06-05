@@ -232,7 +232,12 @@ function PaymentForm({ sub, storeId, onSaved, forceResubmit }: { sub: Sub; store
         proofUrl = path;
       }
       // Se foi rejeitada, reabrir como pending para nova analise
-      const patch: Record<string, unknown> = { payment_method: method, proof_url: proofUrl };
+      const patch: {
+        payment_method: string;
+        proof_url: string | null;
+        status?: string;
+        rejection_reason?: string | null;
+      } = { payment_method: method, proof_url: proofUrl };
       if (sub.status === "rejected") {
         patch.status = "pending";
         patch.rejection_reason = null;
