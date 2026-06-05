@@ -1,67 +1,89 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Search, Send, ShieldCheck, ArrowLeft } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
+import { Search, Send, ShieldCheck, ArrowLeft, Loader2, MessageCircle } from "lucide-react";
+import { z } from "zod";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
-import { stores } from "@/lib/data";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
+
+const searchSchema = z.object({ c: z.string().uuid().optional() });
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
     meta: [
       { title: "Chat — Live Market" },
-      { property: "og:url", content: "https://livemarket.app/chat" },
+      { name: "description", content: "Converse em tempo real com as lojas do Live Market." },
     ],
-    links: [{ rel: "canonical", href: "https://livemarket.app/chat" }],
   }),
+  validateSearch: searchSchema,
   component: ChatPage,
 });
 
-type Msg = { from: "me" | "them"; text: string; time: string };
+type Conversation = {
+  id: string;
+  store_id: string;
+  customer_id: string;
+  last_message_at: string;
+  store: { id: string; name: string; logo_url: string | null; owner_id: string } | null;
+  customer: { id: string; display_name: string | null; avatar_url: string | null } | null;
+};
+type Message = {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  text: string;
+  created_at: string;
+};
 
 function ChatPage() {
-  const [openId, setOpenId] = useState<string | null>(null);
-  const open = openId ? stores.find((s) => s.id === openId) : null;
-  const [msgs, setMsgs] = useState<Msg[]>([
-    { from: "them", text: "Olá! Como posso te ajudar hoje? 👋", time: "09:12" },
-    { from: "me", text: "Oi! O abacate ainda está disponível?", time: "09:13" },
-    { from: "them", text: "Sim! Acabou de chegar lote fresquinho 🥑", time: "09:13" },
-  ]);
-  const [input, setInput] = useState("");
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const { c: openId } = Route.useSearch();
 
-  if (open) {
+  if (loading) return <AppShell><div className="flex h-[60vh] items-center justify-center"><Loader2 className="animate-spin text-primary" /></div></AppShell>;
+  if (!user) {
     return (
-      <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col bg-background">
-        <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-background px-4 py-3">
-          <button onClick={() => setOpenId(null)}><ArrowLeft size={20} /></button>
-          <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${open.cover} text-xl`}>{open.emoji}</div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold">{open.name}</p>
-            <p className="text-[11px] text-primary">● online agora</p>
-          </div>
-        </header>
-        <div className="flex-1 space-y-3 px-4 py-4">
-          <div className="mx-auto flex max-w-[80%] items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-[11px] text-accent-foreground">
-            <ShieldCheck size={12} /> Conversa protegida pelo Live Market
-          </div>
-          {msgs.map((m, i) => (
-            <div key={i} className={`flex ${m.from === "me" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${m.from === "me" ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-muted text-foreground"}`}>
-                <p>{m.text}</p>
-                <p className={`mt-0.5 text-[10px] ${m.from === "me" ? "text-white/70" : "text-muted-foreground"}`}>{m.time}</p>
-              </div>
-            </div>
-          ))}
+      <AppShell>
+        <div className="flex h-[60vh] flex-col items-center justify-center gap-3 px-6 text-center">
+          <MessageCircle className="text-primary" size={36} />
+          <p className="text-sm text-muted-foreground">Entre para ver suas conversas com as lojas.</p>
+          <button onClick={() => navigate({ to: "/login" })} className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground">Entrar</button>
         </div>
-        <form
-          onSubmit={(e) => { e.preventDefault(); if (!input.trim()) return; setMsgs((m) => [...m, { from: "me", text: input, time: "agora" }]); setInput(""); }}
-          className="sticky bottom-0 flex items-center gap-2 border-t border-border bg-background p-3"
-        >
-          <Input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Mensagem…" className="h-11 flex-1 rounded-full bg-muted" />
-          <button type="submit" className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-glow)]"><Send size={18} /></button>
-        </form>
-      </div>
+      </AppShell>
     );
   }
+
+  if (openId) return <ConversationView conversationId={openId} userId={user.id} onBack={() => navigate({ to: "/chat", search: {} })} />;
+  return <ConversationList userId={user.id} onOpen={(id) => navigate({ to: "/chat", search: { c: id } })} />;
+}
+
+function ConversationList({ userId, onOpen }: { userId: string; onOpen: (id: string) => void }) {
+  const [items, setItems] = useState<Conversation[] | null>(null);
+  const [q, setQ] = useState("");
+
+  const load = async () => {
+    const { data } = await supabase
+      .from("conversations")
+      .select("id, store_id, customer_id, last_message_at, store:stores(id, name, logo_url, owner_id), customer:profiles!conversations_customer_id_fkey(id, display_name, avatar_url)")
+      .order("last_message_at", { ascending: false });
+    setItems((data as unknown as Conversation[]) ?? []);
+  };
+
+  useEffect(() => {
+    load();
+    const ch = supabase
+      .channel("conv-list")
+      .on("postgres_changes", { event: "*", schema: "public", table: "conversations" }, load)
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [userId]);
+
+  const filtered = (items ?? []).filter((c) => {
+    const name = c.store?.owner_id === userId ? c.customer?.display_name ?? "Cliente" : c.store?.name ?? "Loja";
+    return name.toLowerCase().includes(q.toLowerCase());
+  });
 
   return (
     <AppShell>
@@ -69,28 +91,144 @@ function ChatPage() {
         <h1 className="text-2xl font-bold">Mensagens</h1>
         <div className="relative mt-3">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-          <Input placeholder="Buscar conversas…" className="h-11 rounded-xl bg-muted pl-10" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar conversas…" className="h-11 rounded-xl bg-muted pl-10" />
         </div>
       </header>
-      <ul className="divide-y divide-border">
-        {stores.map((s, i) => (
-          <li key={s.id}>
-            <button onClick={() => setOpenId(s.id)} className="flex w-full items-center gap-3 px-5 py-3 text-left">
-              <div className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${s.cover} text-xl`}>{s.emoji}</div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <p className="truncate font-semibold">{s.name}</p>
-                  <span className="text-[10px] text-muted-foreground">{i === 0 ? "agora" : `${i * 2}h`}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <p className="truncate text-xs text-muted-foreground">{i % 2 === 0 ? "Obrigada pela compra! 💚" : "Acabou de chegar estoque novo"}</p>
-                  {i < 2 && <span className="ml-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">{i + 1}</span>}
-                </div>
-              </div>
-            </button>
-          </li>
-        ))}
-      </ul>
+      {items === null ? (
+        <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" /></div>
+      ) : filtered.length === 0 ? (
+        <div className="px-6 py-16 text-center text-sm text-muted-foreground">
+          Sem conversas ainda. Abra uma loja e toque em <strong>Conversar</strong> para começar.
+        </div>
+      ) : (
+        <ul className="divide-y divide-border">
+          {filtered.map((c) => {
+            const asSeller = c.store?.owner_id === userId;
+            const name = asSeller ? (c.customer?.display_name ?? "Cliente") : (c.store?.name ?? "Loja");
+            const avatar = asSeller ? c.customer?.avatar_url : c.store?.logo_url;
+            return (
+              <li key={c.id}>
+                <button onClick={() => onOpen(c.id)} className="flex w-full items-center gap-3 px-5 py-3 text-left">
+                  <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-accent text-xl">
+                    {avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : "🛍️"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate font-semibold">{name}</p>
+                      <span className="text-[10px] text-muted-foreground">{relTime(c.last_message_at)}</span>
+                    </div>
+                    <p className="truncate text-xs text-muted-foreground">{asSeller ? "Cliente" : "Loja"} · toque para abrir</p>
+                  </div>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </AppShell>
   );
+}
+
+function ConversationView({ conversationId, userId, onBack }: { conversationId: string; userId: string; onBack: () => void }) {
+  const [conv, setConv] = useState<Conversation | null>(null);
+  const [msgs, setMsgs] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
+  const endRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data: c } = await supabase
+        .from("conversations")
+        .select("id, store_id, customer_id, last_message_at, store:stores(id, name, logo_url, owner_id), customer:profiles!conversations_customer_id_fkey(id, display_name, avatar_url)")
+        .eq("id", conversationId)
+        .maybeSingle();
+      setConv(c as unknown as Conversation);
+      const { data: m } = await supabase
+        .from("messages")
+        .select("id, conversation_id, sender_id, text, created_at")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: true })
+        .limit(200);
+      setMsgs((m as Message[]) ?? []);
+    })();
+
+    const ch = supabase
+      .channel(`conv-${conversationId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
+        (payload) => {
+          const m = payload.new as Message;
+          setMsgs((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m]));
+        },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [conversationId]);
+
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs.length]);
+
+  const send = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = input.trim();
+    if (!text) return;
+    setSending(true);
+    setInput("");
+    const { error } = await supabase.from("messages").insert({ conversation_id: conversationId, sender_id: userId, text });
+    setSending(false);
+    if (error) { toast.error("Não foi possível enviar"); setInput(text); }
+  };
+
+  const asSeller = conv?.store?.owner_id === userId;
+  const name = asSeller ? (conv?.customer?.display_name ?? "Cliente") : (conv?.store?.name ?? "Loja");
+  const avatar = asSeller ? conv?.customer?.avatar_url : conv?.store?.logo_url;
+
+  return (
+    <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col bg-background">
+      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-background px-4 py-3">
+        <button onClick={onBack} aria-label="Voltar"><ArrowLeft size={20} /></button>
+        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-accent text-xl">
+          {avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : "🛍️"}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="truncate text-sm font-semibold">{name}</p>
+          <p className="text-[11px] text-primary">● realtime</p>
+        </div>
+      </header>
+      <div className="flex-1 space-y-3 px-4 py-4">
+        <div className="mx-auto flex max-w-[80%] items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-[11px] text-accent-foreground">
+          <ShieldCheck size={12} /> Conversa protegida pelo Live Market
+        </div>
+        {msgs.map((m) => {
+          const mine = m.sender_id === userId;
+          return (
+            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm ${mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-muted text-foreground"}`}>
+                <p className="whitespace-pre-wrap break-words">{m.text}</p>
+                <p className={`mt-0.5 text-[10px] ${mine ? "text-white/70" : "text-muted-foreground"}`}>{new Date(m.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</p>
+              </div>
+            </div>
+          );
+        })}
+        <div ref={endRef} />
+      </div>
+      <form onSubmit={send} className="sticky bottom-0 flex items-center gap-2 border-t border-border bg-background p-3">
+        <Input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Mensagem…" maxLength={4000} className="h-11 flex-1 rounded-full bg-muted" />
+        <button type="submit" disabled={sending || !input.trim()} className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-glow)] disabled:opacity-50">
+          {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+function relTime(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "agora";
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  return `${Math.floor(h / 24)}d`;
 }
