@@ -38,6 +38,7 @@ import { Route as AuthenticatedComprasRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAfiliadosRouteImport } from './routes/_authenticated/afiliados'
 import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin-crm'
 import { Route as AuthenticatedLojistaIndexRouteImport } from './routes/_authenticated/lojista.index'
+import { Route as ApiPublicExchangeRouteImport } from './routes/api/public/exchange'
 import { Route as AuthenticatedLojistaVideosRouteImport } from './routes/_authenticated/lojista.videos'
 import { Route as AuthenticatedLojistaProdutosRouteImport } from './routes/_authenticated/lojista.produtos'
 import { Route as AuthenticatedLojistaPedidosRouteImport } from './routes/_authenticated/lojista.pedidos'
@@ -190,6 +191,11 @@ const AuthenticatedLojistaIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedLojistaRoute,
   } as any)
+const ApiPublicExchangeRoute = ApiPublicExchangeRouteImport.update({
+  id: '/api/public/exchange',
+  path: '/api/public/exchange',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedLojistaVideosRoute =
   AuthenticatedLojistaVideosRouteImport.update({
     id: '/videos',
@@ -253,6 +259,7 @@ export interface FileRoutesByFullPath {
   '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
   '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/lojista/videos': typeof AuthenticatedLojistaVideosRoute
+  '/api/public/exchange': typeof ApiPublicExchangeRoute
   '/lojista/': typeof AuthenticatedLojistaIndexRoute
 }
 export interface FileRoutesByTo {
@@ -287,6 +294,7 @@ export interface FileRoutesByTo {
   '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
   '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/lojista/videos': typeof AuthenticatedLojistaVideosRoute
+  '/api/public/exchange': typeof ApiPublicExchangeRoute
   '/lojista': typeof AuthenticatedLojistaIndexRoute
 }
 export interface FileRoutesById {
@@ -324,6 +332,7 @@ export interface FileRoutesById {
   '/_authenticated/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
   '/_authenticated/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/_authenticated/lojista/videos': typeof AuthenticatedLojistaVideosRoute
+  '/api/public/exchange': typeof ApiPublicExchangeRoute
   '/_authenticated/lojista/': typeof AuthenticatedLojistaIndexRoute
 }
 export interface FileRouteTypes {
@@ -361,6 +370,7 @@ export interface FileRouteTypes {
     | '/lojista/pedidos'
     | '/lojista/produtos'
     | '/lojista/videos'
+    | '/api/public/exchange'
     | '/lojista/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -395,6 +405,7 @@ export interface FileRouteTypes {
     | '/lojista/pedidos'
     | '/lojista/produtos'
     | '/lojista/videos'
+    | '/api/public/exchange'
     | '/lojista'
   id:
     | '__root__'
@@ -431,6 +442,7 @@ export interface FileRouteTypes {
     | '/_authenticated/lojista/pedidos'
     | '/_authenticated/lojista/produtos'
     | '/_authenticated/lojista/videos'
+    | '/api/public/exchange'
     | '/_authenticated/lojista/'
   fileRoutesById: FileRoutesById
 }
@@ -452,6 +464,7 @@ export interface RootRouteChildren {
   LiveIdRoute: typeof LiveIdRoute
   LojaIdRoute: typeof LojaIdRoute
   ProdutoIdRoute: typeof ProdutoIdRoute
+  ApiPublicExchangeRoute: typeof ApiPublicExchangeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -659,6 +672,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLojistaIndexRouteImport
       parentRoute: typeof AuthenticatedLojistaRoute
     }
+    '/api/public/exchange': {
+      id: '/api/public/exchange'
+      path: '/api/public/exchange'
+      fullPath: '/api/public/exchange'
+      preLoaderRoute: typeof ApiPublicExchangeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/lojista/videos': {
       id: '/_authenticated/lojista/videos'
       path: '/videos'
@@ -767,6 +787,7 @@ const rootRouteChildren: RootRouteChildren = {
   LiveIdRoute: LiveIdRoute,
   LojaIdRoute: LojaIdRoute,
   ProdutoIdRoute: ProdutoIdRoute,
+  ApiPublicExchangeRoute: ApiPublicExchangeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
