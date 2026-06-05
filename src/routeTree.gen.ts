@@ -25,6 +25,7 @@ import { Route as LojaIdRouteImport } from './routes/loja.$id'
 import { Route as AuthenticatedLojistaRouteImport } from './routes/_authenticated/lojista'
 import { Route as AuthenticatedEnderecosRouteImport } from './routes/_authenticated/enderecos'
 import { Route as AuthenticatedComprasRouteImport } from './routes/_authenticated/compras'
+import { Route as AuthenticatedAfiliadosRouteImport } from './routes/_authenticated/afiliados'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -105,6 +106,11 @@ const AuthenticatedComprasRoute = AuthenticatedComprasRouteImport.update({
   path: '/compras',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAfiliadosRoute = AuthenticatedAfiliadosRouteImport.update({
+  id: '/afiliados',
+  path: '/afiliados',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/afiliados': typeof AuthenticatedAfiliadosRoute
   '/compras': typeof AuthenticatedComprasRoute
   '/enderecos': typeof AuthenticatedEnderecosRoute
   '/lojista': typeof AuthenticatedLojistaRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/afiliados': typeof AuthenticatedAfiliadosRoute
   '/compras': typeof AuthenticatedComprasRoute
   '/enderecos': typeof AuthenticatedEnderecosRoute
   '/lojista': typeof AuthenticatedLojistaRoute
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/afiliados': typeof AuthenticatedAfiliadosRoute
   '/_authenticated/compras': typeof AuthenticatedComprasRoute
   '/_authenticated/enderecos': typeof AuthenticatedEnderecosRoute
   '/_authenticated/lojista': typeof AuthenticatedLojistaRoute
@@ -172,6 +181,7 @@ export interface FileRouteTypes {
     | '/lojas'
     | '/perfil'
     | '/sitemap.xml'
+    | '/afiliados'
     | '/compras'
     | '/enderecos'
     | '/lojista'
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
     | '/lojas'
     | '/perfil'
     | '/sitemap.xml'
+    | '/afiliados'
     | '/compras'
     | '/enderecos'
     | '/lojista'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/lojas'
     | '/perfil'
     | '/sitemap.xml'
+    | '/_authenticated/afiliados'
     | '/_authenticated/compras'
     | '/_authenticated/enderecos'
     | '/_authenticated/lojista'
@@ -344,16 +356,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedComprasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/afiliados': {
+      id: '/_authenticated/afiliados'
+      path: '/afiliados'
+      fullPath: '/afiliados'
+      preLoaderRoute: typeof AuthenticatedAfiliadosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAfiliadosRoute: typeof AuthenticatedAfiliadosRoute
   AuthenticatedComprasRoute: typeof AuthenticatedComprasRoute
   AuthenticatedEnderecosRoute: typeof AuthenticatedEnderecosRoute
   AuthenticatedLojistaRoute: typeof AuthenticatedLojistaRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAfiliadosRoute: AuthenticatedAfiliadosRoute,
   AuthenticatedComprasRoute: AuthenticatedComprasRoute,
   AuthenticatedEnderecosRoute: AuthenticatedEnderecosRoute,
   AuthenticatedLojistaRoute: AuthenticatedLojistaRoute,
