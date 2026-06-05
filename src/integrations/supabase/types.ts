@@ -674,6 +674,44 @@ export type Database = {
         }
         Relationships: []
       }
+      store_private: {
+        Row: {
+          bank_account: string | null
+          bank_holder: string | null
+          bank_name: string | null
+          created_at: string
+          nif: string | null
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          bank_account?: string | null
+          bank_holder?: string | null
+          bank_name?: string | null
+          created_at?: string
+          nif?: string | null
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          bank_account?: string | null
+          bank_holder?: string | null
+          bank_name?: string | null
+          created_at?: string
+          nif?: string | null
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_private_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_subscriptions: {
         Row: {
           created_at: string
@@ -721,9 +759,6 @@ export type Database = {
       }
       stores: {
         Row: {
-          bank_account: string | null
-          bank_holder: string | null
-          bank_name: string | null
           category: string | null
           cover_url: string | null
           created_at: string
@@ -734,7 +769,6 @@ export type Database = {
           logo_url: string | null
           municipality_id: string | null
           name: string
-          nif: string | null
           owner_id: string
           phone: string | null
           province_id: string | null
@@ -745,9 +779,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          bank_account?: string | null
-          bank_holder?: string | null
-          bank_name?: string | null
           category?: string | null
           cover_url?: string | null
           created_at?: string
@@ -758,7 +789,6 @@ export type Database = {
           logo_url?: string | null
           municipality_id?: string | null
           name: string
-          nif?: string | null
           owner_id: string
           phone?: string | null
           province_id?: string | null
@@ -769,9 +799,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          bank_account?: string | null
-          bank_holder?: string | null
-          bank_name?: string | null
           category?: string | null
           cover_url?: string | null
           created_at?: string
@@ -782,7 +809,6 @@ export type Database = {
           logo_url?: string | null
           municipality_id?: string | null
           name?: string
-          nif?: string | null
           owner_id?: string
           phone?: string | null
           province_id?: string | null
