@@ -1,0 +1,203 @@
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { CheckCircle2, XCircle, Loader2, Store as StoreIcon, MapPin } from "lucide-react";
+import { AppShell } from "@/components/AppShell";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/_authenticated/admin/lojas")({
+  head: () => ({ meta: [{ title: "Admin · Aprovação de Lojas — Live Market" }] }),
+  beforeLoad: async () => {
+    const { data: u } = await supabase.auth.getUser();
+    if (!u.user) throw redirect({ to: "/login" });
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", u.user.id);
+    const isAdmin = (roles ?? []).some((r) => r.role === "admin");
+    if (!isAdmin) throw redirect({ to: "/perfil" });
+  },
+  component: AdminLojas,
+});
+
+type StoreRow = {
+  id: string;
+  name: string;
+  status: "pending" | "active" | "rejected";
+  nif: string | null;
+  phone: string | null;
+  category: string | null;
+  bank_name: string | null;
+  bank_account: string | null;
+  bank_holder: string | null;
+  logo_url: string | null;
+  created_at: string;
+  owner_id: string;
+  rejection_reason: string | null;
+};
+
+const FILTERS = [
+  { value: "pending", label: "Pendentes" },
+  { value: "active", label: "Aprovadas" },
+  { value: "rejected", label: "Rejeitadas" },
+  { value: "all", label: "Todas" },
+] as const;
+
+function AdminLojas() {
+  const [filter, setFilter] = useState<(typeof FILTERS)[number]["value"]>("pending");
+  const [rows, setRows] = useState<StoreRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    let q = supabase
+      .from("stores")
+      .select("id, name, status, nif, phone, category, bank_name, bank_account, bank_holder, logo_url, created_at, owner_id, rejection_reason")
+      .order("created_at", { ascending: false });
+    if (filter !== "all") q = q.eq("status", filter);
+    const { data, error } = await q;
+    if (error) toast.error(error.message);
+    setRows((data as StoreRow[]) ?? []);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    load();
+  }, [filter]);
+
+  const approve = async (s: StoreRow) => {
+    setBusyId(s.id);
+    const { error } = await supabase.rpc("admin_approve_store", { _store_id: s.id });
+    setBusyId(null);
+    if (error) return toast.error(error.message);
+    toast.success(`Loja "${s.name}" aprovada e lojista promovido.`);
+    load();
+  };
+
+  const reject = async (s: StoreRow) => {
+    const reason = window.prompt("Motivo da rejeição:", "");
+    if (reason === null) return;
+    setBusyId(s.id);
+    const { error } = await supabase.rpc("admin_reject_store", { _store_id: s.id, _reason: reason });
+    setBusyId(null);
+    if (error) return toast.error(error.message);
+    toast.success(`Loja "${s.name}" rejeitada.`);
+    load();
+  };
+
+  return (
+    <AppShell>
+      <header className="px-5 pt-6 pb-4 text-white" style={{ background: "var(--gradient-brand)" }}>
+        <div className="flex items-center gap-2">
+          <StoreIcon size={20} />
+          <h1 className="text-lg font-semibold">Aprovação de Lojas</h1>
+        </div>
+        <p className="mt-1 text-xs text-white/80">Reveja os dados de onboarding e aprove ou rejeite cada loja.</p>
+      </header>
+
+      <div className="sticky top-0 z-10 flex gap-2 overflow-x-auto bg-background px-5 py-3 border-b">
+        {FILTERS.map((f) => (
+          <button
+            key={f.value}
+            onClick={() => setFilter(f.value)}
+            className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold ${
+              filter === f.value ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="px-5 py-4 space-y-3">
+        {loading ? (
+          <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" /></div>
+        ) : rows.length === 0 ? (
+          <p className="py-10 text-center text-sm text-muted-foreground">Nenhuma loja nesta categoria.</p>
+        ) : (
+          rows.map((s) => (
+            <article key={s.id} className="rounded-2xl border bg-card p-4 shadow-sm">
+              <div className="flex items-start gap-3">
+                {s.logo_url ? (
+                  <img src={s.logo_url} alt={s.name} className="h-12 w-12 rounded-xl object-cover" />
+                ) : (
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent">
+                    <StoreIcon size={20} />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h2 className="truncate font-semibold">{s.name}</h2>
+                    <StatusBadge status={s.status} />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    {s.category ?? "Sem categoria"} · {new Date(s.created_at).toLocaleDateString("pt-AO")}
+                  </p>
+                </div>
+              </div>
+
+              <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                <Info label="NIF" value={s.nif} />
+                <Info label="Telefone" value={s.phone} />
+                <Info label="Banco" value={s.bank_name} />
+                <Info label="Titular" value={s.bank_holder} />
+                <div className="col-span-2">
+                  <Info label="IBAN / Conta" value={s.bank_account} mono />
+                </div>
+              </dl>
+
+              {s.status === "rejected" && s.rejection_reason && (
+                <p className="mt-2 rounded-lg bg-destructive/10 p-2 text-[11px] text-destructive">
+                  Motivo: {s.rejection_reason}
+                </p>
+              )}
+
+              {s.status === "pending" && (
+                <div className="mt-3 flex gap-2">
+                  <Button
+                    onClick={() => approve(s)}
+                    disabled={busyId === s.id}
+                    className="flex-1"
+                  >
+                    {busyId === s.id ? <Loader2 className="animate-spin" size={16} /> : <CheckCircle2 size={16} />}
+                    <span className="ml-1">Aprovar</span>
+                  </Button>
+                  <Button
+                    onClick={() => reject(s)}
+                    disabled={busyId === s.id}
+                    variant="outline"
+                    className="flex-1 border-destructive/40 text-destructive hover:bg-destructive/10"
+                  >
+                    <XCircle size={16} />
+                    <span className="ml-1">Rejeitar</span>
+                  </Button>
+                </div>
+              )}
+            </article>
+          ))
+        )}
+      </div>
+    </AppShell>
+  );
+}
+
+function Info({ label, value, mono }: { label: string; value: string | null; mono?: boolean }) {
+  return (
+    <div>
+      <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</dt>
+      <dd className={`truncate font-medium ${mono ? "font-mono text-[11px]" : ""}`}>{value || "—"}</dd>
+    </div>
+  );
+}
+
+function StatusBadge({ status }: { status: StoreRow["status"] }) {
+  const map = {
+    pending: { label: "Pendente", cls: "bg-yellow-500/15 text-yellow-700" },
+    active: { label: "Aprovada", cls: "bg-emerald-500/15 text-emerald-700" },
+    rejected: { label: "Rejeitada", cls: "bg-destructive/15 text-destructive" },
+  } as const;
+  const m = map[status];
+  return <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${m.cls}`}>{m.label}</span>;
+}

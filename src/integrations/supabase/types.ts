@@ -805,6 +805,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_approve_store: { Args: { _store_id: string }; Returns: undefined }
+      admin_reject_store: {
+        Args: { _reason: string; _store_id: string }
+        Returns: undefined
+      }
       create_order_with_items: {
         Args: {
           p_address_id: string
