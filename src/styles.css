@@ -148,5 +148,27 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
+  }
+
+  html {
+    overflow-x: hidden;
+    /* Respect iOS safe-areas when installed as PWA */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+             env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  /* Comfortable touch targets on coarse pointers (phones/tablets) */
+  @media (pointer: coarse) {
+    button,
+    [role="button"],
+    a,
+    input[type="button"],
+    input[type="submit"],
+    label[for] {
+      min-height: 44px;
+    }
   }
 }
