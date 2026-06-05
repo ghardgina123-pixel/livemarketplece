@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, MapPin, CreditCard, Banknote, Smartphone, ShieldCheck, Check, Plus, Loader2, Truck } from "lucide-react";
+import { ArrowLeft, MapPin, ShieldCheck, Check, Plus, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cartStore, useCart, useCartTotal } from "@/lib/cart-store";
 import { formatPrice, useCurrency } from "@/lib/currency";
@@ -35,13 +35,6 @@ type PaymentMethod = {
   requires_proof_upload: boolean;
   is_cash_on_delivery: boolean;
   sort_order: number;
-};
-
-const ICONS: Record<string, React.ReactNode> = {
-  smartphone: <Smartphone size={20} />,
-  "credit-card": <CreditCard size={20} />,
-  banknote: <Banknote size={20} />,
-  truck: <Truck size={20} />,
 };
 
 function Checkout() {
