@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/hooks/use-auth";
+import { RealtimeNotifier } from "@/components/RealtimeNotifier";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
 
 function NotFoundComponent() {
@@ -143,6 +144,7 @@ function RootComponent() {
         <Outlet />
         <ClientOnly fallback={null}>
           <Toaster position="top-center" richColors />
+          <RealtimeNotifier />
         </ClientOnly>
       </AuthProvider>
     </QueryClientProvider>
