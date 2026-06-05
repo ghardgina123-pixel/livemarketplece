@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as LojasRouteImport } from './routes/lojas'
 import { Route as LoginRouteImport } from './routes/login'
@@ -24,6 +25,11 @@ import { Route as LojaIdRouteImport } from './routes/loja.$id'
 import { Route as AuthenticatedLojistaRouteImport } from './routes/_authenticated/lojista'
 import { Route as AuthenticatedEnderecosRouteImport } from './routes/_authenticated/enderecos'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PerfilRoute = PerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/enderecos': typeof AuthenticatedEnderecosRoute
   '/lojista': typeof AuthenticatedLojistaRoute
   '/loja/$id': typeof LojaIdRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/enderecos': typeof AuthenticatedEnderecosRoute
   '/lojista': typeof AuthenticatedLojistaRoute
   '/loja/$id': typeof LojaIdRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/enderecos': typeof AuthenticatedEnderecosRoute
   '/_authenticated/lojista': typeof AuthenticatedLojistaRoute
   '/loja/$id': typeof LojaIdRoute
@@ -153,6 +162,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/lojas'
     | '/perfil'
+    | '/sitemap.xml'
     | '/enderecos'
     | '/lojista'
     | '/loja/$id'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/lojas'
     | '/perfil'
+    | '/sitemap.xml'
     | '/enderecos'
     | '/lojista'
     | '/loja/$id'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/lojas'
     | '/perfil'
+    | '/sitemap.xml'
     | '/_authenticated/enderecos'
     | '/_authenticated/lojista'
     | '/loja/$id'
@@ -201,12 +213,20 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   LojasRoute: typeof LojasRoute
   PerfilRoute: typeof PerfilRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   LojaIdRoute: typeof LojaIdRoute
   ProdutoIdRoute: typeof ProdutoIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/perfil': {
       id: '/perfil'
       path: '/perfil'
@@ -332,6 +352,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   LojasRoute: LojasRoute,
   PerfilRoute: PerfilRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   LojaIdRoute: LojaIdRoute,
   ProdutoIdRoute: ProdutoIdRoute,
 }

@@ -1,72 +1,45 @@
-# Plano de implementação — Live Market v2
+Configuração de domínio (DNS, SSL, redirects entre apex/www e entre domínios alternativos) é feita por você no painel Lovable — não em código. Veja o passo a passo acima da mensagem.
 
-Escopo grande. Vou dividir em **4 fases** entregáveis para você validar cada etapa antes de avançar.
+Do lado do código, preparo a app para que, assim que `livemarket.app` estiver ativo, todos os sinais de SEO, compartilhamento social e canonicalização apontem para ele.
 
----
+## Mudanças no código
 
-## Fase 1 — Backend (Lovable Cloud) e Autenticação
+1. **Domínio canônico centralizado**
+   - Adicionar `src/lib/site.ts` exportando `SITE_URL = "https://livemarket.app"` e `SITE_NAME = "Live Market"`.
+   - Usar essa constante em qualquer lugar que precise de URL absoluto (og:url, canonical, JSON-LD).
 
-- Ativar **Lovable Cloud** (banco PostgreSQL + Auth).
-- Telas de **Login/Cadastro** passam a usar auth real (e-mail/senha + Google).
-- Criar schema do banco com RLS:
-  - `profiles` — dados do usuário (auto-criado no signup).
-  - `user_roles` (enum `app_role`: `customer`, `seller`, `admin`) — tabela separada + função `has_role()` (segurança).
-  - `stores` — loja do lojista (status: `pending` / `active` / `rejected`, dados bancários, NIF, logo).
-  - `products` — produtos (status: `pending` / `approved` / `rejected`, preço em BRL base, estoque).
-  - `lives` — sessões ao vivo (status, livekit_room, produtos vinculados).
-  - `live_products` — N:N entre lives e produtos.
-  - `orders` + `order_items` — pedidos do cliente.
-  - `payouts` — fila de repasse com `release_at = paid_at + 10min`, status `pending`/`released`, valor líquido após comissão (definida em config, ex: 10%).
-- Storage bucket para logos de loja e fotos de produto.
+2. **`src/routes/__root.tsx` — defaults globais**
+   - Adicionar `og:site_name = "Live Market"` (se ainda não estiver).
+   - Adicionar JSON-LD `Organization` com `name`, `url: SITE_URL`, `logo`.
+   - **Não** colocar `<link rel="canonical">` no root (regra TanStack: canonical só em rotas-folha, senão duplica).
 
-## Fase 2 — Transição Cliente → Lojista + Painel do Lojista
+3. **Canonical + og:url por rota**
+   - Em cada rota-folha (`/`, `/home`, `/lojas`, `/chat`, `/carrinho`, `/checkout`, `/perfil`, `/login`, `/cadastro`, `/loja/$id`, `/produto/$id`), adicionar no `head()`:
+     - `meta: { property: "og:url", content: "${SITE_URL}<path>" }`
+     - `links: [{ rel: "canonical", href: "${SITE_URL}<path>" }]`
 
-- Em `/perfil`: botão **"Quero Vender"**.
-- Se sem loja → formulário de cadastro de loja → salva como `pending`.
-- Se loja `pending` → tela "Aguardando aprovação".
-- Se loja `active` → entra no **Painel do Lojista** (`/lojista`):
-  - Aba **Meus Produtos** (CRUD, novos vão `pending`).
-  - Aba **Pedidos** (recebidos da loja).
-  - Aba **Repasses** (lista de payouts e quando serão liberados).
-  - Botão **Iniciar Live** → seleciona produtos aprovados → cria sessão LiveKit.
+4. **`public/robots.txt`** (criar)
+   ```
+   User-agent: *
+   Allow: /
 
-## Fase 3 — Painel Admin (`/admin`)
+   Sitemap: https://livemarket.app/sitemap.xml
+   ```
 
-- Rota separada protegida por `has_role(uid,'admin')`.
-- Abas:
-  - **Lojas pendentes** — aprovar/rejeitar (com justificativa).
-  - **Produtos pendentes** — aprovar/rejeitar.
-  - **Repasses** — visão geral.
-  - **Usuários** — promover a admin/seller.
-- Bootstrap: primeiro admin definido manualmente via SQL (vou avisar como promover você).
+5. **`src/routes/sitemap[.]xml.tsx`** (criar server route)
+   - Gera XML com as rotas estáticas públicas usando `SITE_URL`.
+   - Retorna `Content-Type: application/xml`.
 
-## Fase 4 — Lives (LiveKit) + Split automático de 10 min
+6. **Limpeza de placeholders/host antigo**
+   - Remover qualquer referência residual a `live-market-shop.lovable.app` em comentários/meta (se houver — busca já feita não encontrou em código, mas vou validar novamente antes de aplicar).
 
-- **LiveKit Cloud**: você cria conta grátis em livekit.io, me envia `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, `LIVEKIT_URL`. Vou pedir via tool de secrets.
-- Server function gera token de host (lojista) e viewer (cliente).
-- Tela de live integra o SDK `@livekit/components-react` com produtos fixados.
-- Home `/lojas` lista lives ativas.
-- **Split (simulado, sem mover dinheiro real)**:
-  - Ao criar pedido (status `paid`): cria registro em `payouts` com `release_at = now() + interval '10 minutes'`, `commission_pct = 10%`, `net_amount = total - commission`.
-  - **pg_cron** roda a cada 1 minuto: marca `payouts` com `release_at <= now()` como `released`.
-  - Lojista vê o repasse "liberado" no painel. Quando plugar provedor real (Stripe Connect / Multicaixa API), substitui o cron por transferência real.
+## O que NÃO faço em código
 
----
+- Redirects 301 entre `livemarketplace.com → livemarket.app`: configurado no painel ao definir Primary domain.
+- HTTPS / certificados: Lovable provisiona automaticamente.
+- DNS: feito no registrar (ou comprado direto pela Lovable, que já configura).
+- Redirect apex ↔ www: configurado pela escolha de Primary no painel.
 
-## Tecnicidades
+## Resultado
 
-- Stack mantida: TanStack Start + Lovable Cloud (Supabase).
-- Server functions com `requireSupabaseAuth` para operações de seller/admin.
-- Roles via `user_roles` + `has_role()` (nunca em `profiles`).
-- Moeda continua tratada como hoje (`currency.ts`): preços armazenados em BRL e convertidos no display.
-- LiveKit é o único custo externo recorrente (free tier cobre testes).
-
-## O que vou pedir a você
-
-1. Confirmar este plano.
-2. Após Fase 1 ficar pronta: criar conta no LiveKit Cloud e me passar as 3 chaves quando eu solicitar (Fase 4).
-3. Após Fase 1: definir manualmente seu usuário como admin (vou te mostrar como).
-
-## Tamanho
-
-Cada fase é uma resposta minha. Não dá para fazer tudo em uma única passada sem perder qualidade. Posso começar a **Fase 1** assim que você aprovar.
+Quando você apontar `livemarket.app` no painel, a app já estará servindo todos os metadados, sitemap e robots com o domínio correto, sem precisar de novo deploy de código.

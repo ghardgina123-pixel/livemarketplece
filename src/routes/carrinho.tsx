@@ -5,7 +5,13 @@ import { cartStore, useCart, useCartTotal } from "@/lib/cart-store";
 import { formatPrice, useCurrency } from "@/lib/currency";
 
 export const Route = createFileRoute("/carrinho")({
-  head: () => ({ meta: [{ title: "Carrinho — Live Market" }] }),
+  head: () => ({
+    meta: [
+      { title: "Carrinho — Live Market" },
+      { property: "og:url", content: "https://livemarket.app/carrinho" },
+    ],
+    links: [{ rel: "canonical", href: "https://livemarket.app/carrinho" }],
+  }),
   component: Cart,
 });
 

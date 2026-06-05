@@ -7,7 +7,13 @@ import { formatPrice, useCurrency } from "@/lib/currency";
 import { CurrencySelector } from "@/components/CurrencySelector";
 
 export const Route = createFileRoute("/home")({
-  head: () => ({ meta: [{ title: "Início — Live Market" }] }),
+  head: () => ({
+    meta: [
+      { title: "Início — Live Market" },
+      { property: "og:url", content: "https://livemarket.app/home" },
+    ],
+    links: [{ rel: "canonical", href: "https://livemarket.app/home" }],
+  }),
   component: Home,
 });
 

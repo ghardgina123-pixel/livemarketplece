@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/hooks/use-auth";
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
 
 function NotFoundComponent() {
   return (
@@ -97,6 +98,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         rel: "stylesheet",
         href: appCss,
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: SITE_NAME,
+          url: SITE_URL,
+          description: SITE_DESCRIPTION,
+        }),
       },
     ],
   }),

@@ -5,7 +5,13 @@ import { findStore, productsByStore } from "@/lib/data";
 import { formatPrice, useCurrency } from "@/lib/currency";
 
 export const Route = createFileRoute("/loja/$id")({
-  head: () => ({ meta: [{ title: "Loja — Live Market" }] }),
+  head: ({ params }) => ({
+    meta: [
+      { title: "Loja — Live Market" },
+      { property: "og:url", content: `https://livemarket.app/loja/${params.id}` },
+    ],
+    links: [{ rel: "canonical", href: `https://livemarket.app/loja/${params.id}` }],
+  }),
   component: LojaPage,
 });
 

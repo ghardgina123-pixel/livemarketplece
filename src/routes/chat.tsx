@@ -6,7 +6,13 @@ import { Input } from "@/components/ui/input";
 import { stores } from "@/lib/data";
 
 export const Route = createFileRoute("/chat")({
-  head: () => ({ meta: [{ title: "Chat — Live Market" }] }),
+  head: () => ({
+    meta: [
+      { title: "Chat — Live Market" },
+      { property: "og:url", content: "https://livemarket.app/chat" },
+    ],
+    links: [{ rel: "canonical", href: "https://livemarket.app/chat" }],
+  }),
   component: ChatPage,
 });
 

@@ -6,7 +6,13 @@ import { formatPrice, useCurrency } from "@/lib/currency";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/produto/$id")({
-  head: () => ({ meta: [{ title: "Produto — Live Market" }] }),
+  head: ({ params }) => ({
+    meta: [
+      { title: "Produto — Live Market" },
+      { property: "og:url", content: `https://livemarket.app/produto/${params.id}` },
+    ],
+    links: [{ rel: "canonical", href: `https://livemarket.app/produto/${params.id}` }],
+  }),
   component: ProdutoPage,
 });
 
