@@ -1,10 +1,13 @@
-import { Banknote, CreditCard, Building2, Receipt } from "lucide-react";
+import { Building2, Receipt } from "lucide-react";
 import type { ReactNode } from "react";
-import expressAsset from "@/assets/payments/express.jpg.asset.json";
 import afrimoneyAsset from "@/assets/payments/afrimoney.jpg.asset.json";
 import unitelMoneyAsset from "@/assets/payments/unitelmoney.jpg.asset.json";
 import kwikAsset from "@/assets/payments/kwik.jpg.asset.json";
-import tpaAsset from "@/assets/payments/tpa.jpg.asset.json";
+import expressAsset from "@/assets/payments/express.jpg.asset.json";
+import ekwanzaAsset from "@/assets/payments/ekwanza.jpg.asset.json";
+import tpaCashAsset from "@/assets/payments/tpa-cash.jpg.asset.json";
+import cartaoAsset from "@/assets/payments/cartao.jpg.asset.json";
+import referenciaAsset from "@/assets/payments/referencia.jpg.asset.json";
 
 export type PaymentBrand = {
   name: string;
@@ -38,14 +41,14 @@ export const PAYMENT_BRANDS: Record<string, PaymentBrand> = {
     name: "Referência Multicaixa",
     bg: "#003DA5", fg: "#FFFFFF",
     ring: "rgba(0,61,165,0.25)", tint: "#E6EEFB",
-    logo: <Mono className="text-white">MC</Mono>,
+    logo: <BrandImg src={referenciaAsset.url} alt="Referência Multicaixa" />,
     tagline: "Pagar por referência",
   },
   ekwanza: {
     name: "e-Kwanza",
     bg: "#00A859", fg: "#FFFFFF",
     ring: "rgba(0,168,89,0.25)", tint: "#E6F6EE",
-    logo: <Mono className="text-white">eK</Mono>,
+    logo: <BrandImg src={ekwanzaAsset.url} alt="e-Kwanza" />,
     tagline: "Carteira digital BAI",
   },
   unitel_money: {
@@ -73,7 +76,7 @@ export const PAYMENT_BRANDS: Record<string, PaymentBrand> = {
     name: "Cartão (Visa / Mastercard)",
     bg: "#635BFF", fg: "#FFFFFF",
     ring: "rgba(99,91,255,0.25)", tint: "#ECEBFF",
-    logo: <BrandImg src={tpaAsset.url} alt="TPA / Cartão" />,
+    logo: <BrandImg src={cartaoAsset.url} alt="Cartão" />,
     tagline: "Crédito ou débito",
   },
   bank_transfer: {
@@ -87,7 +90,7 @@ export const PAYMENT_BRANDS: Record<string, PaymentBrand> = {
     name: "Dinheiro na entrega",
     bg: "#16A34A", fg: "#FFFFFF",
     ring: "rgba(22,163,74,0.25)", tint: "#E7F7EE",
-    logo: <Banknote size={18} className="text-white" />,
+    logo: <BrandImg src={tpaCashAsset.url} alt="TPA / Dinheiro" />,
     tagline: "Pagar ao receber",
   },
 };
