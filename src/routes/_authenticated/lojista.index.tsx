@@ -144,23 +144,29 @@ function StoreRegistration({ onCreated }: { onCreated: () => void }) {
       if (coverFile) cover_url = await uploadStoreAsset(user.id, coverFile, "cover");
 
       const slug = form.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-      const { error } = await supabase.from("stores").insert({
+      const { data: created, error } = await supabase.from("stores").insert({
         owner_id: user.id,
         name: form.name.trim(),
         slug,
         description: form.description || null,
         category: form.category || null,
-        nif: form.nif || null,
         phone: form.phone || null,
-        bank_name: form.bank_name || null,
-        bank_account: form.bank_account || null,
-        bank_holder: form.bank_holder || null,
         logo_url,
         cover_url,
         lat: coords?.lat ?? null,
         lng: coords?.lng ?? null,
-      });
+      }).select("id").single();
       if (error) throw error;
+      if (created?.id) {
+        const { error: privErr } = await supabase.from("store_private").insert({
+          store_id: created.id,
+          nif: form.nif || null,
+          bank_name: form.bank_name || null,
+          bank_account: form.bank_account || null,
+          bank_holder: form.bank_holder || null,
+        });
+        if (privErr) throw privErr;
+      }
 
       await supabase.from("user_roles").insert({ user_id: user.id, role: "seller" });
       toast.success("Loja enviada para aprovação!");
