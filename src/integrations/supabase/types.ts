@@ -291,6 +291,60 @@ export type Database = {
           },
         ]
       }
+      payment_methods: {
+        Row: {
+          config: Json
+          country_code: string
+          created_at: string
+          currency_code: string
+          currency_symbol: string
+          description: string | null
+          display_name: string
+          icon: string | null
+          id: string
+          is_active: boolean
+          is_cash_on_delivery: boolean
+          method_type: string
+          requires_proof_upload: boolean
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          country_code: string
+          created_at?: string
+          currency_code: string
+          currency_symbol: string
+          description?: string | null
+          display_name: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          is_cash_on_delivery?: boolean
+          method_type: string
+          requires_proof_upload?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          country_code?: string
+          created_at?: string
+          currency_code?: string
+          currency_symbol?: string
+          description?: string | null
+          display_name?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          is_cash_on_delivery?: boolean
+          method_type?: string
+          requires_proof_upload?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payouts: {
         Row: {
           commission_pct: number
@@ -401,6 +455,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          country_code: string
           created_at: string
           display_name: string | null
           id: string
@@ -409,6 +464,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          country_code?: string
           created_at?: string
           display_name?: string | null
           id: string
@@ -417,6 +473,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          country_code?: string
           created_at?: string
           display_name?: string | null
           id?: string

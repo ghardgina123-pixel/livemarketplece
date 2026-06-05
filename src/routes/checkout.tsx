@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, MapPin, CreditCard, Banknote, Smartphone, ShieldCheck, Check, Plus, Loader2 } from "lucide-react";
+import { ArrowLeft, MapPin, CreditCard, Banknote, Smartphone, ShieldCheck, Check, Plus, Loader2, Truck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cartStore, useCart, useCartTotal } from "@/lib/cart-store";
 import { formatPrice, useCurrency } from "@/lib/currency";
@@ -19,17 +19,38 @@ type Address = {
   municipalities: { name: string; shipping_fee_aoa: number } | null;
 };
 
+type PaymentMethod = {
+  id: string;
+  method_type: string;
+  display_name: string;
+  description: string | null;
+  icon: string | null;
+  requires_proof_upload: boolean;
+  is_cash_on_delivery: boolean;
+  sort_order: number;
+};
+
+const ICONS: Record<string, React.ReactNode> = {
+  smartphone: <Smartphone size={20} />,
+  "credit-card": <CreditCard size={20} />,
+  banknote: <Banknote size={20} />,
+  truck: <Truck size={20} />,
+};
+
 function Checkout() {
   const nav = useNavigate();
   const { user } = useAuth();
   const items = useCart();
   const subtotal = useCartTotal();
   const currency = useCurrency();
-  const [pay, setPay] = useState<"pix" | "card" | "boleto">("pix");
   const [done, setDone] = useState(false);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [addrLoading, setAddrLoading] = useState(true);
   const [selectedAddrId, setSelectedAddrId] = useState<string | null>(null);
+  const [methods, setMethods] = useState<PaymentMethod[]>([]);
+  const [methodsLoading, setMethodsLoading] = useState(true);
+  const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
+  const [countryCode, setCountryCode] = useState<string>("AO");
 
   useEffect(() => {
     if (!user) { setAddrLoading(false); return; }
@@ -43,13 +64,34 @@ function Checkout() {
         setSelectedAddrId(list.find((a) => a.is_default)?.id ?? list[0]?.id ?? null);
         setAddrLoading(false);
       });
+    supabase.from("profiles").select("country_code").eq("id", user.id).maybeSingle()
+      .then(({ data }) => {
+        if (data?.country_code) setCountryCode(data.country_code);
+      });
   }, [user?.id]);
 
+  useEffect(() => {
+    setMethodsLoading(true);
+    supabase.from("payment_methods")
+      .select("id, method_type, display_name, description, icon, requires_proof_upload, is_cash_on_delivery, sort_order")
+      .eq("country_code", countryCode)
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })
+      .then(({ data }) => {
+        const list = (data as PaymentMethod[]) ?? [];
+        setMethods(list);
+        setSelectedMethodId((prev) => prev && list.some((m) => m.id === prev) ? prev : list[0]?.id ?? null);
+        setMethodsLoading(false);
+      });
+  }, [countryCode]);
+
   const selectedAddr = addresses.find((a) => a.id === selectedAddrId) ?? null;
+  const selectedMethod = methods.find((m) => m.id === selectedMethodId) ?? null;
   // Frete em AOA convertido para a moeda exibida (rates relativas a BRL: 1 BRL = 175 AOA)
   const shippingAoa = selectedAddr?.municipalities?.shipping_fee_aoa ?? 0;
   const shippingBrl = Number(shippingAoa) / 175;
   const totalBrl = subtotal + shippingBrl;
+  const isInstant = selectedMethod?.method_type === "multicaixa_express";
 
   if (done) {
     return (
@@ -134,26 +176,25 @@ function Checkout() {
           <CurrencySelector variant="row" />
         </div>
         <div className="mt-2 space-y-2">
-          {currency.code === "BRL" && <>
-            <PayOption active={pay === "pix"} onClick={() => setPay("pix")} icon={<Smartphone size={20} />} label="Pix" desc="Aprovação imediata · 5% off" />
-            <PayOption active={pay === "card"} onClick={() => setPay("card")} icon={<CreditCard size={20} />} label="Cartão de crédito" desc="Até 12x sem juros" />
-            <PayOption active={pay === "boleto"} onClick={() => setPay("boleto")} icon={<Banknote size={20} />} label="Boleto" desc="Aprovação em até 2 dias" />
-          </>}
-          {currency.code === "AOA" && <>
-            <PayOption active={pay === "pix"} onClick={() => setPay("pix")} icon={<Smartphone size={20} />} label="Multicaixa Express" desc="Pagamento instantâneo · 5% off" />
-            <PayOption active={pay === "card"} onClick={() => setPay("card")} icon={<CreditCard size={20} />} label="Cartão Multicaixa / Visa" desc="Débito ou crédito" />
-            <PayOption active={pay === "boleto"} onClick={() => setPay("boleto")} icon={<Banknote size={20} />} label="Transferência bancária" desc="BAI · BFA · BIC · Atlântico" />
-          </>}
-          {currency.code === "USD" && <>
-            <PayOption active={pay === "pix"} onClick={() => setPay("pix")} icon={<Smartphone size={20} />} label="Apple Pay / Google Pay" desc="Pagamento em 1 toque · 5% off" />
-            <PayOption active={pay === "card"} onClick={() => setPay("card")} icon={<CreditCard size={20} />} label="Credit / Debit card" desc="Visa · Mastercard · Amex" />
-            <PayOption active={pay === "boleto"} onClick={() => setPay("boleto")} icon={<Banknote size={20} />} label="Bank transfer (ACH)" desc="Approval in 1–2 business days" />
-          </>}
-          {currency.code === "EUR" && <>
-            <PayOption active={pay === "pix"} onClick={() => setPay("pix")} icon={<Smartphone size={20} />} label="Apple Pay / Google Pay" desc="Pagamento instantâneo · 5% off" />
-            <PayOption active={pay === "card"} onClick={() => setPay("card")} icon={<CreditCard size={20} />} label="Cartão de crédito / débito" desc="Visa · Mastercard" />
-            <PayOption active={pay === "boleto"} onClick={() => setPay("boleto")} icon={<Banknote size={20} />} label="SEPA · Transferência bancária" desc="Aprovação em 1–2 dias" />
-          </>}
+          {methodsLoading ? (
+            <div className="flex justify-center py-4"><Loader2 className="animate-spin text-primary" size={18} /></div>
+          ) : methods.length === 0 ? (
+            <p className="rounded-2xl border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
+              Nenhum método de pagamento disponível para {countryCode}.
+            </p>
+          ) : (
+            methods.map((m) => (
+              <PayOption
+                key={m.id}
+                active={selectedMethodId === m.id}
+                onClick={() => setSelectedMethodId(m.id)}
+                icon={ICONS[m.icon ?? ""] ?? <CreditCard size={20} />}
+                label={m.display_name}
+                desc={m.description ?? ""}
+                badge={m.is_cash_on_delivery ? "Pagar na entrega" : m.requires_proof_upload ? "Envia comprovativo" : null}
+              />
+            ))
+          )}
         </div>
       </section>
 
@@ -163,9 +204,9 @@ function Checkout() {
           <span className="text-muted-foreground">Frete</span>
           <span>{selectedAddr ? formatPrice(shippingBrl, currency) : <span className="text-muted-foreground">Selecione um endereço</span>}</span>
         </div>
-        {pay === "pix" && <div className="flex justify-between"><span className="text-muted-foreground">Desconto à vista</span><span className="text-primary">- {formatPrice(totalBrl * 0.05, currency)}</span></div>}
+        {isInstant && <div className="flex justify-between"><span className="text-muted-foreground">Desconto à vista</span><span className="text-primary">- {formatPrice(totalBrl * 0.05, currency)}</span></div>}
         <div className="mt-2 flex justify-between border-t border-border pt-2 text-base font-bold">
-          <span>Total</span><span>{formatPrice(pay === "pix" ? totalBrl * 0.95 : totalBrl, currency)}</span>
+          <span>Total</span><span>{formatPrice(isInstant ? totalBrl * 0.95 : totalBrl, currency)}</span>
         </div>
       </section>
 
@@ -177,25 +218,29 @@ function Checkout() {
         <button
           onClick={() => {
             if (!selectedAddr) return toast.error("Selecione um endereço de entrega");
+            if (!selectedMethod) return toast.error("Selecione um método de pagamento");
             setDone(true); cartStore.clear(); toast.success("Pedido realizado!");
           }}
-          disabled={!selectedAddr || items.length === 0}
+          disabled={!selectedAddr || !selectedMethod || items.length === 0}
           className="flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
         >
-          Pagar {formatPrice(pay === "pix" ? totalBrl * 0.95 : totalBrl, currency)}
+          {selectedMethod?.is_cash_on_delivery ? "Confirmar pedido" : "Pagar"} {formatPrice(isInstant ? totalBrl * 0.95 : totalBrl, currency)}
         </button>
       </div>
     </div>
   );
 }
 
-function PayOption({ active, onClick, icon, label, desc }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string; desc: string }) {
+function PayOption({ active, onClick, icon, label, desc, badge }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string; desc: string; badge?: string | null }) {
   return (
     <button onClick={onClick} className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition ${active ? "border-primary bg-accent" : "border-border"}`}>
       <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${active ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}>{icon}</div>
       <div className="flex-1">
-        <p className="text-sm font-semibold">{label}</p>
-        <p className="text-[11px] text-muted-foreground">{desc}</p>
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-semibold">{label}</p>
+          {badge && <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-primary">{badge}</span>}
+        </div>
+        {desc && <p className="text-[11px] text-muted-foreground">{desc}</p>}
       </div>
       <div className={`h-5 w-5 rounded-full border-2 ${active ? "border-primary bg-primary" : "border-border"}`}>
         {active && <Check size={14} className="m-auto text-primary-foreground" strokeWidth={3} />}
