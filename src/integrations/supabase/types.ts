@@ -500,6 +500,48 @@ export type Database = {
         }
         Relationships: []
       }
+      store_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          payment_method: string | null
+          plan: string
+          price_aoa: number
+          proof_url: string | null
+          started_at: string | null
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          payment_method?: string | null
+          plan?: string
+          price_aoa?: number
+          proof_url?: string | null
+          started_at?: string | null
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          payment_method?: string | null
+          plan?: string
+          price_aoa?: number
+          proof_url?: string | null
+          started_at?: string | null
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       stores: {
         Row: {
           bank_account: string | null
