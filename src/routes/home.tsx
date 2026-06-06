@@ -49,16 +49,16 @@ function Home() {
           </div>
           <div className="flex items-center gap-2">
             <CurrencySelector />
-            <button className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-md">
+            <Link to="/ajuda" aria-label="Notificações" className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-md">
               <Bell size={18} />
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[var(--live)]" />
-            </button>
+            </Link>
           </div>
         </div>
-        <div className="relative mt-4">
+        <Link to="/lojas" className="relative mt-4 block">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-          <Input placeholder="Buscar produtos, lojas, lives…" className="h-11 rounded-xl border-0 bg-white pl-10 text-foreground placeholder:text-muted-foreground" />
-        </div>
+          <Input readOnly placeholder="Buscar produtos, lojas, lives…" className="h-11 cursor-pointer rounded-xl border-0 bg-white pl-10 text-foreground placeholder:text-muted-foreground" />
+        </Link>
         <div className="mt-3 flex items-center gap-3 text-[11px] text-white/85">
           <span className="flex items-center gap-1"><ShieldCheck size={13} /> Compra protegida</span>
           <span className="flex items-center gap-1"><Truck size={13} /> Frete rápido</span>
@@ -69,10 +69,10 @@ function Home() {
       <section className="px-5 py-5">
         <div className="grid grid-cols-4 gap-3">
           {categories.map((c) => (
-            <button key={c.n} className="flex flex-col items-center gap-1.5">
+            <Link key={c.n} to="/lojas" className="flex flex-col items-center gap-1.5">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-2xl">{c.e}</div>
               <span className="text-[11px] font-medium text-foreground">{c.n}</span>
-            </button>
+            </Link>
           ))}
         </div>
       </section>
