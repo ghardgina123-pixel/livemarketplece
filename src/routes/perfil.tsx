@@ -92,21 +92,12 @@ function Perfil() {
         )}
         {menu.map(({ icon: Icon, label, badge, to }) => (
           <li key={label}>
-            {to ? (
-              <Link to={to} className="flex w-full items-center gap-3 px-3 py-4 text-left">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground"><Icon size={18} /></div>
-                <span className="flex-1 text-sm font-medium text-foreground">{label}</span>
-                {badge && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{badge}</span>}
-                <ChevronRight size={16} className="text-muted-foreground" />
-              </Link>
-            ) : (
-              <button className="flex w-full items-center gap-3 px-3 py-4 text-left">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground"><Icon size={18} /></div>
-                <span className="flex-1 text-sm font-medium text-foreground">{label}</span>
-                {badge && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{badge}</span>}
-                <ChevronRight size={16} className="text-muted-foreground" />
-              </button>
-            )}
+            <Link to={to} className="flex w-full items-center gap-3 px-3 py-4 text-left">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground"><Icon size={18} /></div>
+              <span className="flex-1 text-sm font-medium text-foreground">{label}</span>
+              {badge && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{badge}</span>}
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </Link>
           </li>
         ))}
       </ul>
