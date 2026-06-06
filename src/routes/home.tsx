@@ -69,10 +69,10 @@ function Home() {
       <section className="px-5 py-5">
         <div className="grid grid-cols-4 gap-3">
           {categories.map((c) => (
-            <button key={c.n} className="flex flex-col items-center gap-1.5">
+            <Link key={c.n} to="/lojas" className="flex flex-col items-center gap-1.5">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-2xl">{c.e}</div>
               <span className="text-[11px] font-medium text-foreground">{c.n}</span>
-            </button>
+            </Link>
           ))}
         </div>
       </section>
