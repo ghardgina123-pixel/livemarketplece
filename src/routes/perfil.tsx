@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Settings, Package, Heart, MapPin, HelpCircle, LogOut, ChevronRight, BadgeCheck, Store as StoreIcon, Truck } from "lucide-react";
+import { Settings, Package, Heart, MapPin, HelpCircle, LogOut, ChevronRight, BadgeCheck, Store as StoreIcon, Truck, Home as HomeIcon } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { CurrencySelector } from "@/components/CurrencySelector";
 import { SettingsSheet } from "@/components/SettingsSheet";
@@ -77,6 +77,15 @@ function Perfil() {
             <Link to="/transportador" className="flex w-full items-center gap-3 px-3 py-4 text-left">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-secondary-foreground"><Truck size={18} /></div>
               <span className="flex-1 text-sm font-semibold text-foreground">Quero entregar / Cadastrar transporte</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </Link>
+          </li>
+        )}
+        {user && (
+          <li>
+            <Link to="/imobiliaria" className="flex w-full items-center gap-3 px-3 py-4 text-left">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary"><HomeIcon size={18} /></div>
+              <span className="flex-1 text-sm font-semibold text-foreground">Tenho imóveis / Imobiliária</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </Link>
           </li>
