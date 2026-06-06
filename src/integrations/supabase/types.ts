@@ -115,6 +115,102 @@ export type Database = {
           },
         ]
       }
+      couriers: {
+        Row: {
+          company_name: string | null
+          courier_type: Database["public"]["Enums"]["courier_type"]
+          created_at: string
+          district: string | null
+          document_id: string
+          document_photo_url: string | null
+          driver_license: string | null
+          email: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          full_name: string
+          id: string
+          lat: number | null
+          license_photo_url: string | null
+          lng: number | null
+          municipality_id: string | null
+          notes: string | null
+          phone: string
+          province_id: string | null
+          rejection_reason: string | null
+          status: Database["public"]["Enums"]["courier_status"]
+          street: string | null
+          updated_at: string
+          user_id: string
+          vehicle_brand: string | null
+          vehicle_color: string | null
+          vehicle_model: string | null
+          vehicle_photo_url: string | null
+          vehicle_plate: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          courier_type: Database["public"]["Enums"]["courier_type"]
+          created_at?: string
+          district?: string | null
+          document_id: string
+          document_photo_url?: string | null
+          driver_license?: string | null
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          full_name: string
+          id?: string
+          lat?: number | null
+          license_photo_url?: string | null
+          lng?: number | null
+          municipality_id?: string | null
+          notes?: string | null
+          phone: string
+          province_id?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["courier_status"]
+          street?: string | null
+          updated_at?: string
+          user_id: string
+          vehicle_brand?: string | null
+          vehicle_color?: string | null
+          vehicle_model?: string | null
+          vehicle_photo_url?: string | null
+          vehicle_plate?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          courier_type?: Database["public"]["Enums"]["courier_type"]
+          created_at?: string
+          district?: string | null
+          document_id?: string
+          document_photo_url?: string | null
+          driver_license?: string | null
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          full_name?: string
+          id?: string
+          lat?: number | null
+          license_photo_url?: string | null
+          lng?: number | null
+          municipality_id?: string | null
+          notes?: string | null
+          phone?: string
+          province_id?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["courier_status"]
+          street?: string | null
+          updated_at?: string
+          user_id?: string
+          vehicle_brand?: string | null
+          vehicle_color?: string | null
+          vehicle_model?: string | null
+          vehicle_photo_url?: string | null
+          vehicle_plate?: string | null
+        }
+        Relationships: []
+      }
       exchange_rates: {
         Row: {
           created_at: string
@@ -953,6 +1049,8 @@ export type Database = {
     }
     Enums: {
       app_role: "customer" | "seller" | "admin"
+      courier_status: "pending" | "active" | "rejected" | "suspended"
+      courier_type: "motoboy" | "carro" | "van" | "empresa"
       live_status: "scheduled" | "live" | "ended"
       order_status:
         | "pending"
@@ -1092,6 +1190,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["customer", "seller", "admin"],
+      courier_status: ["pending", "active", "rejected", "suspended"],
+      courier_type: ["motoboy", "carro", "van", "empresa"],
       live_status: ["scheduled", "live", "ended"],
       order_status: [
         "pending",
