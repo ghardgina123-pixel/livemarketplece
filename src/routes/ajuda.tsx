@@ -15,17 +15,17 @@ function Ajuda() {
         <h1 className="text-lg font-semibold">Ajuda e suporte</h1>
       </header>
       <div className="space-y-3 px-5 py-5">
-        <a href="mailto:suporte@livemarket.app" className="flex items-center gap-3 rounded-xl border border-border p-3">
+        <a href="mailto:livemarketcomercioaovivo@gmail.com" className="flex items-center gap-3 rounded-xl border border-border p-3">
           <Mail size={18} className="text-primary" />
-          <div><p className="text-sm font-semibold">Email</p><p className="text-xs text-muted-foreground">suporte@livemarket.app</p></div>
+          <div><p className="text-sm font-semibold">Email</p><p className="text-xs text-muted-foreground">livemarketcomercioaovivo@gmail.com</p></div>
         </a>
-        <a href="https://wa.me/244900000000" className="flex items-center gap-3 rounded-xl border border-border p-3">
+        <a href="https://wa.me/244927046161" className="flex items-center gap-3 rounded-xl border border-border p-3">
           <MessageCircle size={18} className="text-primary" />
-          <div><p className="text-sm font-semibold">WhatsApp</p><p className="text-xs text-muted-foreground">+244 900 000 000</p></div>
+          <div><p className="text-sm font-semibold">WhatsApp</p><p className="text-xs text-muted-foreground">+244 927 046 161</p></div>
         </a>
-        <a href="tel:+244900000000" className="flex items-center gap-3 rounded-xl border border-border p-3">
+        <a href="tel:+244927046161" className="flex items-center gap-3 rounded-xl border border-border p-3">
           <Phone size={18} className="text-primary" />
-          <div><p className="text-sm font-semibold">Telefone</p><p className="text-xs text-muted-foreground">+244 900 000 000</p></div>
+          <div><p className="text-sm font-semibold">Telefone</p><p className="text-xs text-muted-foreground">+244 927 046 161</p></div>
         </a>
         <section className="rounded-2xl border border-border p-4">
           <h2 className="mb-2 text-sm font-bold">Perguntas frequentes</h2>
