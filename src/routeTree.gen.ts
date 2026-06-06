@@ -27,6 +27,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
 import { Route as LojaIdRouteImport } from './routes/loja.$id'
 import { Route as LiveIdRouteImport } from './routes/live.$id'
+import { Route as ImoveisIdRouteImport } from './routes/imoveis.$id'
 import { Route as AuthenticatedTransportadorRouteImport } from './routes/_authenticated/transportador'
 import { Route as AuthenticatedSegurancaRouteImport } from './routes/_authenticated/seguranca'
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
@@ -135,6 +136,11 @@ const LiveIdRoute = LiveIdRouteImport.update({
   id: '/live/$id',
   path: '/live/$id',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ImoveisIdRoute = ImoveisIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ImoveisRoute,
 } as any)
 const AuthenticatedTransportadorRoute =
   AuthenticatedTransportadorRouteImport.update({
@@ -247,7 +253,7 @@ export interface FileRoutesByFullPath {
   '/chat': typeof ChatRoute
   '/checkout': typeof CheckoutRoute
   '/home': typeof HomeRoute
-  '/imoveis': typeof ImoveisRoute
+  '/imoveis': typeof ImoveisRouteWithChildren
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
@@ -266,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/seguranca': typeof AuthenticatedSegurancaRoute
   '/transportador': typeof AuthenticatedTransportadorRoute
+  '/imoveis/$id': typeof ImoveisIdRoute
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
@@ -285,7 +292,7 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatRoute
   '/checkout': typeof CheckoutRoute
   '/home': typeof HomeRoute
-  '/imoveis': typeof ImoveisRoute
+  '/imoveis': typeof ImoveisRouteWithChildren
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
@@ -303,6 +310,7 @@ export interface FileRoutesByTo {
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/seguranca': typeof AuthenticatedSegurancaRoute
   '/transportador': typeof AuthenticatedTransportadorRoute
+  '/imoveis/$id': typeof ImoveisIdRoute
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
@@ -324,7 +332,7 @@ export interface FileRoutesById {
   '/chat': typeof ChatRoute
   '/checkout': typeof CheckoutRoute
   '/home': typeof HomeRoute
-  '/imoveis': typeof ImoveisRoute
+  '/imoveis': typeof ImoveisRouteWithChildren
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
@@ -343,6 +351,7 @@ export interface FileRoutesById {
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/seguranca': typeof AuthenticatedSegurancaRoute
   '/_authenticated/transportador': typeof AuthenticatedTransportadorRoute
+  '/imoveis/$id': typeof ImoveisIdRoute
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
@@ -383,6 +392,7 @@ export interface FileRouteTypes {
     | '/pagamentos'
     | '/seguranca'
     | '/transportador'
+    | '/imoveis/$id'
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
@@ -420,6 +430,7 @@ export interface FileRouteTypes {
     | '/pagamentos'
     | '/seguranca'
     | '/transportador'
+    | '/imoveis/$id'
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
@@ -459,6 +470,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pagamentos'
     | '/_authenticated/seguranca'
     | '/_authenticated/transportador'
+    | '/imoveis/$id'
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
@@ -480,7 +492,7 @@ export interface RootRouteChildren {
   ChatRoute: typeof ChatRoute
   CheckoutRoute: typeof CheckoutRoute
   HomeRoute: typeof HomeRoute
-  ImoveisRoute: typeof ImoveisRoute
+  ImoveisRoute: typeof ImoveisRouteWithChildren
   LoginRoute: typeof LoginRoute
   LojasRoute: typeof LojasRoute
   PerfilRoute: typeof PerfilRoute
@@ -620,6 +632,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/live/$id'
       preLoaderRoute: typeof LiveIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/imoveis/$id': {
+      id: '/imoveis/$id'
+      path: '/$id'
+      fullPath: '/imoveis/$id'
+      preLoaderRoute: typeof ImoveisIdRouteImport
+      parentRoute: typeof ImoveisRoute
     }
     '/_authenticated/transportador': {
       id: '/_authenticated/transportador'
@@ -811,6 +830,17 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface ImoveisRouteChildren {
+  ImoveisIdRoute: typeof ImoveisIdRoute
+}
+
+const ImoveisRouteChildren: ImoveisRouteChildren = {
+  ImoveisIdRoute: ImoveisIdRoute,
+}
+
+const ImoveisRouteWithChildren =
+  ImoveisRoute._addFileChildren(ImoveisRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -820,7 +850,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatRoute: ChatRoute,
   CheckoutRoute: CheckoutRoute,
   HomeRoute: HomeRoute,
-  ImoveisRoute: ImoveisRoute,
+  ImoveisRoute: ImoveisRouteWithChildren,
   LoginRoute: LoginRoute,
   LojasRoute: LojasRoute,
   PerfilRoute: PerfilRoute,
