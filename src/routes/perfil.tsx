@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Settings, Package, Heart, MapPin, HelpCircle, LogOut, ChevronRight, BadgeCheck, Store as StoreIcon } from "lucide-react";
+import { Settings, Package, Heart, MapPin, HelpCircle, LogOut, ChevronRight, BadgeCheck, Store as StoreIcon, Truck } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { CurrencySelector } from "@/components/CurrencySelector";
 import { SettingsSheet } from "@/components/SettingsSheet";
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/perfil")({
 const menu = [
   { icon: Package, label: "Meus pedidos", badge: "3", to: "/compras" as const },
   { icon: Heart, label: "Favoritos", to: "/favoritos" as const },
-  { icon: HelpCircle, label: "Ajuda e suporte" },
+  { icon: HelpCircle, label: "Ajuda e suporte", to: "/ajuda" as const },
 ];
 
 function Perfil() {
@@ -74,6 +74,15 @@ function Perfil() {
         )}
         {user && (
           <li>
+            <Link to="/transportador" className="flex w-full items-center gap-3 px-3 py-4 text-left">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-secondary-foreground"><Truck size={18} /></div>
+              <span className="flex-1 text-sm font-semibold text-foreground">Quero entregar / Cadastrar transporte</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </Link>
+          </li>
+        )}
+        {user && (
+          <li>
             <Link to="/enderecos" className="flex w-full items-center gap-3 px-3 py-4 text-left">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground"><MapPin size={18} /></div>
               <span className="flex-1 text-sm font-medium text-foreground">Meus endereços</span>
@@ -83,21 +92,12 @@ function Perfil() {
         )}
         {menu.map(({ icon: Icon, label, badge, to }) => (
           <li key={label}>
-            {to ? (
-              <Link to={to} className="flex w-full items-center gap-3 px-3 py-4 text-left">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground"><Icon size={18} /></div>
-                <span className="flex-1 text-sm font-medium text-foreground">{label}</span>
-                {badge && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{badge}</span>}
-                <ChevronRight size={16} className="text-muted-foreground" />
-              </Link>
-            ) : (
-              <button className="flex w-full items-center gap-3 px-3 py-4 text-left">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground"><Icon size={18} /></div>
-                <span className="flex-1 text-sm font-medium text-foreground">{label}</span>
-                {badge && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{badge}</span>}
-                <ChevronRight size={16} className="text-muted-foreground" />
-              </button>
-            )}
+            <Link to={to} className="flex w-full items-center gap-3 px-3 py-4 text-left">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground"><Icon size={18} /></div>
+              <span className="flex-1 text-sm font-medium text-foreground">{label}</span>
+              {badge && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{badge}</span>}
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </Link>
           </li>
         ))}
       </ul>
