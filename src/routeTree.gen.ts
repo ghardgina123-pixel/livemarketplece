@@ -15,6 +15,7 @@ import { Route as ShortsRouteImport } from './routes/shorts'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as LojasRouteImport } from './routes/lojas'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ImoveisRouteImport } from './routes/imoveis'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ChatRouteImport } from './routes/chat'
@@ -26,11 +27,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
 import { Route as LojaIdRouteImport } from './routes/loja.$id'
 import { Route as LiveIdRouteImport } from './routes/live.$id'
+import { Route as ImoveisIdRouteImport } from './routes/imoveis.$id'
 import { Route as AuthenticatedTransportadorRouteImport } from './routes/_authenticated/transportador'
 import { Route as AuthenticatedSegurancaRouteImport } from './routes/_authenticated/seguranca'
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as AuthenticatedLojistaCrmRouteImport } from './routes/_authenticated/lojista-crm'
 import { Route as AuthenticatedLojistaRouteImport } from './routes/_authenticated/lojista'
+import { Route as AuthenticatedImobiliariaRouteImport } from './routes/_authenticated/imobiliaria'
 import { Route as AuthenticatedIdiomaRouteImport } from './routes/_authenticated/idioma'
 import { Route as AuthenticatedFavoritosRouteImport } from './routes/_authenticated/favoritos'
 import { Route as AuthenticatedEnderecosRouteImport } from './routes/_authenticated/enderecos'
@@ -45,6 +48,7 @@ import { Route as AuthenticatedLojistaProdutosRouteImport } from './routes/_auth
 import { Route as AuthenticatedLojistaPedidosRouteImport } from './routes/_authenticated/lojista.pedidos'
 import { Route as AuthenticatedLojistaDashboardRouteImport } from './routes/_authenticated/lojista.dashboard'
 import { Route as AuthenticatedAdminLojasRouteImport } from './routes/_authenticated/admin.lojas'
+import { Route as AuthenticatedAdminImobiliariasRouteImport } from './routes/_authenticated/admin.imobiliarias'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -74,6 +78,11 @@ const LojasRoute = LojasRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImoveisRoute = ImoveisRouteImport.update({
+  id: '/imoveis',
+  path: '/imoveis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HomeRoute = HomeRouteImport.update({
@@ -130,6 +139,11 @@ const LiveIdRoute = LiveIdRouteImport.update({
   path: '/live/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ImoveisIdRoute = ImoveisIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ImoveisRoute,
+} as any)
 const AuthenticatedTransportadorRoute =
   AuthenticatedTransportadorRouteImport.update({
     id: '/transportador',
@@ -156,6 +170,12 @@ const AuthenticatedLojistaRoute = AuthenticatedLojistaRouteImport.update({
   path: '/lojista',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedImobiliariaRoute =
+  AuthenticatedImobiliariaRouteImport.update({
+    id: '/imobiliaria',
+    path: '/imobiliaria',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedIdiomaRoute = AuthenticatedIdiomaRouteImport.update({
   id: '/idioma',
   path: '/idioma',
@@ -232,6 +252,12 @@ const AuthenticatedAdminLojasRoute = AuthenticatedAdminLojasRouteImport.update({
   path: '/admin/lojas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminImobiliariasRoute =
+  AuthenticatedAdminImobiliariasRouteImport.update({
+    id: '/admin/imobiliarias',
+    path: '/admin/imobiliarias',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -241,6 +267,7 @@ export interface FileRoutesByFullPath {
   '/chat': typeof ChatRoute
   '/checkout': typeof CheckoutRoute
   '/home': typeof HomeRoute
+  '/imoveis': typeof ImoveisRouteWithChildren
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
@@ -254,14 +281,17 @@ export interface FileRoutesByFullPath {
   '/enderecos': typeof AuthenticatedEnderecosRoute
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/idioma': typeof AuthenticatedIdiomaRoute
+  '/imobiliaria': typeof AuthenticatedImobiliariaRoute
   '/lojista': typeof AuthenticatedLojistaRouteWithChildren
   '/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/seguranca': typeof AuthenticatedSegurancaRoute
   '/transportador': typeof AuthenticatedTransportadorRoute
+  '/imoveis/$id': typeof ImoveisIdRoute
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/admin/imobiliarias': typeof AuthenticatedAdminImobiliariasRoute
   '/admin/lojas': typeof AuthenticatedAdminLojasRoute
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
   '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
@@ -278,6 +308,7 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatRoute
   '/checkout': typeof CheckoutRoute
   '/home': typeof HomeRoute
+  '/imoveis': typeof ImoveisRouteWithChildren
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
@@ -291,13 +322,16 @@ export interface FileRoutesByTo {
   '/enderecos': typeof AuthenticatedEnderecosRoute
   '/favoritos': typeof AuthenticatedFavoritosRoute
   '/idioma': typeof AuthenticatedIdiomaRoute
+  '/imobiliaria': typeof AuthenticatedImobiliariaRoute
   '/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/seguranca': typeof AuthenticatedSegurancaRoute
   '/transportador': typeof AuthenticatedTransportadorRoute
+  '/imoveis/$id': typeof ImoveisIdRoute
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/admin/imobiliarias': typeof AuthenticatedAdminImobiliariasRoute
   '/admin/lojas': typeof AuthenticatedAdminLojasRoute
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
   '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
@@ -316,6 +350,7 @@ export interface FileRoutesById {
   '/chat': typeof ChatRoute
   '/checkout': typeof CheckoutRoute
   '/home': typeof HomeRoute
+  '/imoveis': typeof ImoveisRouteWithChildren
   '/login': typeof LoginRoute
   '/lojas': typeof LojasRoute
   '/perfil': typeof PerfilRoute
@@ -329,14 +364,17 @@ export interface FileRoutesById {
   '/_authenticated/enderecos': typeof AuthenticatedEnderecosRoute
   '/_authenticated/favoritos': typeof AuthenticatedFavoritosRoute
   '/_authenticated/idioma': typeof AuthenticatedIdiomaRoute
+  '/_authenticated/imobiliaria': typeof AuthenticatedImobiliariaRoute
   '/_authenticated/lojista': typeof AuthenticatedLojistaRouteWithChildren
   '/_authenticated/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/seguranca': typeof AuthenticatedSegurancaRoute
   '/_authenticated/transportador': typeof AuthenticatedTransportadorRoute
+  '/imoveis/$id': typeof ImoveisIdRoute
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/_authenticated/admin/imobiliarias': typeof AuthenticatedAdminImobiliariasRoute
   '/_authenticated/admin/lojas': typeof AuthenticatedAdminLojasRoute
   '/_authenticated/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
   '/_authenticated/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
@@ -355,6 +393,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/checkout'
     | '/home'
+    | '/imoveis'
     | '/login'
     | '/lojas'
     | '/perfil'
@@ -368,14 +407,17 @@ export interface FileRouteTypes {
     | '/enderecos'
     | '/favoritos'
     | '/idioma'
+    | '/imobiliaria'
     | '/lojista'
     | '/lojista-crm'
     | '/pagamentos'
     | '/seguranca'
     | '/transportador'
+    | '/imoveis/$id'
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
+    | '/admin/imobiliarias'
     | '/admin/lojas'
     | '/lojista/dashboard'
     | '/lojista/pedidos'
@@ -392,6 +434,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/checkout'
     | '/home'
+    | '/imoveis'
     | '/login'
     | '/lojas'
     | '/perfil'
@@ -405,13 +448,16 @@ export interface FileRouteTypes {
     | '/enderecos'
     | '/favoritos'
     | '/idioma'
+    | '/imobiliaria'
     | '/lojista-crm'
     | '/pagamentos'
     | '/seguranca'
     | '/transportador'
+    | '/imoveis/$id'
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
+    | '/admin/imobiliarias'
     | '/admin/lojas'
     | '/lojista/dashboard'
     | '/lojista/pedidos'
@@ -429,6 +475,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/checkout'
     | '/home'
+    | '/imoveis'
     | '/login'
     | '/lojas'
     | '/perfil'
@@ -442,14 +489,17 @@ export interface FileRouteTypes {
     | '/_authenticated/enderecos'
     | '/_authenticated/favoritos'
     | '/_authenticated/idioma'
+    | '/_authenticated/imobiliaria'
     | '/_authenticated/lojista'
     | '/_authenticated/lojista-crm'
     | '/_authenticated/pagamentos'
     | '/_authenticated/seguranca'
     | '/_authenticated/transportador'
+    | '/imoveis/$id'
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
+    | '/_authenticated/admin/imobiliarias'
     | '/_authenticated/admin/lojas'
     | '/_authenticated/lojista/dashboard'
     | '/_authenticated/lojista/pedidos'
@@ -468,6 +518,7 @@ export interface RootRouteChildren {
   ChatRoute: typeof ChatRoute
   CheckoutRoute: typeof CheckoutRoute
   HomeRoute: typeof HomeRoute
+  ImoveisRoute: typeof ImoveisRouteWithChildren
   LoginRoute: typeof LoginRoute
   LojasRoute: typeof LojasRoute
   PerfilRoute: typeof PerfilRoute
@@ -522,6 +573,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/imoveis': {
+      id: '/imoveis'
+      path: '/imoveis'
+      fullPath: '/imoveis'
+      preLoaderRoute: typeof ImoveisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/home': {
@@ -601,6 +659,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LiveIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/imoveis/$id': {
+      id: '/imoveis/$id'
+      path: '/$id'
+      fullPath: '/imoveis/$id'
+      preLoaderRoute: typeof ImoveisIdRouteImport
+      parentRoute: typeof ImoveisRoute
+    }
     '/_authenticated/transportador': {
       id: '/_authenticated/transportador'
       path: '/transportador'
@@ -634,6 +699,13 @@ declare module '@tanstack/react-router' {
       path: '/lojista'
       fullPath: '/lojista'
       preLoaderRoute: typeof AuthenticatedLojistaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/imobiliaria': {
+      id: '/_authenticated/imobiliaria'
+      path: '/imobiliaria'
+      fullPath: '/imobiliaria'
+      preLoaderRoute: typeof AuthenticatedImobiliariaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/idioma': {
@@ -734,6 +806,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminLojasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/imobiliarias': {
+      id: '/_authenticated/admin/imobiliarias'
+      path: '/admin/imobiliarias'
+      fullPath: '/admin/imobiliarias'
+      preLoaderRoute: typeof AuthenticatedAdminImobiliariasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -764,11 +843,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEnderecosRoute: typeof AuthenticatedEnderecosRoute
   AuthenticatedFavoritosRoute: typeof AuthenticatedFavoritosRoute
   AuthenticatedIdiomaRoute: typeof AuthenticatedIdiomaRoute
+  AuthenticatedImobiliariaRoute: typeof AuthenticatedImobiliariaRoute
   AuthenticatedLojistaRoute: typeof AuthenticatedLojistaRouteWithChildren
   AuthenticatedLojistaCrmRoute: typeof AuthenticatedLojistaCrmRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
   AuthenticatedSegurancaRoute: typeof AuthenticatedSegurancaRoute
   AuthenticatedTransportadorRoute: typeof AuthenticatedTransportadorRoute
+  AuthenticatedAdminImobiliariasRoute: typeof AuthenticatedAdminImobiliariasRoute
   AuthenticatedAdminLojasRoute: typeof AuthenticatedAdminLojasRoute
 }
 
@@ -780,16 +861,29 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEnderecosRoute: AuthenticatedEnderecosRoute,
   AuthenticatedFavoritosRoute: AuthenticatedFavoritosRoute,
   AuthenticatedIdiomaRoute: AuthenticatedIdiomaRoute,
+  AuthenticatedImobiliariaRoute: AuthenticatedImobiliariaRoute,
   AuthenticatedLojistaRoute: AuthenticatedLojistaRouteWithChildren,
   AuthenticatedLojistaCrmRoute: AuthenticatedLojistaCrmRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
   AuthenticatedSegurancaRoute: AuthenticatedSegurancaRoute,
   AuthenticatedTransportadorRoute: AuthenticatedTransportadorRoute,
+  AuthenticatedAdminImobiliariasRoute: AuthenticatedAdminImobiliariasRoute,
   AuthenticatedAdminLojasRoute: AuthenticatedAdminLojasRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface ImoveisRouteChildren {
+  ImoveisIdRoute: typeof ImoveisIdRoute
+}
+
+const ImoveisRouteChildren: ImoveisRouteChildren = {
+  ImoveisIdRoute: ImoveisIdRoute,
+}
+
+const ImoveisRouteWithChildren =
+  ImoveisRoute._addFileChildren(ImoveisRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -800,6 +894,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatRoute: ChatRoute,
   CheckoutRoute: CheckoutRoute,
   HomeRoute: HomeRoute,
+  ImoveisRoute: ImoveisRouteWithChildren,
   LoginRoute: LoginRoute,
   LojasRoute: LojasRoute,
   PerfilRoute: PerfilRoute,
@@ -814,13 +909,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

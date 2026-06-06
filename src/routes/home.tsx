@@ -19,9 +19,14 @@ export const Route = createFileRoute("/home")({
 });
 
 const categories = [
-  { e: "🥑", n: "Orgânicos" }, { e: "💻", n: "Tech" }, { e: "👗", n: "Moda" },
-  { e: "🏠", n: "Casa" }, { e: "⚽", n: "Esporte" }, { e: "💄", n: "Beleza" },
-  { e: "🍯", n: "Mercado" }, { e: "🎁", n: "Ofertas" },
+  { e: "🥑", n: "Orgânicos", to: "/lojas" as const },
+  { e: "💻", n: "Tech", to: "/lojas" as const },
+  { e: "👗", n: "Moda", to: "/lojas" as const },
+  { e: "🏘️", n: "Imóveis", to: "/imoveis" as const },
+  { e: "⚽", n: "Esporte", to: "/lojas" as const },
+  { e: "💄", n: "Beleza", to: "/lojas" as const },
+  { e: "🍯", n: "Mercado", to: "/lojas" as const },
+  { e: "🎁", n: "Ofertas", to: "/lojas" as const },
 ];
 
 function Home() {
@@ -69,7 +74,7 @@ function Home() {
       <section className="px-5 py-5">
         <div className="grid grid-cols-4 gap-3">
           {categories.map((c) => (
-            <Link key={c.n} to="/lojas" className="flex flex-col items-center gap-1.5">
+            <Link key={c.n} to={c.to} className="flex flex-col items-center gap-1.5">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-2xl">{c.e}</div>
               <span className="text-[11px] font-medium text-foreground">{c.n}</span>
             </Link>

@@ -83,6 +83,66 @@ export type Database = {
           },
         ]
       }
+      agency_live_fees: {
+        Row: {
+          agency_id: string
+          amount_aoa: number
+          approved_at: string | null
+          created_at: string
+          id: string
+          live_id: string | null
+          payment_method: string | null
+          proof_url: string | null
+          property_id: string | null
+          rejection_reason: string | null
+          status: Database["public"]["Enums"]["agency_live_fee_status"]
+          updated_at: string
+        }
+        Insert: {
+          agency_id: string
+          amount_aoa?: number
+          approved_at?: string | null
+          created_at?: string
+          id?: string
+          live_id?: string | null
+          payment_method?: string | null
+          proof_url?: string | null
+          property_id?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["agency_live_fee_status"]
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string
+          amount_aoa?: number
+          approved_at?: string | null
+          created_at?: string
+          id?: string
+          live_id?: string | null
+          payment_method?: string | null
+          proof_url?: string | null
+          property_id?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["agency_live_fee_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_live_fees_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "real_estate_agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agency_live_fees_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           created_at: string
@@ -752,6 +812,191 @@ export type Database = {
         }
         Relationships: []
       }
+      properties: {
+        Row: {
+          agency_id: string
+          area_m2: number | null
+          bathrooms: number | null
+          bedrooms: number | null
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          district: string | null
+          featured: boolean
+          furnished: boolean
+          id: string
+          lat: number | null
+          listing_type: Database["public"]["Enums"]["listing_type"]
+          lng: number | null
+          municipality_id: string | null
+          parking_spots: number | null
+          price_aoa: number
+          property_type: Database["public"]["Enums"]["property_type"]
+          province_id: string | null
+          rejection_reason: string | null
+          rent_period: string | null
+          status: Database["public"]["Enums"]["property_status"]
+          street: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          agency_id: string
+          area_m2?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          district?: string | null
+          featured?: boolean
+          furnished?: boolean
+          id?: string
+          lat?: number | null
+          listing_type: Database["public"]["Enums"]["listing_type"]
+          lng?: number | null
+          municipality_id?: string | null
+          parking_spots?: number | null
+          price_aoa?: number
+          property_type: Database["public"]["Enums"]["property_type"]
+          province_id?: string | null
+          rejection_reason?: string | null
+          rent_period?: string | null
+          status?: Database["public"]["Enums"]["property_status"]
+          street?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string
+          area_m2?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          district?: string | null
+          featured?: boolean
+          furnished?: boolean
+          id?: string
+          lat?: number | null
+          listing_type?: Database["public"]["Enums"]["listing_type"]
+          lng?: number | null
+          municipality_id?: string | null
+          parking_spots?: number | null
+          price_aoa?: number
+          property_type?: Database["public"]["Enums"]["property_type"]
+          province_id?: string | null
+          rejection_reason?: string | null
+          rent_period?: string | null
+          status?: Database["public"]["Enums"]["property_status"]
+          street?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "properties_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "real_estate_agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "properties_municipality_id_fkey"
+            columns: ["municipality_id"]
+            isOneToOne: false
+            referencedRelation: "municipalities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "properties_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "provinces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_images: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          property_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          property_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          property_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_images_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_visit_requests: {
+        Row: {
+          contact_phone: string
+          created_at: string
+          customer_id: string
+          id: string
+          message: string | null
+          preferred_date: string
+          preferred_time: string | null
+          property_id: string
+          status: Database["public"]["Enums"]["visit_request_status"]
+          updated_at: string
+        }
+        Insert: {
+          contact_phone: string
+          created_at?: string
+          customer_id: string
+          id?: string
+          message?: string | null
+          preferred_date: string
+          preferred_time?: string | null
+          property_id: string
+          status?: Database["public"]["Enums"]["visit_request_status"]
+          updated_at?: string
+        }
+        Update: {
+          contact_phone?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          message?: string | null
+          preferred_date?: string
+          preferred_time?: string | null
+          property_id?: string
+          status?: Database["public"]["Enums"]["visit_request_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_visit_requests_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provinces: {
         Row: {
           created_at: string
@@ -769,6 +1014,87 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      real_estate_agencies: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          district: string | null
+          email: string | null
+          id: string
+          lat: number | null
+          lng: number | null
+          logo_url: string | null
+          municipality_id: string | null
+          name: string
+          nif: string
+          owner_id: string
+          phone: string
+          province_id: string | null
+          rejection_reason: string | null
+          status: Database["public"]["Enums"]["agency_status"]
+          street: string | null
+          updated_at: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          district?: string | null
+          email?: string | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          logo_url?: string | null
+          municipality_id?: string | null
+          name: string
+          nif: string
+          owner_id: string
+          phone: string
+          province_id?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["agency_status"]
+          street?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          district?: string | null
+          email?: string | null
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          logo_url?: string | null
+          municipality_id?: string | null
+          name?: string
+          nif?: string
+          owner_id?: string
+          phone?: string
+          province_id?: string | null
+          rejection_reason?: string | null
+          status?: Database["public"]["Enums"]["agency_status"]
+          street?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "real_estate_agencies_municipality_id_fkey"
+            columns: ["municipality_id"]
+            isOneToOne: false
+            referencedRelation: "municipalities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "real_estate_agencies_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "provinces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       store_private: {
         Row: {
@@ -1025,7 +1351,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_approve_agency: { Args: { _agency_id: string }; Returns: undefined }
+      admin_approve_agency_live_fee: {
+        Args: { _fee_id: string }
+        Returns: undefined
+      }
+      admin_approve_property: {
+        Args: { _property_id: string }
+        Returns: undefined
+      }
       admin_approve_store: { Args: { _store_id: string }; Returns: undefined }
+      admin_reject_agency: {
+        Args: { _agency_id: string; _reason: string }
+        Returns: undefined
+      }
+      admin_reject_agency_live_fee: {
+        Args: { _fee_id: string; _reason: string }
+        Returns: undefined
+      }
+      admin_reject_property: {
+        Args: { _property_id: string; _reason: string }
+        Returns: undefined
+      }
       admin_reject_store: {
         Args: { _reason: string; _store_id: string }
         Returns: undefined
@@ -1048,9 +1395,12 @@ export type Database = {
       }
     }
     Enums: {
+      agency_live_fee_status: "pending" | "paid" | "approved" | "rejected"
+      agency_status: "pending" | "active" | "rejected" | "suspended"
       app_role: "customer" | "seller" | "admin"
       courier_status: "pending" | "active" | "rejected" | "suspended"
       courier_type: "motoboy" | "carro" | "van" | "empresa"
+      listing_type: "venda" | "arrendamento"
       live_status: "scheduled" | "live" | "ended"
       order_status:
         | "pending"
@@ -1061,7 +1411,15 @@ export type Database = {
         | "cancelled"
       payout_status: "pending" | "released" | "failed"
       product_status: "pending" | "approved" | "rejected"
+      property_status: "pending" | "approved" | "rejected" | "sold" | "rented"
+      property_type:
+        | "casa"
+        | "apartamento"
+        | "terreno"
+        | "comercial"
+        | "escritorio"
       store_status: "pending" | "active" | "rejected"
+      visit_request_status: "pending" | "confirmed" | "rejected" | "done"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1189,9 +1547,12 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      agency_live_fee_status: ["pending", "paid", "approved", "rejected"],
+      agency_status: ["pending", "active", "rejected", "suspended"],
       app_role: ["customer", "seller", "admin"],
       courier_status: ["pending", "active", "rejected", "suspended"],
       courier_type: ["motoboy", "carro", "van", "empresa"],
+      listing_type: ["venda", "arrendamento"],
       live_status: ["scheduled", "live", "ended"],
       order_status: [
         "pending",
@@ -1203,7 +1564,16 @@ export const Constants = {
       ],
       payout_status: ["pending", "released", "failed"],
       product_status: ["pending", "approved", "rejected"],
+      property_status: ["pending", "approved", "rejected", "sold", "rented"],
+      property_type: [
+        "casa",
+        "apartamento",
+        "terreno",
+        "comercial",
+        "escritorio",
+      ],
       store_status: ["pending", "active", "rejected"],
+      visit_request_status: ["pending", "confirmed", "rejected", "done"],
     },
   },
 } as const
