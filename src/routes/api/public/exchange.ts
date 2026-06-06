@@ -48,7 +48,24 @@ export const Route = createFileRoute("/api/public/exchange")({
         return Response.json({ rates: data ?? [] });
       },
 
-      POST: async () => {
+      POST: async ({ request }) => {
+        const expected = process.env.CRON_SECRET;
+        if (!expected) {
+          return new Response(JSON.stringify({ error: "CRON_SECRET not configured" }), {
+            status: 503,
+            headers: { "content-type": "application/json" },
+          });
+        }
+        const provided = request.headers.get("x-cron-secret") ?? "";
+        const a = Buffer.from(provided);
+        const b = Buffer.from(expected);
+        const { timingSafeEqual } = await import("crypto");
+        if (a.length !== b.length || !timingSafeEqual(a, b)) {
+          return new Response(JSON.stringify({ error: "Unauthorized" }), {
+            status: 401,
+            headers: { "content-type": "application/json" },
+          });
+        }
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const rows = mockFetchRates();
         const { error } = await supabaseAdmin
