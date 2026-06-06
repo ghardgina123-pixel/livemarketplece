@@ -1,127 +1,69 @@
-## Visão geral
+# Módulo de Imóveis (Imobiliárias)
 
-Reorganizar o fluxo de conta, perfil e configurações do Live Market, separando claramente **Cliente** e **Lojista**, abrindo um menu de Configurações funcional, adicionando módulo **CRM Premium** para lojistas e cadastrando os métodos de pagamento de Angola (Express, e-Kwanza, Unitel Money, Afrimoney, Kwik e Referência Multicaixa).
+Adiciona ao app um novo tipo de "vendedor": **imobiliárias**, com fluxo paralelo ao das lojas — cadastro, aprovação pelo admin, publicação de imóveis, lives com taxa por sessão e contato pelos clientes.
 
----
+## 1. Base de dados (nova migração)
 
-## 1. Cadastro com escolha de tipo de conta
+Tabelas novas no schema `public` (todas com RLS + GRANTs):
 
-Na tela `/cadastro` (e no primeiro acesso após baixar o app), o usuário escolhe:
+- **`real_estate_agencies`** — perfil da imobiliária
+  - `owner_id` (uuid → auth.users), `name`, `nif` (obrigatório), `phone`, `email`, `description`, `logo_url`, `cover_url`
+  - `province_id`, `municipality_id`, `district`, `street`, `lat`, `lng`
+  - `status` (enum `agency_status`: pending / active / rejected / suspended), `rejection_reason`
+  - Política: só empresas registadas (NIF obrigatório); admin aprova manualmente.
 
-- **Sou Cliente** → fluxo atual (nome, email, telefone, senha)
-- **Sou Lojista** → fluxo estendido com dados de empresa
+- **`properties`** — imóveis publicados
+  - `agency_id`, `title`, `description`, `property_type` (enum: casa, apartamento, terreno, comercial, escritório)
+  - `listing_type` (enum: venda, arrendamento)
+  - `price_aoa`, `rent_period` (mensal / diário — só para arrendamento)
+  - `bedrooms`, `bathrooms`, `area_m2`, `parking_spots`, `furnished` (bool)
+  - `province_id`, `municipality_id`, `district`, `street`, `lat`, `lng`
+  - `status` (enum `property_status`: pending / approved / rejected / sold / rented), `featured` (bool)
+  - Tabela auxiliar `property_images` (várias fotos por imóvel)
 
-Campos extras do lojista (obrigatórios para criar a loja):
-- Nome da empresa / marca
-- NIF
-- Categoria do negócio
-- Telefone comercial e email comercial
-- Província + Município + Endereço completo
-- **Localização no mapa** (pin com lat/lng — captura via "usar minha localização" + ajuste manual)
-- Logo e capa (opcional no cadastro, obrigatório antes de publicar)
-- Dados bancários (banco, IBAN, titular)
+- **`property_visit_requests`** — pedidos de visita
+  - `property_id`, `customer_id`, `preferred_date`, `preferred_time`, `message`, `contact_phone`
+  - `status` (pendente / confirmada / recusada / realizada)
 
-Ao concluir, o lojista é criado como `customer` + `seller` (papéis em `user_roles`) e uma `stores` em status `pending` é gerada automaticamente.
+- **`agency_live_fees`** — controle da taxa por live de imóvel
+  - `agency_id`, `live_id` (nullable até a live ser criada), `amount_aoa` (default 5000)
+  - `status` (pending / paid / approved / rejected), `proof_url`, `payment_method`, `rejection_reason`
+  - Fluxo igual à subscrição da loja: dono carrega comprovativo → admin aprova → live habilitada
 
----
+- **Configuração**: usar `payment_methods` existente; valor padrão da taxa fica em constante no código (5.000 Kz), editável depois.
 
-## 2. Botão de Configurações funcional no Perfil
+Lives reutilizam a tabela `lives` existente, com gatilho: ao criar live para uma agência, exigir um `agency_live_fees` com status `approved` e ainda não consumido.
 
-Hoje o ícone de engrenagem no topo de `/perfil` não abre nada. Vamos:
+## 2. Rotas novas
 
-- Transformar em um **Sheet/Drawer lateral** (`Configurações`) que abre ao clicar.
-- O conteúdo do menu se adapta ao papel do usuário.
+- **`/imoveis`** (público) — listagem geral com filtros (tipo, venda/arrendamento, província, faixa de preço, quartos)
+- **`/imoveis/$id`** (público) — detalhe do imóvel: galeria, mapa OpenStreetMap, dados, botões "Marcar visita" (formulário) e "WhatsApp" (deep link), ver lives ativas da imobiliária
+- **`/imobiliaria/$id`** (público) — página da imobiliária: imóveis, lives, contatos
+- **`/_authenticated/imobiliaria/cadastro`** — formulário de cadastro da imobiliária (com validação Zod, captura de geolocalização, mapa preview)
+- **`/_authenticated/imobiliaria/painel`** — painel do dono: meus imóveis, criar/editar imóvel, pedidos de visita recebidos, lives, pagar taxa de live (upload de comprovativo)
+- **`/_authenticated/imobiliaria/imovel/novo`** e **`/_authenticated/imobiliaria/imovel/$id/editar`**
+- **`/_authenticated/admin/imobiliarias`** — admin aprova/rejeita imobiliárias, imóveis e taxas de live
 
-### Seções do menu (organizadas)
+## 3. Integração com o app existente
 
-**Minha conta**
-- Editar perfil (nome, foto, telefone)
-- Endereços
-- Segurança e privacidade
-- Idioma, região e moeda
+- **Home**: novo card "Imóveis" na grade de categorias, navegando para `/imoveis`
+- **Perfil**: novo bloco "Tenho imóveis para vender/arrendar" → `/imobiliaria/cadastro`
+- **Live**: tela de live verifica se é live de imobiliária; se sim, mostra badge "Imóvel" e botão para o imóvel/agência
+- **Chat existente** (`conversations`/`messages`): reutilizado para conversa cliente ↔ imobiliária a partir do botão "Contatar" no imóvel
 
-**Como cliente**
-- Minhas compras (pedidos)
-- Favoritos
-- Métodos de pagamento salvos
-- Afiliados (programa de indicação — link, ganhos, saques)
+## 4. Detalhes técnicos
 
-**Como lojista** (só aparece se tiver loja ou clicar em "Quero vender")
-- Minha loja (editar dados, status)
-- Meus produtos (listar, cadastrar novo, editar, estoque)
-- Pedidos recebidos
-- Financeiro / Saques (payouts)
-- **CRM Premium** (badge "PRO")
-- Afiliados da loja
+- Server functions com `requireSupabaseAuth` para criar imóveis, marcar visita e iniciar live; admin usa funções `security definer` (`admin_approve_agency`, `admin_approve_property`, `admin_approve_agency_live_fee`)
+- Validação Zod em todos os formulários (NIF, telefone +244, preços > 0, datas futuras para visita)
+- Upload de imagens via bucket existente reaproveitado (`store-assets` para logo/cover, novo bucket `property-images` para fotos dos imóveis); comprovativos no bucket `subscription-proofs`
+- Mapas: OpenStreetMap embed (mesmo padrão usado em `/transportador`)
+- Pagamento de live: por enquanto manual (comprovativo + aprovação admin), valor fixo de 5.000 Kz; estrutura já permite trocar para integração marketplace depois
 
-**Suporte**
-- Ajuda e suporte
-- Termos e privacidade
-- Sair
+## 5. Fora de escopo (fica para depois)
 
----
+- Pagamento automático/online (Multicaixa Express, Stripe) — agora só comprovativo manual
+- Repasse automático para a imobiliária via marketplace
+- Agenda integrada com calendário externo
+- Avaliações/reviews de imóveis
 
-## 3. CRM Premium para lojistas (pago)
-
-Novo módulo opcional para lojas:
-- Página `/lojista/crm` protegida por assinatura ativa.
-- Funcionalidades planejadas: lista de clientes da loja, histórico de compras por cliente, segmentação, campanhas (mensagens em massa via chat), notas internas.
-- Tela de **paywall** quando a loja não tem o plano: mostra benefícios, preço mensal em AOA e botão "Assinar CRM".
-- Tabela `store_subscriptions` (store_id, plan, status, started_at, expires_at) para controle.
-- Cobrança feita pelos métodos locais já cadastrados (ver seção 4). Sem provedor internacional nesta fase.
-
----
-
-## 4. Métodos de pagamento de Angola
-
-Inserir em `payment_methods` (já existente, com filtro por `country_code='AO'` e `is_active=true`) as opções:
-
-| method_type | display_name | requires_proof | observação |
-|---|---|---|---|
-| `express` | Pagamento Express | sim | referência + comprovante |
-| `ekwanza` | e-Kwanza | sim | número de telefone |
-| `unitel_money` | Unitel Money | sim | número Unitel |
-| `afrimoney` | Afrimoney | sim | número Africell |
-| `kwik` | Kwik | sim | conta Kwik |
-| `multicaixa_ref` | Pagamento por Referência (Multicaixa) | sim | entidade + referência |
-
-Todos como **manual / comprovante** nesta fase (o checkout já tem o filtro pronto — basta popular a tabela e ajustar ícones/labels).
-
----
-
-## 5. Telas e rotas afetadas
-
-```text
-src/routes/cadastro.tsx           → adicionar seletor Cliente/Lojista + form estendido
-src/routes/index.tsx (splash)     → CTA duplo "Sou Cliente" / "Quero vender"
-src/routes/perfil.tsx             → engrenagem abre <SettingsSheet/>
-src/components/SettingsSheet.tsx  → novo, menu organizado por papel
-src/routes/_authenticated/
-  lojista.tsx                     → dashboard lojista (já existe, reorganizar)
-  lojista.produtos.tsx            → meus produtos (novo)
-  lojista.pedidos.tsx             → pedidos recebidos (novo)
-  lojista.crm.tsx                 → CRM Premium + paywall (novo)
-  compras.tsx                     → minhas compras (novo)
-  afiliados.tsx                   → programa de afiliados (novo, placeholder)
-```
-
-Mapa: usar Leaflet + OpenStreetMap (já é leve e não precisa de chave). Componente `LocationPicker` reutilizável no cadastro de lojista e em endereços.
-
----
-
-## 6. Banco de dados (migrações)
-
-- `payment_methods`: inserir as 6 linhas para Angola (data, não schema).
-- `store_subscriptions` (nova tabela): id, store_id, plan ('crm'), status, started_at, expires_at, RLS (dono da loja lê; admin gerencia).
-- `stores`: já tem lat/lng, nif, dados bancários — sem mudança de schema.
-- `user_roles`: já tem enum com `customer`, `seller`, `admin` — sem mudança.
-
----
-
-## Fora do escopo deste plano
-
-- Implementação real do CRM (telas internas) — entregamos paywall + estrutura; as features do CRM viram um próximo plano.
-- Integração automática com APIs dos provedores angolanos (Express/Unitel/etc.) — fica como comprovante manual.
-- Programa de afiliados completo — entra como placeholder navegável.
-
-Confirma se posso seguir com este escopo (especialmente: CRM como paywall + estrutura, e métodos de pagamento como comprovante manual)?
+Posso seguir e implementar?
