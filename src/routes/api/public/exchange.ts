@@ -49,6 +49,13 @@ export const Route = createFileRoute("/api/public/exchange")({
       },
 
       POST: async () => {
+        const expected = process.env.CRON_SECRET;
+        if (!expected) {
+          return new Response(JSON.stringify({ error: "CRON_SECRET not configured" }), {
+            status: 503,
+            headers: { "content-type": "application/json" },
+          });
+        }
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const rows = mockFetchRates();
         const { error } = await supabaseAdmin
