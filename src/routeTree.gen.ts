@@ -26,6 +26,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
 import { Route as LojaIdRouteImport } from './routes/loja.$id'
 import { Route as LiveIdRouteImport } from './routes/live.$id'
+import { Route as AuthenticatedTransportadorRouteImport } from './routes/_authenticated/transportador'
 import { Route as AuthenticatedSegurancaRouteImport } from './routes/_authenticated/seguranca'
 import { Route as AuthenticatedPagamentosRouteImport } from './routes/_authenticated/pagamentos'
 import { Route as AuthenticatedLojistaCrmRouteImport } from './routes/_authenticated/lojista-crm'
@@ -129,6 +130,12 @@ const LiveIdRoute = LiveIdRouteImport.update({
   path: '/live/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTransportadorRoute =
+  AuthenticatedTransportadorRouteImport.update({
+    id: '/transportador',
+    path: '/transportador',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSegurancaRoute = AuthenticatedSegurancaRouteImport.update({
   id: '/seguranca',
   path: '/seguranca',
@@ -251,6 +258,7 @@ export interface FileRoutesByFullPath {
   '/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/seguranca': typeof AuthenticatedSegurancaRoute
+  '/transportador': typeof AuthenticatedTransportadorRoute
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
@@ -286,6 +294,7 @@ export interface FileRoutesByTo {
   '/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/pagamentos': typeof AuthenticatedPagamentosRoute
   '/seguranca': typeof AuthenticatedSegurancaRoute
+  '/transportador': typeof AuthenticatedTransportadorRoute
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
@@ -324,6 +333,7 @@ export interface FileRoutesById {
   '/_authenticated/lojista-crm': typeof AuthenticatedLojistaCrmRoute
   '/_authenticated/pagamentos': typeof AuthenticatedPagamentosRoute
   '/_authenticated/seguranca': typeof AuthenticatedSegurancaRoute
+  '/_authenticated/transportador': typeof AuthenticatedTransportadorRoute
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
@@ -362,6 +372,7 @@ export interface FileRouteTypes {
     | '/lojista-crm'
     | '/pagamentos'
     | '/seguranca'
+    | '/transportador'
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
@@ -397,6 +408,7 @@ export interface FileRouteTypes {
     | '/lojista-crm'
     | '/pagamentos'
     | '/seguranca'
+    | '/transportador'
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
@@ -434,6 +446,7 @@ export interface FileRouteTypes {
     | '/_authenticated/lojista-crm'
     | '/_authenticated/pagamentos'
     | '/_authenticated/seguranca'
+    | '/_authenticated/transportador'
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
@@ -587,6 +600,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/live/$id'
       preLoaderRoute: typeof LiveIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/transportador': {
+      id: '/_authenticated/transportador'
+      path: '/transportador'
+      fullPath: '/transportador'
+      preLoaderRoute: typeof AuthenticatedTransportadorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/seguranca': {
       id: '/_authenticated/seguranca'
@@ -748,6 +768,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedLojistaCrmRoute: typeof AuthenticatedLojistaCrmRoute
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
   AuthenticatedSegurancaRoute: typeof AuthenticatedSegurancaRoute
+  AuthenticatedTransportadorRoute: typeof AuthenticatedTransportadorRoute
   AuthenticatedAdminLojasRoute: typeof AuthenticatedAdminLojasRoute
 }
 
@@ -763,6 +784,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLojistaCrmRoute: AuthenticatedLojistaCrmRoute,
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
   AuthenticatedSegurancaRoute: AuthenticatedSegurancaRoute,
+  AuthenticatedTransportadorRoute: AuthenticatedTransportadorRoute,
   AuthenticatedAdminLojasRoute: AuthenticatedAdminLojasRoute,
 }
 

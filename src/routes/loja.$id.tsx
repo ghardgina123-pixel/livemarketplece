@@ -59,9 +59,9 @@ function LojaPage() {
         <p className="mt-3 text-sm text-foreground">{store.tagline}. Qualidade garantida, entrega rápida e atendimento ao vivo todos os dias.</p>
 
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <button className="flex items-center justify-center gap-1.5 rounded-xl bg-secondary py-2.5 text-xs font-semibold text-secondary-foreground">
+          <Link to="/live/$id" params={{ id: store.id }} className="flex items-center justify-center gap-1.5 rounded-xl bg-secondary py-2.5 text-xs font-semibold text-secondary-foreground">
             <Radio size={14} /> Entrar na live
-          </button>
+          </Link>
           <Link to="/chat" className="flex items-center justify-center gap-1.5 rounded-xl bg-muted py-2.5 text-xs font-semibold text-foreground">
             <MessageCircle size={14} /> Conversar
           </Link>
