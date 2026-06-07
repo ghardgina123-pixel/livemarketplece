@@ -1361,6 +1361,16 @@ export type Database = {
         Returns: undefined
       }
       admin_approve_store: { Args: { _store_id: string }; Returns: undefined }
+      admin_create_store_for_email: {
+        Args: {
+          _activate?: boolean
+          _category?: string
+          _email: string
+          _name: string
+          _phone?: string
+        }
+        Returns: string
+      }
       admin_reject_agency: {
         Args: { _agency_id: string; _reason: string }
         Returns: undefined
