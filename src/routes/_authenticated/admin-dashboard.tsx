@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/admin")({
+export const Route = createFileRoute("/_authenticated/admin-dashboard")({
   head: () => ({ meta: [{ title: "Admin · Painel — Live Market" }] }),
   beforeLoad: async () => {
     const { data: u } = await supabase.auth.getUser();

@@ -41,6 +41,7 @@ import { Route as AuthenticatedEditarPerfilRouteImport } from './routes/_authent
 import { Route as AuthenticatedComprasRouteImport } from './routes/_authenticated/compras'
 import { Route as AuthenticatedAfiliadosRouteImport } from './routes/_authenticated/afiliados'
 import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin-crm'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedLojistaIndexRouteImport } from './routes/_authenticated/lojista.index'
 import { Route as ApiPublicExchangeRouteImport } from './routes/api/public/exchange'
 import { Route as AuthenticatedLojistaVideosRouteImport } from './routes/_authenticated/lojista.videos'
@@ -212,6 +213,11 @@ const AuthenticatedAdminCrmRoute = AuthenticatedAdminCrmRouteImport.update({
   path: '/admin-crm',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedLojistaIndexRoute =
   AuthenticatedLojistaIndexRouteImport.update({
     id: '/',
@@ -248,15 +254,15 @@ const AuthenticatedLojistaDashboardRoute =
     getParentRoute: () => AuthenticatedLojistaRoute,
   } as any)
 const AuthenticatedAdminLojasRoute = AuthenticatedAdminLojasRouteImport.update({
-  id: '/admin/lojas',
-  path: '/admin/lojas',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  id: '/lojas',
+  path: '/lojas',
+  getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
 const AuthenticatedAdminImobiliariasRoute =
   AuthenticatedAdminImobiliariasRouteImport.update({
-    id: '/admin/imobiliarias',
-    path: '/admin/imobiliarias',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/imobiliarias',
+    path: '/imobiliarias',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -274,6 +280,7 @@ export interface FileRoutesByFullPath {
   '/shorts': typeof ShortsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin-crm': typeof AuthenticatedAdminCrmRoute
   '/afiliados': typeof AuthenticatedAfiliadosRoute
   '/compras': typeof AuthenticatedComprasRoute
@@ -315,6 +322,7 @@ export interface FileRoutesByTo {
   '/shorts': typeof ShortsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin-crm': typeof AuthenticatedAdminCrmRoute
   '/afiliados': typeof AuthenticatedAfiliadosRoute
   '/compras': typeof AuthenticatedComprasRoute
@@ -357,6 +365,7 @@ export interface FileRoutesById {
   '/shorts': typeof ShortsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/admin-crm': typeof AuthenticatedAdminCrmRoute
   '/_authenticated/afiliados': typeof AuthenticatedAfiliadosRoute
   '/_authenticated/compras': typeof AuthenticatedComprasRoute
@@ -400,6 +409,7 @@ export interface FileRouteTypes {
     | '/shorts'
     | '/sitemap.xml'
     | '/termos'
+    | '/admin'
     | '/admin-crm'
     | '/afiliados'
     | '/compras'
@@ -441,6 +451,7 @@ export interface FileRouteTypes {
     | '/shorts'
     | '/sitemap.xml'
     | '/termos'
+    | '/admin'
     | '/admin-crm'
     | '/afiliados'
     | '/compras'
@@ -482,6 +493,7 @@ export interface FileRouteTypes {
     | '/shorts'
     | '/sitemap.xml'
     | '/termos'
+    | '/_authenticated/admin'
     | '/_authenticated/admin-crm'
     | '/_authenticated/afiliados'
     | '/_authenticated/compras'
@@ -757,6 +769,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCrmRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/lojista/': {
       id: '/_authenticated/lojista/'
       path: '/'
@@ -801,20 +820,33 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/admin/lojas': {
       id: '/_authenticated/admin/lojas'
-      path: '/admin/lojas'
+      path: '/lojas'
       fullPath: '/admin/lojas'
       preLoaderRoute: typeof AuthenticatedAdminLojasRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/imobiliarias': {
       id: '/_authenticated/admin/imobiliarias'
-      path: '/admin/imobiliarias'
+      path: '/imobiliarias'
       fullPath: '/admin/imobiliarias'
       preLoaderRoute: typeof AuthenticatedAdminImobiliariasRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedAdminRoute
     }
   }
 }
+
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminImobiliariasRoute: typeof AuthenticatedAdminImobiliariasRoute
+  AuthenticatedAdminLojasRoute: typeof AuthenticatedAdminLojasRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminImobiliariasRoute: AuthenticatedAdminImobiliariasRoute,
+  AuthenticatedAdminLojasRoute: AuthenticatedAdminLojasRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedLojistaRouteChildren {
   AuthenticatedLojistaDashboardRoute: typeof AuthenticatedLojistaDashboardRoute
@@ -836,6 +868,7 @@ const AuthenticatedLojistaRouteWithChildren =
   AuthenticatedLojistaRoute._addFileChildren(AuthenticatedLojistaRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAdminCrmRoute: typeof AuthenticatedAdminCrmRoute
   AuthenticatedAfiliadosRoute: typeof AuthenticatedAfiliadosRoute
   AuthenticatedComprasRoute: typeof AuthenticatedComprasRoute
@@ -849,11 +882,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
   AuthenticatedSegurancaRoute: typeof AuthenticatedSegurancaRoute
   AuthenticatedTransportadorRoute: typeof AuthenticatedTransportadorRoute
-  AuthenticatedAdminImobiliariasRoute: typeof AuthenticatedAdminImobiliariasRoute
-  AuthenticatedAdminLojasRoute: typeof AuthenticatedAdminLojasRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAdminCrmRoute: AuthenticatedAdminCrmRoute,
   AuthenticatedAfiliadosRoute: AuthenticatedAfiliadosRoute,
   AuthenticatedComprasRoute: AuthenticatedComprasRoute,
@@ -867,8 +899,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
   AuthenticatedSegurancaRoute: AuthenticatedSegurancaRoute,
   AuthenticatedTransportadorRoute: AuthenticatedTransportadorRoute,
-  AuthenticatedAdminImobiliariasRoute: AuthenticatedAdminImobiliariasRoute,
-  AuthenticatedAdminLojasRoute: AuthenticatedAdminLojasRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
