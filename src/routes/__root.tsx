@@ -97,8 +97,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Live Market — Compre, Converse e Receba." },
       { name: "twitter:description", content: "Live Market é o marketplace onde clientes e lojas se conectam em tempo real. Compre, converse e receba com segurança." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/GNjrhXp6xhOL3rypq4j80wrUCZh2/social-images/social-1780312701823-1000067935.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/GNjrhXp6xhOL3rypq4j80wrUCZh2/social-images/social-1780312701823-1000067935.webp" },
+      { property: "og:image", content: "/__l5e/assets-v1/2f203483-7f70-40d1-9bce-4851b37cc5e9/live-market-cover.png" },
+      { name: "twitter:image", content: "/__l5e/assets-v1/2f203483-7f70-40d1-9bce-4851b37cc5e9/live-market-cover.png" },
     ],
     links: [
       {
