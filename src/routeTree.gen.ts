@@ -40,6 +40,7 @@ import { Route as AuthenticatedEnderecosRouteImport } from './routes/_authentica
 import { Route as AuthenticatedEditarPerfilRouteImport } from './routes/_authenticated/editar-perfil'
 import { Route as AuthenticatedComprasRouteImport } from './routes/_authenticated/compras'
 import { Route as AuthenticatedAfiliadosRouteImport } from './routes/_authenticated/afiliados'
+import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin-dashboard'
 import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin-crm'
 import { Route as AuthenticatedLojistaIndexRouteImport } from './routes/_authenticated/lojista.index'
 import { Route as ApiPublicExchangeRouteImport } from './routes/api/public/exchange'
@@ -207,6 +208,12 @@ const AuthenticatedAfiliadosRoute = AuthenticatedAfiliadosRouteImport.update({
   path: '/afiliados',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminDashboardRoute =
+  AuthenticatedAdminDashboardRouteImport.update({
+    id: '/admin-dashboard',
+    path: '/admin-dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminCrmRoute = AuthenticatedAdminCrmRouteImport.update({
   id: '/admin-crm',
   path: '/admin-crm',
@@ -275,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/admin-crm': typeof AuthenticatedAdminCrmRoute
+  '/admin-dashboard': typeof AuthenticatedAdminDashboardRoute
   '/afiliados': typeof AuthenticatedAfiliadosRoute
   '/compras': typeof AuthenticatedComprasRoute
   '/editar-perfil': typeof AuthenticatedEditarPerfilRoute
@@ -316,6 +324,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/admin-crm': typeof AuthenticatedAdminCrmRoute
+  '/admin-dashboard': typeof AuthenticatedAdminDashboardRoute
   '/afiliados': typeof AuthenticatedAfiliadosRoute
   '/compras': typeof AuthenticatedComprasRoute
   '/editar-perfil': typeof AuthenticatedEditarPerfilRoute
@@ -358,6 +367,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/_authenticated/admin-crm': typeof AuthenticatedAdminCrmRoute
+  '/_authenticated/admin-dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/afiliados': typeof AuthenticatedAfiliadosRoute
   '/_authenticated/compras': typeof AuthenticatedComprasRoute
   '/_authenticated/editar-perfil': typeof AuthenticatedEditarPerfilRoute
@@ -401,6 +411,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/termos'
     | '/admin-crm'
+    | '/admin-dashboard'
     | '/afiliados'
     | '/compras'
     | '/editar-perfil'
@@ -442,6 +453,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/termos'
     | '/admin-crm'
+    | '/admin-dashboard'
     | '/afiliados'
     | '/compras'
     | '/editar-perfil'
@@ -483,6 +495,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/termos'
     | '/_authenticated/admin-crm'
+    | '/_authenticated/admin-dashboard'
     | '/_authenticated/afiliados'
     | '/_authenticated/compras'
     | '/_authenticated/editar-perfil'
@@ -750,6 +763,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAfiliadosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-dashboard': {
+      id: '/_authenticated/admin-dashboard'
+      path: '/admin-dashboard'
+      fullPath: '/admin-dashboard'
+      preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-crm': {
       id: '/_authenticated/admin-crm'
       path: '/admin-crm'
@@ -837,6 +857,7 @@ const AuthenticatedLojistaRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminCrmRoute: typeof AuthenticatedAdminCrmRoute
+  AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAfiliadosRoute: typeof AuthenticatedAfiliadosRoute
   AuthenticatedComprasRoute: typeof AuthenticatedComprasRoute
   AuthenticatedEditarPerfilRoute: typeof AuthenticatedEditarPerfilRoute
@@ -855,6 +876,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminCrmRoute: AuthenticatedAdminCrmRoute,
+  AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
   AuthenticatedAfiliadosRoute: AuthenticatedAfiliadosRoute,
   AuthenticatedComprasRoute: AuthenticatedComprasRoute,
   AuthenticatedEditarPerfilRoute: AuthenticatedEditarPerfilRoute,
@@ -909,3 +931,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
