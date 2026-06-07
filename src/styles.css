@@ -145,6 +145,14 @@
     border-color: var(--color-border);
   }
 
+  #lovable-badge,
+  [id="lovable-badge"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
