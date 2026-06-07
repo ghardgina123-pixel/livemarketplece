@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Radio, ShoppingBag, Store as StoreIcon } from "lucide-react";
+import { ShoppingBag, Store as StoreIcon } from "lucide-react";
 import { SITE_URL } from "@/lib/site";
+import coverAsset from "@/assets/live-market-cover.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,17 +22,12 @@ function Splash() {
       style={{ background: "var(--gradient-brand)" }}
     >
       <div className="flex flex-1 flex-col items-center justify-center gap-6 animate-in fade-in zoom-in-95 duration-700">
-        <div className="relative">
-          <div className="absolute inset-0 animate-ping rounded-full bg-white/30" />
-          <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl bg-white/15 backdrop-blur-md ring-1 ring-white/30">
-            <Radio size={48} className="text-white" />
-          </div>
-        </div>
-        <div className="text-center">
-          <h1 className="text-4xl font-bold tracking-tight">Live Market</h1>
-          <p className="mt-2 text-sm font-medium text-white/90">Compre, Converse e Receba.</p>
-          <p className="mt-1 text-xs text-white/70">O marketplace onde clientes e lojas se conectam em tempo real.</p>
-        </div>
+        <img
+          src={coverAsset.url}
+          alt="Live Market — Compre, Converse e Receba"
+          className="w-full max-w-[360px] rounded-3xl bg-white/10 p-3 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm"
+        />
+        <h1 className="sr-only">Live Market — Compre, Converse e Receba.</h1>
       </div>
 
       <div className="w-full space-y-3">
