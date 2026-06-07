@@ -40,8 +40,8 @@ import { Route as AuthenticatedEnderecosRouteImport } from './routes/_authentica
 import { Route as AuthenticatedEditarPerfilRouteImport } from './routes/_authenticated/editar-perfil'
 import { Route as AuthenticatedComprasRouteImport } from './routes/_authenticated/compras'
 import { Route as AuthenticatedAfiliadosRouteImport } from './routes/_authenticated/afiliados'
+import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin-dashboard'
 import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin-crm'
-import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedLojistaIndexRouteImport } from './routes/_authenticated/lojista.index'
 import { Route as ApiPublicExchangeRouteImport } from './routes/api/public/exchange'
 import { Route as AuthenticatedLojistaVideosRouteImport } from './routes/_authenticated/lojista.videos'
@@ -208,14 +208,15 @@ const AuthenticatedAfiliadosRoute = AuthenticatedAfiliadosRouteImport.update({
   path: '/afiliados',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminDashboardRoute =
+  AuthenticatedAdminDashboardRouteImport.update({
+    id: '/admin-dashboard',
+    path: '/admin-dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminCrmRoute = AuthenticatedAdminCrmRouteImport.update({
   id: '/admin-crm',
   path: '/admin-crm',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedLojistaIndexRoute =
@@ -254,15 +255,15 @@ const AuthenticatedLojistaDashboardRoute =
     getParentRoute: () => AuthenticatedLojistaRoute,
   } as any)
 const AuthenticatedAdminLojasRoute = AuthenticatedAdminLojasRouteImport.update({
-  id: '/lojas',
-  path: '/lojas',
-  getParentRoute: () => AuthenticatedAdminRoute,
+  id: '/admin/lojas',
+  path: '/admin/lojas',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminImobiliariasRoute =
   AuthenticatedAdminImobiliariasRouteImport.update({
-    id: '/imobiliarias',
-    path: '/imobiliarias',
-    getParentRoute: () => AuthenticatedAdminRoute,
+    id: '/admin/imobiliarias',
+    path: '/admin/imobiliarias',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -280,8 +281,8 @@ export interface FileRoutesByFullPath {
   '/shorts': typeof ShortsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
-  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin-crm': typeof AuthenticatedAdminCrmRoute
+  '/admin-dashboard': typeof AuthenticatedAdminDashboardRoute
   '/afiliados': typeof AuthenticatedAfiliadosRoute
   '/compras': typeof AuthenticatedComprasRoute
   '/editar-perfil': typeof AuthenticatedEditarPerfilRoute
@@ -322,8 +323,8 @@ export interface FileRoutesByTo {
   '/shorts': typeof ShortsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
-  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin-crm': typeof AuthenticatedAdminCrmRoute
+  '/admin-dashboard': typeof AuthenticatedAdminDashboardRoute
   '/afiliados': typeof AuthenticatedAfiliadosRoute
   '/compras': typeof AuthenticatedComprasRoute
   '/editar-perfil': typeof AuthenticatedEditarPerfilRoute
@@ -365,8 +366,8 @@ export interface FileRoutesById {
   '/shorts': typeof ShortsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/admin-crm': typeof AuthenticatedAdminCrmRoute
+  '/_authenticated/admin-dashboard': typeof AuthenticatedAdminDashboardRoute
   '/_authenticated/afiliados': typeof AuthenticatedAfiliadosRoute
   '/_authenticated/compras': typeof AuthenticatedComprasRoute
   '/_authenticated/editar-perfil': typeof AuthenticatedEditarPerfilRoute
@@ -409,8 +410,8 @@ export interface FileRouteTypes {
     | '/shorts'
     | '/sitemap.xml'
     | '/termos'
-    | '/admin'
     | '/admin-crm'
+    | '/admin-dashboard'
     | '/afiliados'
     | '/compras'
     | '/editar-perfil'
@@ -451,8 +452,8 @@ export interface FileRouteTypes {
     | '/shorts'
     | '/sitemap.xml'
     | '/termos'
-    | '/admin'
     | '/admin-crm'
+    | '/admin-dashboard'
     | '/afiliados'
     | '/compras'
     | '/editar-perfil'
@@ -493,8 +494,8 @@ export interface FileRouteTypes {
     | '/shorts'
     | '/sitemap.xml'
     | '/termos'
-    | '/_authenticated/admin'
     | '/_authenticated/admin-crm'
+    | '/_authenticated/admin-dashboard'
     | '/_authenticated/afiliados'
     | '/_authenticated/compras'
     | '/_authenticated/editar-perfil'
@@ -762,18 +763,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAfiliadosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-dashboard': {
+      id: '/_authenticated/admin-dashboard'
+      path: '/admin-dashboard'
+      fullPath: '/admin-dashboard'
+      preLoaderRoute: typeof AuthenticatedAdminDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-crm': {
       id: '/_authenticated/admin-crm'
       path: '/admin-crm'
       fullPath: '/admin-crm'
       preLoaderRoute: typeof AuthenticatedAdminCrmRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/lojista/': {
@@ -820,33 +821,20 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/admin/lojas': {
       id: '/_authenticated/admin/lojas'
-      path: '/lojas'
+      path: '/admin/lojas'
       fullPath: '/admin/lojas'
       preLoaderRoute: typeof AuthenticatedAdminLojasRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/imobiliarias': {
       id: '/_authenticated/admin/imobiliarias'
-      path: '/imobiliarias'
+      path: '/admin/imobiliarias'
       fullPath: '/admin/imobiliarias'
       preLoaderRoute: typeof AuthenticatedAdminImobiliariasRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
-
-interface AuthenticatedAdminRouteChildren {
-  AuthenticatedAdminImobiliariasRoute: typeof AuthenticatedAdminImobiliariasRoute
-  AuthenticatedAdminLojasRoute: typeof AuthenticatedAdminLojasRoute
-}
-
-const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
-  AuthenticatedAdminImobiliariasRoute: AuthenticatedAdminImobiliariasRoute,
-  AuthenticatedAdminLojasRoute: AuthenticatedAdminLojasRoute,
-}
-
-const AuthenticatedAdminRouteWithChildren =
-  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedLojistaRouteChildren {
   AuthenticatedLojistaDashboardRoute: typeof AuthenticatedLojistaDashboardRoute
@@ -868,8 +856,8 @@ const AuthenticatedLojistaRouteWithChildren =
   AuthenticatedLojistaRoute._addFileChildren(AuthenticatedLojistaRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAdminCrmRoute: typeof AuthenticatedAdminCrmRoute
+  AuthenticatedAdminDashboardRoute: typeof AuthenticatedAdminDashboardRoute
   AuthenticatedAfiliadosRoute: typeof AuthenticatedAfiliadosRoute
   AuthenticatedComprasRoute: typeof AuthenticatedComprasRoute
   AuthenticatedEditarPerfilRoute: typeof AuthenticatedEditarPerfilRoute
@@ -882,11 +870,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPagamentosRoute: typeof AuthenticatedPagamentosRoute
   AuthenticatedSegurancaRoute: typeof AuthenticatedSegurancaRoute
   AuthenticatedTransportadorRoute: typeof AuthenticatedTransportadorRoute
+  AuthenticatedAdminImobiliariasRoute: typeof AuthenticatedAdminImobiliariasRoute
+  AuthenticatedAdminLojasRoute: typeof AuthenticatedAdminLojasRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAdminCrmRoute: AuthenticatedAdminCrmRoute,
+  AuthenticatedAdminDashboardRoute: AuthenticatedAdminDashboardRoute,
   AuthenticatedAfiliadosRoute: AuthenticatedAfiliadosRoute,
   AuthenticatedComprasRoute: AuthenticatedComprasRoute,
   AuthenticatedEditarPerfilRoute: AuthenticatedEditarPerfilRoute,
@@ -899,6 +889,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPagamentosRoute: AuthenticatedPagamentosRoute,
   AuthenticatedSegurancaRoute: AuthenticatedSegurancaRoute,
   AuthenticatedTransportadorRoute: AuthenticatedTransportadorRoute,
+  AuthenticatedAdminImobiliariasRoute: AuthenticatedAdminImobiliariasRoute,
+  AuthenticatedAdminLojasRoute: AuthenticatedAdminLojasRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -939,3 +931,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
