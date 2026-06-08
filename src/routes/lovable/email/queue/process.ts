@@ -1,6 +1,7 @@
 import { sendLovableEmail } from '@lovable.dev/email-js'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { createFileRoute } from '@tanstack/react-router'
+import { timingSafeEqual } from 'crypto'
 
 const MAX_RETRIES = 5
 const DEFAULT_BATCH_SIZE = 10
@@ -84,7 +85,9 @@ export const Route = createFileRoute("/lovable/email/queue/process")({
         }
 
         const token = authHeader.slice('Bearer '.length).trim()
-        if (token !== supabaseServiceKey) {
+        const a = Buffer.from(token)
+        const b = Buffer.from(supabaseServiceKey)
+        if (a.length !== b.length || !timingSafeEqual(a, b)) {
           return Response.json({ error: 'Forbidden' }, { status: 403 })
         }
 
