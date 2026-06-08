@@ -22,24 +22,30 @@ function Splash() {
       style={{ background: "var(--gradient-brand)" }}
     >
       <div className="flex flex-1 flex-col items-center justify-center gap-6 animate-in fade-in zoom-in-95 duration-700">
-        <img
-          src={coverAsset.url}
-          alt="Live Market — Compre, Converse e Receba"
-          className="w-full max-w-[360px] rounded-3xl bg-white/10 p-3 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm"
-        />
-        <h1 className="sr-only">Live Market — Compre, Converse e Receba.</h1>
+        <div className="w-full max-w-[360px] overflow-hidden rounded-[2rem] bg-white/10 p-3 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm">
+          <img
+            src={coverAsset.url}
+            alt="Live Market — Compre, Converse e Receba"
+            className="w-full rounded-[1.5rem] object-cover"
+          />
+        </div>
+        <h1 className="sr-only">Live Market — Compre · Converse · Receba.</h1>
+        <p className="text-center text-sm font-bold tracking-[0.18em] text-white/95">
+          COMPRE <span className="text-primary-glow">•</span> CONVERSE{" "}
+          <span className="text-primary-glow">•</span> RECEBA
+        </p>
       </div>
 
       <div className="w-full space-y-3">
         <Link
-          to="/cadastro"
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-bold text-secondary shadow-lg"
+          to="/home"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-bold text-secondary shadow-lg transition hover:bg-white/95 active:scale-[0.98]"
         >
           <ShoppingBag size={18} /> Sou Cliente — quero comprar
         </Link>
         <Link
           to="/cadastro"
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-white/40 bg-white/10 text-sm font-bold text-white backdrop-blur"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-white/50 bg-white/10 text-sm font-bold text-white backdrop-blur transition hover:bg-white/20 active:scale-[0.98]"
         >
           <StoreIcon size={18} /> Sou Lojista — quero vender
         </Link>
