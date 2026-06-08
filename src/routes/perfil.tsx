@@ -1,9 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Settings, Package, Heart, MapPin, HelpCircle, LogOut, ChevronRight, BadgeCheck, Store as StoreIcon, Truck, Home as HomeIcon } from "lucide-react";
+import { Settings, Package, Heart, MapPin, HelpCircle, LogOut, ChevronRight, BadgeCheck, Store as StoreIcon, Truck, Home as HomeIcon, Shield } from "lucide-react";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { CurrencySelector } from "@/components/CurrencySelector";
 import { SettingsSheet } from "@/components/SettingsSheet";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/perfil")({
   head: () => ({
@@ -25,6 +27,12 @@ const menu = [
 function Perfil() {
   const { user, signOut } = useAuth();
   const nav = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    if (!user) { setIsAdmin(false); return; }
+    supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle()
+      .then(({ data }) => setIsAdmin(!!data));
+  }, [user?.id]);
   const displayName = (user?.user_metadata?.display_name as string) || user?.email?.split("@")[0] || "Convidado";
   const initials = displayName.slice(0, 2).toUpperCase();
   const handleLogout = async () => {
@@ -63,6 +71,16 @@ function Perfil() {
       </header>
 
       <ul className="divide-y divide-border px-2">
+        {user && isAdmin && (
+          <li>
+            <Link to="/admin-dashboard" className="flex w-full items-center gap-3 px-3 py-4 text-left">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl text-white" style={{ background: "var(--gradient-brand)" }}><Shield size={18} /></div>
+              <span className="flex-1 text-sm font-bold text-foreground">Painel do Administrador</span>
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase text-primary">Admin</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </Link>
+          </li>
+        )}
         {user && (
           <li>
             <Link to="/lojista" className="flex w-full items-center gap-3 px-3 py-4 text-left">
