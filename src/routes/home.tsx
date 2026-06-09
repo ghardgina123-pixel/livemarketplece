@@ -1,26 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Search, Bell, Radio, ShieldCheck, Truck, BadgeCheck, ChevronRight, Star } from "lucide-react";
 import { AppShell, StoreCover } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
-import { stores, products } from "@/lib/data";
 import { formatPrice, useCurrency } from "@/lib/currency";
 import { CurrencySelector } from "@/components/CurrencySelector";
+import { supabase } from "@/integrations/supabase/client";
 import logoAsset from "@/assets/live-market-logo.png.asset.json";
-import livesAtraem from "@/assets/marketing/lives-atraem.png.asset.json";
-import oneTapPay from "@/assets/marketing/one-tap-pay.png.asset.json";
-import pulso from "@/assets/marketing/pulso.png.asset.json";
-import nexusFlash from "@/assets/marketing/nexus-flash.png.asset.json";
-import confianca from "@/assets/marketing/confianca.png.asset.json";
-import escalaLocal from "@/assets/marketing/escala-local.png.asset.json";
 
-const marketingBanners = [
-  { src: livesAtraem.url, alt: "Lives imperdíveis atraem as melhores ofertas" },
-  { src: oneTapPay.url, alt: "Pagamento instantâneo — um toque e pronto" },
-  { src: pulso.url, alt: "Pulso em tempo real — tudo ao vivo, tudo agora" },
-  { src: nexusFlash.url, alt: "Nexus flash — descontos relâmpago" },
-  { src: confianca.url, alt: "Confiança inabalável" },
-  { src: escalaLocal.url, alt: "Escala de plataforma adaptada localmente" },
-];
+type LiveStore = { id: string; name: string; tagline: string; cover: string; emoji: string; viewers: number };
+type FeedProduct = { id: string; name: string; price: number; oldPrice?: number; emoji: string; rating: number; sold: string };
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -45,8 +34,50 @@ const categories = [
 ];
 
 function Home() {
-  const lives = stores.filter((s) => s.live);
   const currency = useCurrency();
+  const [lives, setLives] = useState<LiveStore[]>([]);
+  const [feed, setFeed] = useState<FeedProduct[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const { data: storesData } = await supabase
+        .from("stores")
+        .select("id, name, description, category")
+        .eq("status", "active")
+        .limit(8);
+      setLives(
+        (storesData ?? []).map((s, i) => ({
+          id: s.id,
+          name: s.name,
+          tagline: s.description ?? s.category ?? "Loja ao vivo",
+          cover: ["from-emerald-400 to-teal-600", "from-blue-500 to-indigo-700", "from-pink-400 to-rose-600", "from-amber-400 to-orange-600"][i % 4],
+          emoji: ["🛍️", "✨", "🔥", "🎁"][i % 4],
+          viewers: 0,
+        })),
+      );
+
+      const { data: productsData } = await supabase
+        .from("products")
+        .select("id, name, price_aoa, stock")
+        .eq("status", "approved")
+        .limit(12);
+      setFeed(
+        (productsData ?? []).map((p) => ({
+          id: p.id,
+          name: p.name,
+          // products use price_aoa; convert to "BRL base" expected by formatPrice
+          // by dividing by the static AOA/BRL rate (175 Kz per BRL).
+          price: Number(p.price_aoa ?? 0) / 175,
+          emoji: "🛒",
+          rating: 5,
+          sold: String(p.stock ?? 0),
+        })),
+      );
+    })();
+  }, []);
+
+  // Duplicate the feed list so the vertical marquee loops seamlessly.
+  const feedLoop = feed.length > 0 ? [...feed, ...feed] : [];
   return (
     <AppShell>
       <header className="px-5 pt-6 pb-3 text-white" style={{ background: "var(--gradient-brand)" }}>
@@ -107,62 +138,57 @@ function Home() {
           </div>
           <Link to="/lojas" className="flex items-center text-xs font-medium text-primary">Ver todas <ChevronRight size={14} /></Link>
         </div>
-        <div className="mt-3 flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {lives.map((s) => (
-            <Link key={s.id} to="/loja/$id" params={{ id: s.id }} className="w-40 shrink-0 overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-soft)]">
-              <div className="relative">
-                <StoreCover gradient={s.cover} emoji={s.emoji} className="h-44 w-full" />
-                <span className="absolute left-2 top-2 flex items-center gap-1 rounded-md bg-[var(--live)] px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> Live
-                </span>
-                <span className="absolute right-2 top-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                  {s.viewers?.toLocaleString("pt-BR")} 👁
-                </span>
-              </div>
-              <div className="p-2.5">
-                <p className="truncate text-sm font-semibold">{s.name}</p>
-                <p className="truncate text-[11px] text-muted-foreground">{s.tagline}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {lives.length === 0 ? (
+          <p className="px-5 pt-3 text-xs text-muted-foreground">Nenhuma loja ao vivo no momento.</p>
+        ) : (
+          <div className="mt-3 flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {lives.map((s) => (
+              <Link key={s.id} to="/loja/$id" params={{ id: s.id }} className="w-40 shrink-0 overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-soft)]">
+                <div className="relative">
+                  <StoreCover gradient={s.cover} emoji={s.emoji} className="h-44 w-full" />
+                  <span className="absolute left-2 top-2 flex items-center gap-1 rounded-md bg-[var(--live)] px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> Live
+                  </span>
+                </div>
+                <div className="p-2.5">
+                  <p className="truncate text-sm font-semibold">{s.name}</p>
+                  <p className="truncate text-[11px] text-muted-foreground">{s.tagline}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="px-5 pb-6">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold">Recomendados para você</h2>
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-3">
-          {products.slice(0, 6).map((p) => (
-            <Link key={p.id} to="/produto/$id" params={{ id: p.id }} className="overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-soft)]">
-              <div className="flex h-32 items-center justify-center bg-accent text-5xl">{p.emoji}</div>
-              <div className="p-2.5">
-                <p className="line-clamp-2 text-xs font-medium text-foreground">{p.name}</p>
-                <div className="mt-1 flex items-baseline gap-1">
-                  <span className="text-sm font-bold text-primary">{formatPrice(p.price, currency)}</span>
-                  {p.oldPrice && <span className="text-[10px] text-muted-foreground line-through">{formatPrice(p.oldPrice, currency)}</span>}
-                </div>
-                <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
-                  <Star size={10} className="fill-yellow-400 text-yellow-400" /> {p.rating} · {p.sold} vendidos
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="space-y-3 px-5 pb-8">
-        {marketingBanners.map((b) => (
-          <div key={b.src} className="overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-soft)]">
-            <img
-              src={b.src}
-              alt={b.alt}
-              loading="lazy"
-              decoding="async"
-              className="block w-full"
-            />
+        {feed.length === 0 ? (
+          <p className="mt-3 text-xs text-muted-foreground">Em breve novos produtos das lojas verificadas.</p>
+        ) : (
+          <div className="relative mt-3 h-[520px] overflow-hidden rounded-2xl">
+            <div className="animate-scroll-y grid grid-cols-2 gap-3">
+              {feedLoop.map((p, idx) => (
+                <Link key={`${p.id}-${idx}`} to="/produto/$id" params={{ id: p.id }} className="overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-soft)]">
+                  <div className="flex h-32 items-center justify-center bg-accent text-5xl">{p.emoji}</div>
+                  <div className="p-2.5">
+                    <p className="line-clamp-2 text-xs font-medium text-foreground">{p.name}</p>
+                    <div className="mt-1 flex items-baseline gap-1">
+                      <span className="text-sm font-bold text-primary">{formatPrice(p.price, currency)}</span>
+                      {p.oldPrice && <span className="text-[10px] text-muted-foreground line-through">{formatPrice(p.oldPrice, currency)}</span>}
+                    </div>
+                    <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <Star size={10} className="fill-yellow-400 text-yellow-400" /> {p.rating} · {p.sold} disp.
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-background to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-background to-transparent" />
           </div>
-        ))}
+        )}
       </section>
 
       <footer className="mx-5 mb-8 rounded-2xl bg-secondary p-5 text-center text-xs text-secondary-foreground">
