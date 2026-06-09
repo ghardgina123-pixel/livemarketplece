@@ -15,7 +15,7 @@ export type Currency = {
 
 export const CURRENCIES: Record<CurrencyCode, Currency> = {
   BRL: { code: "BRL", symbol: "R$",  name: "Real brasileiro",   flag: "🇧🇷", rate: 1,      locale: "pt-BR" },
-  AOA: { code: "AOA", symbol: "Kz",  name: "Kwanza angolano",   flag: "🇦🇴", rate: 175,    locale: "pt-AO" },
+  AOA: { code: "AOA", symbol: "AOA", name: "Kwanza angolano",   flag: "🇦🇴", rate: 175,    locale: "pt-AO" },
   USD: { code: "USD", symbol: "$",   name: "Dólar americano",   flag: "🇺🇸", rate: 0.19,   locale: "en-US" },
   EUR: { code: "EUR", symbol: "€",   name: "Euro",              flag: "🇪🇺", rate: 0.17,   locale: "de-DE" },
 };
@@ -84,7 +84,7 @@ export function formatPrice(amountBRL: number, currency?: Currency): string {
   // Deterministic formatting for AOA to avoid SSR/CSR Intl divergence (Kz vs AOA).
   if (c.code === "AOA") {
     const n = Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-    return `Kz ${n}`;
+    return `${n} AOA`;
   }
   try {
     return new Intl.NumberFormat(c.locale, {

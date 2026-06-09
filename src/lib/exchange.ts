@@ -53,7 +53,7 @@ export function formatInCurrency(value: number, target: CurrencyCode): string {
   const c = CURRENCIES[target];
   if (target === "AOA") {
     const n = Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-    return `Kz ${n}`;
+    return `${n} AOA`;
   }
   try {
     return new Intl.NumberFormat(c.locale, {
