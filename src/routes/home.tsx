@@ -6,6 +6,21 @@ import { stores, products } from "@/lib/data";
 import { formatPrice, useCurrency } from "@/lib/currency";
 import { CurrencySelector } from "@/components/CurrencySelector";
 import logoAsset from "@/assets/live-market-logo.png.asset.json";
+import livesAtraem from "@/assets/marketing/lives-atraem.png.asset.json";
+import oneTapPay from "@/assets/marketing/one-tap-pay.png.asset.json";
+import pulso from "@/assets/marketing/pulso.png.asset.json";
+import nexusFlash from "@/assets/marketing/nexus-flash.png.asset.json";
+import confianca from "@/assets/marketing/confianca.png.asset.json";
+import escalaLocal from "@/assets/marketing/escala-local.png.asset.json";
+
+const marketingBanners = [
+  { src: livesAtraem.url, alt: "Lives imperdíveis atraem as melhores ofertas" },
+  { src: oneTapPay.url, alt: "Pagamento instantâneo — um toque e pronto" },
+  { src: pulso.url, alt: "Pulso em tempo real — tudo ao vivo, tudo agora" },
+  { src: nexusFlash.url, alt: "Nexus flash — descontos relâmpago" },
+  { src: confianca.url, alt: "Confiança inabalável" },
+  { src: escalaLocal.url, alt: "Escala de plataforma adaptada localmente" },
+];
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -135,6 +150,34 @@ function Home() {
           ))}
         </div>
       </section>
+
+      <section className="space-y-3 px-5 pb-8">
+        {marketingBanners.map((b) => (
+          <div key={b.src} className="overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-soft)]">
+            <img
+              src={b.src}
+              alt={b.alt}
+              loading="lazy"
+              decoding="async"
+              className="block w-full"
+            />
+          </div>
+        ))}
+      </section>
+
+      <footer className="mx-5 mb-8 rounded-2xl bg-secondary p-5 text-center text-xs text-secondary-foreground">
+        <p className="font-bold tracking-wide">LIVE MARKET — Mercado Ao Vivo</p>
+        <p className="mt-1 text-[11px] opacity-80">O seu marketplace completo em Angola.</p>
+        <div className="mt-3 space-y-1 text-[11px]">
+          <p>
+            🌐 <a href="https://www.livemarketplece.live" className="font-semibold underline">www.livemarketplece.live</a>
+          </p>
+          <p>
+            ☎️ Apoio:{" "}
+            <a href="tel:+244927046161" className="font-semibold underline">+244 927 046 161</a>
+          </p>
+        </div>
+      </footer>
     </AppShell>
   );
 }

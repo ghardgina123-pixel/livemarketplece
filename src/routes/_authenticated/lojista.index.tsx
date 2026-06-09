@@ -71,7 +71,21 @@ function LojistaIndex() {
       {!store && <StoreRegistration onCreated={refresh} />}
       {store?.status === "pending" && <PendingState reason={null} />}
       {store?.status === "rejected" && <PendingState reason={store.rejection_reason} rejected />}
+      <PartnersFooter />
     </AppShell>
+  );
+}
+
+function PartnersFooter() {
+  return (
+    <footer className="mx-5 mb-8 mt-4 rounded-2xl bg-secondary p-5 text-center text-xs text-secondary-foreground">
+      <p className="font-bold tracking-wide">LIVE MARKET — Parceiros & Lojistas</p>
+      <p className="mt-1 text-[11px] opacity-80">Vendas em direto para milhares de compradores em toda a África. Configure sua loja em minutos.</p>
+      <div className="mt-3 space-y-1 text-[11px]">
+        <p>🌐 <a href="https://www.livemarketplece.live" className="font-semibold underline">www.livemarketplece.live</a></p>
+        <p>☎️ Apoio ao lojista: <a href="tel:+244927046161" className="font-semibold underline">+244 927 046 161</a></p>
+      </div>
+    </footer>
   );
 }
 
