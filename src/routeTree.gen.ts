@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermosRouteImport } from './routes/termos'
+import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ShortsRouteImport } from './routes/shorts'
 import { Route as PerfilRouteImport } from './routes/perfil'
@@ -55,6 +56,11 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
   path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SobreRoute = SobreRouteImport.update({
+  id: '/sobre',
+  path: '/sobre',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -287,6 +293,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof PerfilRoute
   '/shorts': typeof ShortsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/admin-crm': typeof AuthenticatedAdminCrmRoute
   '/admin-dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -330,6 +337,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof PerfilRoute
   '/shorts': typeof ShortsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/admin-crm': typeof AuthenticatedAdminCrmRoute
   '/admin-dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -374,6 +382,7 @@ export interface FileRoutesById {
   '/perfil': typeof PerfilRoute
   '/shorts': typeof ShortsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/_authenticated/admin-crm': typeof AuthenticatedAdminCrmRoute
   '/_authenticated/admin-dashboard': typeof AuthenticatedAdminDashboardRoute
@@ -419,6 +428,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/shorts'
     | '/sitemap.xml'
+    | '/sobre'
     | '/termos'
     | '/admin-crm'
     | '/admin-dashboard'
@@ -462,6 +472,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/shorts'
     | '/sitemap.xml'
+    | '/sobre'
     | '/termos'
     | '/admin-crm'
     | '/admin-dashboard'
@@ -505,6 +516,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/shorts'
     | '/sitemap.xml'
+    | '/sobre'
     | '/termos'
     | '/_authenticated/admin-crm'
     | '/_authenticated/admin-dashboard'
@@ -550,6 +562,7 @@ export interface RootRouteChildren {
   PerfilRoute: typeof PerfilRoute
   ShortsRoute: typeof ShortsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SobreRoute: typeof SobreRoute
   TermosRoute: typeof TermosRoute
   LiveIdRoute: typeof LiveIdRoute
   LojaIdRoute: typeof LojaIdRoute
@@ -565,6 +578,13 @@ declare module '@tanstack/react-router' {
       path: '/termos'
       fullPath: '/termos'
       preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -943,6 +963,7 @@ const rootRouteChildren: RootRouteChildren = {
   PerfilRoute: PerfilRoute,
   ShortsRoute: ShortsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SobreRoute: SobreRoute,
   TermosRoute: TermosRoute,
   LiveIdRoute: LiveIdRoute,
   LojaIdRoute: LojaIdRoute,
