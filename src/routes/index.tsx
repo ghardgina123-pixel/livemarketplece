@@ -41,13 +41,13 @@ function Splash() {
           to="/home"
           className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-bold text-secondary shadow-lg transition hover:bg-white/95 active:scale-[0.98]"
         >
-          <ShoppingBag size={18} /> Cliente, registrar-me
+          <ShoppingBag size={18} /> Sou Cliente — quero comprar
         </Link>
         <Link
           to="/cadastro"
           className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-white/50 bg-white/10 text-sm font-bold text-white backdrop-blur transition hover:bg-white/20 active:scale-[0.98]"
         >
-          <StoreIcon size={18} /> Lojista, registrar-me
+          <StoreIcon size={18} /> Sou Lojista — quero vender
         </Link>
         <Link to="/login" className="block pt-2 text-center text-xs font-semibold text-white/90">
           Já tenho conta · Entrar

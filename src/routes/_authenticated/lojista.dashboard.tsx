@@ -79,7 +79,7 @@ function DashboardContent() {
       <div className="grid grid-cols-3 gap-2">
         <StatCard icon={Package} label="Produtos" value={String(stats.products)} />
         <StatCard icon={ShoppingBag} label="Pedidos" value={String(stats.orders)} />
-        <StatCard icon={Wallet} label="A receber" value={`Kz ${stats.payoutsPending.toLocaleString("pt-AO")}`} />
+        <StatCard icon={Wallet} label="A receber" value={`R$ ${stats.payoutsPending.toFixed(0)}`} />
       </div>
 
       <div className="rounded-2xl border border-border p-4">
@@ -102,7 +102,7 @@ function DashboardContent() {
       </div>
 
       <div className="rounded-xl border border-border p-3 text-xs text-muted-foreground">
-        Repasses liberados: <strong className="text-foreground">Kz {stats.payoutsReleased.toLocaleString("pt-AO")}</strong>
+        Repasses liberados: <strong className="text-foreground">R$ {stats.payoutsReleased.toFixed(2)}</strong>
       </div>
     </div>
   );
