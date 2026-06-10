@@ -7,6 +7,7 @@ import { formatPrice, useCurrency } from "@/lib/currency";
 import { CurrencySelector } from "@/components/CurrencySelector";
 import { supabase } from "@/integrations/supabase/client";
 import logoAsset from "@/assets/live-market-logo.png.asset.json";
+import homeHero from "@/assets/marketing/home-hero.jpg";
 
 type LiveStore = { id: string; name: string; tagline: string; cover: string; emoji: string; viewers: number };
 type FeedProduct = { id: string; name: string; price: number; oldPrice?: number; emoji: string; rating: number; sold: string };
@@ -116,6 +117,28 @@ function Home() {
           <span className="flex items-center gap-1"><BadgeCheck size={13} /> Lojas verificadas</span>
         </div>
       </header>
+
+      <section className="px-5 pt-4">
+        <Link to="/lojas" className="group relative block overflow-hidden rounded-2xl shadow-[var(--shadow-soft)]">
+          <img
+            src={homeHero}
+            alt="Compre ao vivo nas lojas angolanas do Live Market"
+            width={1280}
+            height={896}
+            loading="eager"
+            decoding="async"
+            className="h-44 w-full object-cover transition group-active:scale-[0.99]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-black/20 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--live)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+              <Radio size={11} /> Ao vivo agora
+            </span>
+            <p className="mt-1.5 text-base font-bold leading-tight">Compre · Converse · Receba</p>
+            <p className="text-[11px] text-white/85">Lojas reais de Angola, em tempo real.</p>
+          </div>
+        </Link>
+      </section>
 
       <section className="px-5 py-5">
         <div className="grid grid-cols-4 gap-3">
