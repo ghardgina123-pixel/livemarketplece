@@ -60,15 +60,15 @@ function Signup() {
           <TypeCard
             active={accountType === "customer"}
             icon={<ShoppingBag size={20} />}
-            title="Sou Cliente"
-            desc="Quero comprar"
+            title="Cliente"
+            desc="Registrar-me"
             onClick={() => setAccountType("customer")}
           />
           <TypeCard
             active={accountType === "seller"}
             icon={<StoreIcon size={20} />}
-            title="Sou Lojista"
-            desc="Quero vender"
+            title="Lojista"
+            desc="Registrar-me"
             onClick={() => setAccountType("seller")}
           />
         </div>
