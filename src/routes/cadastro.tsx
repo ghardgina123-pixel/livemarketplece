@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { signupSchema } from "@/lib/schemas";
+import cadastroHero from "@/assets/marketing/cadastro-hero.jpg";
 
 export const Route = createFileRoute("/cadastro")({
   head: () => ({
@@ -54,6 +55,22 @@ function Signup() {
         <h1 className="text-lg font-semibold">Criar conta</h1>
       </header>
       <form onSubmit={onSubmit} className="flex-1 px-6">
+        <div className="relative mb-4 overflow-hidden rounded-2xl shadow-[var(--shadow-soft)]">
+          <img
+            src={cadastroHero}
+            alt="Lojistas angolanos vendendo ao vivo no Live Market"
+            width={1280}
+            height={896}
+            loading="eager"
+            decoding="async"
+            className="h-36 w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 p-3 text-white">
+            <p className="text-sm font-bold leading-tight">Junte-se ao Live Market</p>
+            <p className="text-[11px] text-white/85">Compre ou venda ao vivo em Angola.</p>
+          </div>
+        </div>
         <p className="text-sm text-muted-foreground">Escolha como você quer usar a Live Market.</p>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
