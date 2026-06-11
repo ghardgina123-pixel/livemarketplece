@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Clock, Loader2, MapPin, Upload, XCircle, ImagePlus } from "lucide-react";
+import { ArrowLeft, Clock, Loader2, MapPin, Upload, XCircle, ImagePlus, Sparkles, AlertCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,16 +26,21 @@ function LojistaIndex() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [store, setStore] = useState<Store | null>(null);
+  const [status, setStatus] = useState<{ approved_count: number; slots_left: number; fee_required: boolean; fee_aoa: number } | null>(null);
   const navigate = useNavigate();
 
   const refresh = async () => {
     if (!user) return;
-    const { data } = await supabase
+    const [{ data }, { data: st }] = await Promise.all([
+      supabase
       .from("stores")
       .select("id, name, status, rejection_reason")
       .eq("owner_id", user.id)
-      .maybeSingle();
+      .maybeSingle(),
+      supabase.rpc("seller_signup_status"),
+    ]);
     setStore((data as Store) ?? null);
+    if (st) setStatus(st as { approved_count: number; slots_left: number; fee_required: boolean; fee_aoa: number });
     setLoading(false);
   };
 
@@ -70,16 +75,39 @@ function LojistaIndex() {
       </header>
       {!store && (
         <section className="px-5 pt-5">
+          {status && (
+            <div className={`mb-3 rounded-2xl p-4 text-sm shadow-sm ${status.fee_required ? "bg-amber-500/10 text-amber-900 dark:text-amber-200" : "bg-emerald-500/10 text-emerald-900 dark:text-emerald-200"}`}>
+              <div className="flex items-start gap-2">
+                {status.fee_required ? <AlertCircle size={18} className="mt-0.5 shrink-0" /> : <Sparkles size={18} className="mt-0.5 shrink-0" />}
+                <div>
+                  <p className="font-bold">
+                    {status.fee_required
+                      ? "As 50 vagas gratuitas foram preenchidas."
+                      : `Aproveite! Restam ${status.slots_left} de 50 vagas gratuitas.`}
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed">
+                    {status.fee_required
+                      ? `É obrigatório pagar a Taxa de Inscrição de ${status.fee_aoa.toLocaleString("pt-AO")} AOA (via Referência Multicaixa ou IBAN) antes de enviar a sua loja para aprovação.`
+                      : "As primeiras 50 lojas a serem aprovadas terão acesso totalmente gratuito e isenção da taxa de adesão. Garanta a sua vaga agora!"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
           <div className="rounded-2xl bg-card p-5 shadow-[var(--shadow-soft)]">
             <h2 className="text-lg font-bold leading-tight text-foreground">Abra a sua loja e venda ao vivo.</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Torne-se um vendedor e comece a transmitir os seus produtos para milhares de compradores em toda Angola. Configure a sua loja em minutos.
             </p>
-            <p className="mt-3 text-[11px] font-medium text-primary">Gratuito para começar. Não é necessário cartão de crédito.</p>
+            <p className="mt-3 text-[11px] font-medium text-primary">
+              {status?.fee_required
+                ? "Aprovação manual feita pela administração após confirmação do pagamento."
+                : "Aprovação manual feita pela administração. Gratuito para as 50 primeiras lojas."}
+            </p>
           </div>
         </section>
       )}
-      {!store && <StoreRegistration onCreated={refresh} />}
+      {!store && <StoreRegistration onCreated={refresh} feeRequired={!!status?.fee_required} feeAoa={status?.fee_aoa ?? 9600} />}
       {store?.status === "pending" && <PendingState reason={null} />}
       {store?.status === "rejected" && <PendingState reason={store.rejection_reason} rejected />}
       <PartnersFooter />
@@ -126,13 +154,14 @@ async function uploadStoreAsset(userId: string, file: File, kind: "logo" | "cove
   return data.signedUrl;
 }
 
-function StoreRegistration({ onCreated }: { onCreated: () => void }) {
+function StoreRegistration({ onCreated, feeRequired, feeAoa }: { onCreated: () => void; feeRequired: boolean; feeAoa: number }) {
   const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [geoBusy, setGeoBusy] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [proofFile, setProofFile] = useState<File | null>(null);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -161,6 +190,7 @@ function StoreRegistration({ onCreated }: { onCreated: () => void }) {
     if (!form.nif.trim()) return toast.error("NIF é obrigatório");
     if (!form.bank_name.trim() || !form.bank_account.trim() || !form.bank_holder.trim())
       return toast.error("Dados bancários completos são obrigatórios");
+    if (feeRequired && !proofFile) return toast.error("Anexe o comprovativo da Taxa de Inscrição");
     setSubmitting(true);
     try {
       let logo_url: string | null = null;
@@ -191,10 +221,34 @@ function StoreRegistration({ onCreated }: { onCreated: () => void }) {
           bank_holder: form.bank_holder || null,
         });
         if (privErr) throw privErr;
+        if (feeRequired) {
+          let proof_url: string | null = null;
+          if (proofFile) {
+            const ext = proofFile.name.split(".").pop() || "png";
+            const path = `${user.id}/signup-fee-${Date.now()}.${ext}`;
+            const { error: upErr } = await supabase.storage
+              .from("subscription-proofs")
+              .upload(path, proofFile, { upsert: true, contentType: proofFile.type });
+            if (upErr) throw upErr;
+            const { data: signed } = await supabase.storage
+              .from("subscription-proofs")
+              .createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+            proof_url = signed?.signedUrl ?? null;
+          }
+          const { error: subErr } = await supabase.from("store_subscriptions").insert({
+            store_id: created.id,
+            plan: "signup_fee",
+            status: "pending",
+            price_aoa: feeAoa,
+            payment_method: "manual",
+            proof_url,
+          });
+          if (subErr) throw subErr;
+        }
       }
 
       await supabase.from("user_roles").insert({ user_id: user.id, role: "seller" });
-      toast.success("Loja enviada para aprovação!");
+      toast.success(feeRequired ? "Loja e comprovativo enviados para aprovação!" : "Loja enviada para aprovação!");
       onCreated();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Erro ao enviar";
@@ -255,6 +309,18 @@ function StoreRegistration({ onCreated }: { onCreated: () => void }) {
       </Button>
       {coords && (
         <p className="text-[11px] text-muted-foreground">Lat: {coords.lat.toFixed(5)} · Lng: {coords.lng.toFixed(5)}</p>
+      )}
+
+      {feeRequired && (
+        <div className="space-y-3 rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4">
+          <div>
+            <h3 className="text-xs font-bold uppercase text-amber-700 dark:text-amber-300">Taxa de Inscrição — {feeAoa.toLocaleString("pt-AO")} AOA</h3>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Pague por Referência Multicaixa ou transferência IBAN e anexe o comprovativo. A sua loja só será enviada à administração após este passo.
+            </p>
+          </div>
+          <FileField label="Comprovativo de pagamento *" file={proofFile} setFile={setProofFile} icon={<Upload size={14} />} />
+        </div>
       )}
 
       <Button type="submit" disabled={submitting} className="h-12 w-full">

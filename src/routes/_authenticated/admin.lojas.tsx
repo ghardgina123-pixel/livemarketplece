@@ -35,6 +35,10 @@ type StoreRow = {
   created_at: string;
   owner_id: string;
   rejection_reason: string | null;
+  owner_name: string | null;
+  signup_fee_required?: boolean | null;
+  fee_status?: string | null;
+  fee_proof_url?: string | null;
 };
 
 const FILTERS = [
@@ -49,25 +53,44 @@ function AdminLojas() {
   const [rows, setRows] = useState<StoreRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [approvedCount, setApprovedCount] = useState<number | null>(null);
 
   const load = async () => {
     setLoading(true);
     let q = supabase
       .from("stores")
-      .select("id, name, status, phone, category, logo_url, created_at, owner_id, rejection_reason")
+      .select("id, name, status, phone, category, logo_url, created_at, owner_id, rejection_reason, signup_fee_required")
       .order("created_at", { ascending: false });
     if (filter !== "all") q = q.eq("status", filter);
     const { data, error } = await q;
     if (error) toast.error(error.message);
-    const stores = (data ?? []) as Omit<StoreRow, "nif" | "bank_name" | "bank_account" | "bank_holder">[];
+    const stores = (data ?? []) as Omit<StoreRow, "nif" | "bank_name" | "bank_account" | "bank_holder" | "owner_name" | "fee_status" | "fee_proof_url">[];
     const ids = stores.map((s) => s.id);
+    const owners = Array.from(new Set(stores.map((s) => s.owner_id)));
     let priv: Record<string, { nif: string | null; bank_name: string | null; bank_account: string | null; bank_holder: string | null }> = {};
+    let names: Record<string, string | null> = {};
+    let subs: Record<string, { status: string | null; proof_url: string | null }> = {};
     if (ids.length) {
-      const { data: pdata } = await supabase
-        .from("store_private")
-        .select("store_id, nif, bank_name, bank_account, bank_holder")
-        .in("store_id", ids);
+      const [{ data: pdata }, { data: sdata }] = await Promise.all([
+        supabase
+          .from("store_private")
+          .select("store_id, nif, bank_name, bank_account, bank_holder")
+          .in("store_id", ids),
+        supabase
+          .from("store_subscriptions")
+          .select("store_id, status, proof_url, plan")
+          .in("store_id", ids)
+          .eq("plan", "signup_fee"),
+      ]);
       priv = Object.fromEntries((pdata ?? []).map((p) => [p.store_id, p]));
+      subs = Object.fromEntries((sdata ?? []).map((s) => [s.store_id, { status: s.status, proof_url: s.proof_url }]));
+    }
+    if (owners.length) {
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id, display_name")
+        .in("id", owners);
+      names = Object.fromEntries((profs ?? []).map((p) => [p.id, p.display_name]));
     }
     setRows(
       stores.map((s) => ({
@@ -76,8 +99,13 @@ function AdminLojas() {
         bank_name: priv[s.id]?.bank_name ?? null,
         bank_account: priv[s.id]?.bank_account ?? null,
         bank_holder: priv[s.id]?.bank_holder ?? null,
+        owner_name: names[s.owner_id] ?? null,
+        fee_status: subs[s.id]?.status ?? null,
+        fee_proof_url: subs[s.id]?.proof_url ?? null,
       })),
     );
+    const { data: st } = await supabase.rpc("seller_signup_status");
+    if (st && typeof st === "object") setApprovedCount((st as { approved_count?: number }).approved_count ?? null);
     setLoading(false);
   };
 
@@ -113,6 +141,11 @@ function AdminLojas() {
           <h1 className="text-lg font-semibold">Aprovação de Lojas</h1>
         </div>
         <p className="mt-1 text-xs text-white/80">Reveja os dados de onboarding e aprove ou rejeite cada loja.</p>
+        {approvedCount !== null && (
+          <p className="mt-2 text-[11px] text-white/90">
+            {approvedCount} / 50 lojas gratuitas aprovadas · {approvedCount >= 50 ? "Taxa de inscrição obrigatória." : `${50 - approvedCount} vagas gratuitas restantes.`}
+          </p>
+        )}
       </header>
 
       <div className="sticky top-0 z-10 flex gap-2 overflow-x-auto bg-background px-5 py-3 border-b">
@@ -149,9 +182,12 @@ function AdminLojas() {
                   <div className="flex items-center gap-2">
                     <h2 className="truncate font-semibold">{s.name}</h2>
                     <StatusBadge status={s.status} />
+                    {s.signup_fee_required && (
+                      <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold text-amber-700">Taxa</span>
+                    )}
                   </div>
                   <p className="text-[11px] text-muted-foreground">
-                    {s.category ?? "Sem categoria"} · {new Date(s.created_at).toLocaleDateString("pt-AO")}
+                    Responsável: <span className="font-medium text-foreground">{s.owner_name ?? "—"}</span> · {s.category ?? "Sem categoria"} · {new Date(s.created_at).toLocaleDateString("pt-AO")}
                   </p>
                 </div>
               </div>
@@ -164,6 +200,16 @@ function AdminLojas() {
                 <div className="col-span-2">
                   <Info label="IBAN / Conta" value={s.bank_account} mono />
                 </div>
+                {s.signup_fee_required && (
+                  <div className="col-span-2 rounded-lg bg-amber-500/10 p-2 text-[11px]">
+                    <p className="font-semibold text-amber-800">Taxa de inscrição (9.600 AOA): {s.fee_status ?? "—"}</p>
+                    {s.fee_proof_url && (
+                      <a href={s.fee_proof_url} target="_blank" rel="noreferrer" className="text-primary underline">
+                        Ver comprovativo
+                      </a>
+                    )}
+                  </div>
+                )}
               </dl>
 
               {s.status === "rejected" && s.rejection_reason && (
