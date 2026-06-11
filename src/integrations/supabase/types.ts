@@ -1283,6 +1283,7 @@ export type Database = {
           province_id: string | null
           rating: number | null
           rejection_reason: string | null
+          signup_fee_required: boolean
           slug: string | null
           status: Database["public"]["Enums"]["store_status"]
           updated_at: string
@@ -1303,6 +1304,7 @@ export type Database = {
           province_id?: string | null
           rating?: number | null
           rejection_reason?: string | null
+          signup_fee_required?: boolean
           slug?: string | null
           status?: Database["public"]["Enums"]["store_status"]
           updated_at?: string
@@ -1323,6 +1325,7 @@ export type Database = {
           province_id?: string | null
           rating?: number | null
           rejection_reason?: string | null
+          signup_fee_required?: boolean
           slug?: string | null
           status?: Database["public"]["Enums"]["store_status"]
           updated_at?: string
@@ -1498,6 +1501,7 @@ export type Database = {
         Args: { _reason: string; _store_id: string }
         Returns: undefined
       }
+      approved_stores_count: { Args: never; Returns: number }
       create_order_with_items: {
         Args: {
           p_address_id: string
@@ -1539,6 +1543,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      seller_signup_status: { Args: never; Returns: Json }
     }
     Enums: {
       agency_live_fee_status: "pending" | "paid" | "approved" | "rejected"
