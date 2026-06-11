@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Clock, Loader2, MapPin, Upload, XCircle, ImagePlus } from "lucide-react";
+import { ArrowLeft, Clock, Loader2, MapPin, Upload, XCircle, ImagePlus, Sparkles, AlertCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,16 +26,21 @@ function LojistaIndex() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [store, setStore] = useState<Store | null>(null);
+  const [status, setStatus] = useState<{ approved_count: number; slots_left: number; fee_required: boolean; fee_aoa: number } | null>(null);
   const navigate = useNavigate();
 
   const refresh = async () => {
     if (!user) return;
-    const { data } = await supabase
+    const [{ data }, { data: st }] = await Promise.all([
+      supabase
       .from("stores")
       .select("id, name, status, rejection_reason")
       .eq("owner_id", user.id)
-      .maybeSingle();
+      .maybeSingle(),
+      supabase.rpc("seller_signup_status"),
+    ]);
     setStore((data as Store) ?? null);
+    if (st) setStatus(st as typeof status extends infer T ? T : never);
     setLoading(false);
   };
 
@@ -70,16 +75,39 @@ function LojistaIndex() {
       </header>
       {!store && (
         <section className="px-5 pt-5">
+          {status && (
+            <div className={`mb-3 rounded-2xl p-4 text-sm shadow-sm ${status.fee_required ? "bg-amber-500/10 text-amber-900 dark:text-amber-200" : "bg-emerald-500/10 text-emerald-900 dark:text-emerald-200"}`}>
+              <div className="flex items-start gap-2">
+                {status.fee_required ? <AlertCircle size={18} className="mt-0.5 shrink-0" /> : <Sparkles size={18} className="mt-0.5 shrink-0" />}
+                <div>
+                  <p className="font-bold">
+                    {status.fee_required
+                      ? "As 50 vagas gratuitas foram preenchidas."
+                      : `Aproveite! Restam ${status.slots_left} de 50 vagas gratuitas.`}
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed">
+                    {status.fee_required
+                      ? `É obrigatório pagar a Taxa de Inscrição de ${status.fee_aoa.toLocaleString("pt-AO")} AOA (via Referência Multicaixa ou IBAN) antes de enviar a sua loja para aprovação.`
+                      : "As primeiras 50 lojas a serem aprovadas terão acesso totalmente gratuito e isenção da taxa de adesão. Garanta a sua vaga agora!"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
           <div className="rounded-2xl bg-card p-5 shadow-[var(--shadow-soft)]">
             <h2 className="text-lg font-bold leading-tight text-foreground">Abra a sua loja e venda ao vivo.</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Torne-se um vendedor e comece a transmitir os seus produtos para milhares de compradores em toda Angola. Configure a sua loja em minutos.
             </p>
-            <p className="mt-3 text-[11px] font-medium text-primary">Gratuito para começar. Não é necessário cartão de crédito.</p>
+            <p className="mt-3 text-[11px] font-medium text-primary">
+              {status?.fee_required
+                ? "Aprovação manual feita pela administração após confirmação do pagamento."
+                : "Aprovação manual feita pela administração. Gratuito para as 50 primeiras lojas."}
+            </p>
           </div>
         </section>
       )}
-      {!store && <StoreRegistration onCreated={refresh} />}
+      {!store && <StoreRegistration onCreated={refresh} feeRequired={!!status?.fee_required} feeAoa={status?.fee_aoa ?? 9600} />}
       {store?.status === "pending" && <PendingState reason={null} />}
       {store?.status === "rejected" && <PendingState reason={store.rejection_reason} rejected />}
       <PartnersFooter />
