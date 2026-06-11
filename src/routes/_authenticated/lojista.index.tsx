@@ -68,6 +68,17 @@ function LojistaIndex() {
           <p className="text-xs text-white/80">{store ? store.name : "Cadastre sua loja"}</p>
         </div>
       </header>
+      {!store && (
+        <section className="px-5 pt-5">
+          <div className="rounded-2xl bg-card p-5 shadow-[var(--shadow-soft)]">
+            <h2 className="text-lg font-bold leading-tight text-foreground">Abra a sua loja e venda ao vivo.</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Torne-se um vendedor e comece a transmitir os seus produtos para milhares de compradores em toda Angola. Configure a sua loja em minutos.
+            </p>
+            <p className="mt-3 text-[11px] font-medium text-primary">Gratuito para começar. Não é necessário cartão de crédito.</p>
+          </div>
+        </section>
+      )}
       {!store && <StoreRegistration onCreated={refresh} />}
       {store?.status === "pending" && <PendingState reason={null} />}
       {store?.status === "rejected" && <PendingState reason={store.rejection_reason} rejected />}

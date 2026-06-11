@@ -8,8 +8,12 @@ import { CurrencySelector } from "@/components/CurrencySelector";
 import { supabase } from "@/integrations/supabase/client";
 import logoAsset from "@/assets/live-market-logo.png.asset.json";
 import homeHero from "@/assets/marketing/home-hero.jpg";
+import organicosAsset from "@/assets/sellers/organicos.jpg.asset.json";
+import techAsset from "@/assets/sellers/tech.jpg.asset.json";
+import modaAsset from "@/assets/sellers/moda.jpg.asset.json";
+import belezaAsset from "@/assets/sellers/beleza.jpg.asset.json";
 
-type LiveStore = { id: string; name: string; tagline: string; cover: string; emoji: string; viewers: number };
+type LiveStore = { id: string; name: string; tagline: string; cover: string; emoji: string; image: string; viewers: number };
 type FeedProduct = { id: string; name: string; price: number; oldPrice?: number; emoji: string; rating: number; sold: string };
 
 export const Route = createFileRoute("/home")({
@@ -34,6 +38,8 @@ const categories = [
   { e: "🎁", n: "Ofertas", to: "/lojas" as const },
 ];
 
+const sellerImages = [organicosAsset.url, techAsset.url, modaAsset.url, belezaAsset.url];
+
 function Home() {
   const currency = useCurrency();
   const [lives, setLives] = useState<LiveStore[]>([]);
@@ -53,6 +59,7 @@ function Home() {
           tagline: s.description ?? s.category ?? "Loja ao vivo",
           cover: ["from-emerald-400 to-teal-600", "from-blue-500 to-indigo-700", "from-pink-400 to-rose-600", "from-amber-400 to-orange-600"][i % 4],
           emoji: ["🛍️", "✨", "🔥", "🎁"][i % 4],
+          image: sellerImages[i % sellerImages.length],
           viewers: 0,
         })),
       );
@@ -96,7 +103,7 @@ function Home() {
             <div>
               <p className="text-xs text-white/70">Olá, bem-vindo 👋</p>
               <h1 className="text-lg font-bold leading-tight">Live Market</h1>
-              <p className="text-[10px] uppercase tracking-wider text-white/70">Compre · Converse · Receba</p>
+              <p className="text-[10px] uppercase tracking-wider text-white/70">O mercado ao vivo no seu ecrã.</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -144,7 +151,7 @@ function Home() {
         <div className="grid grid-cols-4 gap-3">
           {categories.map((c) => (
             <Link key={c.n} to={c.to} className="flex flex-col items-center gap-1.5">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-2xl">{c.e}</div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm ring-1 ring-border/60">{c.e}</div>
               <span className="text-[11px] font-medium text-foreground">{c.n}</span>
             </Link>
           ))}
@@ -157,7 +164,7 @@ function Home() {
             <span className="flex items-center gap-1 rounded-full bg-[var(--live)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
               <Radio size={11} /> ao vivo
             </span>
-            <h2 className="text-base font-bold">Lives agora</h2>
+            <h2 className="text-base font-bold">Lojas em Direto</h2>
           </div>
           <Link to="/lojas" className="flex items-center text-xs font-medium text-primary">Ver todas <ChevronRight size={14} /></Link>
         </div>
@@ -168,7 +175,7 @@ function Home() {
             {lives.map((s) => (
               <Link key={s.id} to="/loja/$id" params={{ id: s.id }} className="w-40 shrink-0 overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-soft)]">
                 <div className="relative">
-                  <StoreCover gradient={s.cover} emoji={s.emoji} className="h-44 w-full" />
+                  <img src={s.image} alt={s.name} loading="lazy" decoding="async" className="h-44 w-full object-cover" />
                   <span className="absolute left-2 top-2 flex items-center gap-1 rounded-md bg-[var(--live)] px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
                     <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> Live
                   </span>
