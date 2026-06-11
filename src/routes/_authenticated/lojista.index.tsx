@@ -40,7 +40,7 @@ function LojistaIndex() {
       supabase.rpc("seller_signup_status"),
     ]);
     setStore((data as Store) ?? null);
-    if (st) setStatus(st as typeof status extends infer T ? T : never);
+    if (st) setStatus(st as { approved_count: number; slots_left: number; fee_required: boolean; fee_aoa: number });
     setLoading(false);
   };
 
