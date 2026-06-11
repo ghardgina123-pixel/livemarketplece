@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Search, Bell, Radio, ShieldCheck, Truck, BadgeCheck, ChevronRight, Star } from "lucide-react";
-import { AppShell, StoreCover } from "@/components/AppShell";
+import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { formatPrice, useCurrency } from "@/lib/currency";
 import { CurrencySelector } from "@/components/CurrencySelector";
