@@ -154,13 +154,14 @@ async function uploadStoreAsset(userId: string, file: File, kind: "logo" | "cove
   return data.signedUrl;
 }
 
-function StoreRegistration({ onCreated }: { onCreated: () => void }) {
+function StoreRegistration({ onCreated, feeRequired, feeAoa }: { onCreated: () => void; feeRequired: boolean; feeAoa: number }) {
   const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [geoBusy, setGeoBusy] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [proofFile, setProofFile] = useState<File | null>(null);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -189,6 +190,7 @@ function StoreRegistration({ onCreated }: { onCreated: () => void }) {
     if (!form.nif.trim()) return toast.error("NIF é obrigatório");
     if (!form.bank_name.trim() || !form.bank_account.trim() || !form.bank_holder.trim())
       return toast.error("Dados bancários completos são obrigatórios");
+    if (feeRequired && !proofFile) return toast.error("Anexe o comprovativo da Taxa de Inscrição");
     setSubmitting(true);
     try {
       let logo_url: string | null = null;
@@ -219,10 +221,34 @@ function StoreRegistration({ onCreated }: { onCreated: () => void }) {
           bank_holder: form.bank_holder || null,
         });
         if (privErr) throw privErr;
+        if (feeRequired) {
+          let proof_url: string | null = null;
+          if (proofFile) {
+            const ext = proofFile.name.split(".").pop() || "png";
+            const path = `${user.id}/signup-fee-${Date.now()}.${ext}`;
+            const { error: upErr } = await supabase.storage
+              .from("subscription-proofs")
+              .upload(path, proofFile, { upsert: true, contentType: proofFile.type });
+            if (upErr) throw upErr;
+            const { data: signed } = await supabase.storage
+              .from("subscription-proofs")
+              .createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+            proof_url = signed?.signedUrl ?? null;
+          }
+          const { error: subErr } = await supabase.from("store_subscriptions").insert({
+            store_id: created.id,
+            plan: "signup_fee",
+            status: "pending",
+            price_aoa: feeAoa,
+            payment_method: "manual",
+            proof_url,
+          });
+          if (subErr) throw subErr;
+        }
       }
 
       await supabase.from("user_roles").insert({ user_id: user.id, role: "seller" });
-      toast.success("Loja enviada para aprovação!");
+      toast.success(feeRequired ? "Loja e comprovativo enviados para aprovação!" : "Loja enviada para aprovação!");
       onCreated();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Erro ao enviar";
@@ -283,6 +309,18 @@ function StoreRegistration({ onCreated }: { onCreated: () => void }) {
       </Button>
       {coords && (
         <p className="text-[11px] text-muted-foreground">Lat: {coords.lat.toFixed(5)} · Lng: {coords.lng.toFixed(5)}</p>
+      )}
+
+      {feeRequired && (
+        <div className="space-y-3 rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4">
+          <div>
+            <h3 className="text-xs font-bold uppercase text-amber-700 dark:text-amber-300">Taxa de Inscrição — {feeAoa.toLocaleString("pt-AO")} AOA</h3>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Pague por Referência Multicaixa ou transferência IBAN e anexe o comprovativo. A sua loja só será enviada à administração após este passo.
+            </p>
+          </div>
+          <FileField label="Comprovativo de pagamento *" file={proofFile} setFile={setProofFile} icon={<Upload size={14} />} />
+        </div>
       )}
 
       <Button type="submit" disabled={submitting} className="h-12 w-full">
