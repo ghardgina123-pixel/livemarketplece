@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Minus, Plus, Trash2, ShieldCheck, ShoppingBag } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { BackButton } from "@/components/BackButton";
 import { cartStore, useCart, useCartTotal } from "@/lib/cart-store";
 import { formatPrice, useCurrency } from "@/lib/currency";
 
