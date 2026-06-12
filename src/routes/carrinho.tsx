@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Minus, Plus, Trash2, ShieldCheck, ShoppingBag } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { BackButton } from "@/components/BackButton";
 import { cartStore, useCart, useCartTotal } from "@/lib/cart-store";
 import { formatPrice, useCurrency } from "@/lib/currency";
 
@@ -40,8 +41,13 @@ function Cart() {
   return (
     <AppShell>
       <header className="px-5 pt-6 pb-3">
-        <h1 className="text-2xl font-bold">Carrinho</h1>
-        <p className="text-xs text-muted-foreground">{items.length} {items.length === 1 ? "item" : "itens"}</p>
+        <div className="flex items-center gap-3">
+          <BackButton fallback="/home" className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-foreground" />
+          <div>
+            <h1 className="text-2xl font-bold">Carrinho</h1>
+            <p className="text-xs text-muted-foreground">{items.length} {items.length === 1 ? "item" : "itens"}</p>
+          </div>
+        </div>
       </header>
 
       <ul className="space-y-3 px-5">

@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { ArrowLeft, BarChart3, Package, ShoppingBag, Menu, Wallet, Radio, Settings, Loader2, Film } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { AppShell } from "@/components/AppShell";
+import { BackButton } from "@/components/BackButton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -67,6 +68,7 @@ export function LojistaShell({ title, children }: { title: string; children: Rea
   return (
     <AppShell>
       <header className="flex items-center gap-3 px-5 pt-6 pb-4 text-white" style={{ background: "var(--gradient-brand)" }}>
+        <BackButton fallback="/perfil" />
         <Sheet>
           <SheetTrigger asChild>
             <button className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15" aria-label="Menu do lojista">

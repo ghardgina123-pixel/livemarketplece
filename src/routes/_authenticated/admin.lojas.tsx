@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CheckCircle2, XCircle, Loader2, Store as StoreIcon, MapPin } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -136,7 +137,8 @@ function AdminLojas() {
   return (
     <AppShell>
       <header className="px-5 pt-6 pb-4 text-white" style={{ background: "var(--gradient-brand)" }}>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <BackButton fallback="/admin-dashboard" />
           <StoreIcon size={20} />
           <h1 className="text-lg font-semibold">Aprovação de Lojas</h1>
         </div>
