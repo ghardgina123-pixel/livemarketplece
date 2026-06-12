@@ -137,7 +137,8 @@ function AdminLojas() {
   return (
     <AppShell>
       <header className="px-5 pt-6 pb-4 text-white" style={{ background: "var(--gradient-brand)" }}>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <BackButton fallback="/admin-dashboard" />
           <StoreIcon size={20} />
           <h1 className="text-lg font-semibold">Aprovação de Lojas</h1>
         </div>
