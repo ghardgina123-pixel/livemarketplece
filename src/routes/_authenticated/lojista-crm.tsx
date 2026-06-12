@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Sparkles, Users, MessageSquare, BarChart3, Tag, Loader2, Upload, CheckCircle2, XCircle, Clock, FileCheck2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -109,6 +110,30 @@ function CRM() {
 }
 
 function ActiveView({ expiresAt }: { expiresAt: string | null }) {
+  const [open, setOpen] = useState<null | "clientes" | "relatorios" | "campanhas" | "tags">(null);
+  const detail = {
+    clientes: {
+      title: "Meus clientes",
+      desc: "Histórico completo de quem comprou na sua loja.",
+      body: "Em breve: lista de clientes com filtros por última compra, valor gasto e estado da encomenda. Já está a recolher os dados — esta secção será ativada automaticamente nas próximas atualizações.",
+    },
+    relatorios: {
+      title: "Relatórios",
+      desc: "Métricas-chave do desempenho da loja.",
+      body: "Em breve: vendas por dia/semana, ticket médio, taxa de recompra, produtos mais vendidos e horários de pico.",
+    },
+    campanhas: {
+      title: "Campanhas no chat",
+      desc: "Envie ofertas segmentadas pelo chat da loja.",
+      body: "Em breve: criar campanhas com texto, imagem ou cupão e enviar para grupos de clientes (ex.: quem comprou nos últimos 30 dias).",
+    },
+    tags: {
+      title: "Tags e notas",
+      desc: "Organize a sua carteira de clientes.",
+      body: "Em breve: adicionar tags (VIP, atacado, devedor) e notas privadas por cliente para personalizar atendimento.",
+    },
+  } as const;
+  const current = open ? detail[open] : null;
   return (
     <div className="px-5 py-6">
       <div className="rounded-2xl bg-gradient-to-br from-amber-100 to-orange-100 p-5">
@@ -117,14 +142,24 @@ function ActiveView({ expiresAt }: { expiresAt: string | null }) {
         {expiresAt && <p className="text-xs text-muted-foreground">Renovação em {new Date(expiresAt).toLocaleDateString("pt-AO")}</p>}
       </div>
       <div className="mt-5 space-y-3">
-        <Feature icon={<Users size={18} />} title="Meus clientes" desc="Lista completa com histórico de compras." />
-        <Feature icon={<BarChart3 size={18} />} title="Relatórios" desc="Vendas, ticket médio, recompra." />
-        <Feature icon={<MessageSquare size={18} />} title="Campanhas" desc="Mensagens em massa pelo chat." />
-        <Feature icon={<Tag size={18} />} title="Segmentação" desc="Tags e notas internas por cliente." />
+        <Feature onClick={() => setOpen("clientes")} icon={<Users size={18} />} title="Meus clientes" desc="Lista completa com histórico de compras." />
+        <Feature onClick={() => setOpen("relatorios")} icon={<BarChart3 size={18} />} title="Relatórios" desc="Vendas, ticket médio, recompra." />
+        <Feature onClick={() => setOpen("campanhas")} icon={<MessageSquare size={18} />} title="Campanhas" desc="Mensagens em massa pelo chat." />
+        <Feature onClick={() => setOpen("tags")} icon={<Tag size={18} />} title="Segmentação" desc="Tags e notas internas por cliente." />
       </div>
-      <div className="mt-6 rounded-2xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
-        Painel completo do CRM em construção.
-      </div>
+      <Sheet open={!!open} onOpenChange={(v) => !v && setOpen(null)}>
+        <SheetContent side="bottom" className="rounded-t-2xl">
+          {current && (
+            <>
+              <SheetHeader className="text-left">
+                <SheetTitle>{current.title}</SheetTitle>
+                <SheetDescription>{current.desc}</SheetDescription>
+              </SheetHeader>
+              <p className="mt-4 text-sm text-muted-foreground">{current.body}</p>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
@@ -325,14 +360,25 @@ function PaymentForm({ sub, storeId, onSaved, forceResubmit }: { sub: Sub; store
   );
 }
 
-function Feature({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
-  return (
-    <div className="flex items-start gap-3 rounded-xl border border-border p-3">
+function Feature({ icon, title, desc, onClick }: { icon: React.ReactNode; title: string; desc: string; onClick?: () => void }) {
+  const cls = "flex w-full items-start gap-3 rounded-xl border border-border p-3 text-left transition";
+  const content = (
+    <>
       <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground">{icon}</div>
       <div>
         <p className="text-sm font-semibold">{title}</p>
         <p className="text-xs text-muted-foreground">{desc}</p>
       </div>
-    </div>
+    </>
+  );
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className={`${cls} hover:bg-accent/40 active:scale-[0.99]`}>
+        {content}
+      </button>
+    );
+  }
+  return (
+    <div className={cls}>{content}</div>
   );
 }
