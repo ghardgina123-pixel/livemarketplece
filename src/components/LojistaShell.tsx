@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { ArrowLeft, BarChart3, Package, ShoppingBag, Menu, Wallet, Radio, Settings, Loader2, Film } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { AppShell } from "@/components/AppShell";
+import { BackButton } from "@/components/BackButton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
