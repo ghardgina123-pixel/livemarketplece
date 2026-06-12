@@ -68,6 +68,7 @@ export function LojistaShell({ title, children }: { title: string; children: Rea
   return (
     <AppShell>
       <header className="flex items-center gap-3 px-5 pt-6 pb-4 text-white" style={{ background: "var(--gradient-brand)" }}>
+        <BackButton fallback="/perfil" />
         <Sheet>
           <SheetTrigger asChild>
             <button className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15" aria-label="Menu do lojista">
