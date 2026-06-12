@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search, Bell, Radio, ShieldCheck, Truck, BadgeCheck, ChevronRight, Star } from "lucide-react";
+import { Search, Bell, Radio, ShieldCheck, Truck, BadgeCheck, ChevronRight, Star, Store as StoreIcon } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { formatPrice, useCurrency } from "@/lib/currency";
-import { CurrencySelector } from "@/components/CurrencySelector";
 import { supabase } from "@/integrations/supabase/client";
 import logoAsset from "@/assets/live-market-logo.png.asset.json";
 import homeHero from "@/assets/marketing/home-hero.jpg";
@@ -107,7 +106,12 @@ function Home() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <CurrencySelector />
+            <Link
+              to="/lojista"
+              className="flex h-9 items-center gap-1.5 rounded-full bg-white/15 px-3 text-[11px] font-semibold backdrop-blur-md hover:bg-white/25"
+            >
+              <StoreIcon size={14} /> Área do Lojista
+            </Link>
             <Link to="/ajuda" aria-label="Notificações" className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-md">
               <Bell size={18} />
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[var(--live)]" />

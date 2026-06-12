@@ -31,14 +31,7 @@ const COUNTRY_TO_CURRENCY: Record<string, CurrencyCode> = {
 const STORAGE_KEY = "lm:currency";
 
 function detectCurrency(): CurrencyCode {
-  if (typeof window === "undefined") return "AOA";
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY) as CurrencyCode | null;
-    if (saved && CURRENCIES[saved]) return saved;
-    const lang = navigator.language || "pt-BR";
-    const region = lang.split("-")[1]?.toUpperCase();
-    if (region && COUNTRY_TO_CURRENCY[region]) return COUNTRY_TO_CURRENCY[region];
-  } catch { /* noop */ }
+  // Live Market opera exclusivamente em Angola — moeda fixa em Kwanza (AOA).
   return "AOA";
 }
 
