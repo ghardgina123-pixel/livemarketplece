@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CheckCircle2, XCircle, Loader2, Store as StoreIcon, MapPin } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
