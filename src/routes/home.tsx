@@ -199,10 +199,10 @@ function Home() {
         {feed.length === 0 ? (
           <p className="mt-3 text-xs text-muted-foreground">Em breve novos produtos das lojas verificadas.</p>
         ) : (
-          <div className="relative mt-3 h-[520px] overflow-hidden rounded-2xl">
-            <div className="animate-scroll-y grid grid-cols-2 gap-3">
-              {feedLoop.map((p, idx) => (
-                <Link key={`${p.id}-${idx}`} to="/produto/$id" params={{ id: p.id }} className="overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-soft)]">
+          <div className="mt-3">
+            <div className="grid grid-cols-2 gap-3">
+              {feed.map((p) => (
+                <Link key={p.id} to="/produto/$id" params={{ id: p.id }} className="overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-soft)]">
                   <div className="flex h-32 items-center justify-center bg-accent text-5xl">{p.emoji}</div>
                   <div className="p-2.5">
                     <p className="line-clamp-2 text-xs font-medium text-foreground">{p.name}</p>
@@ -217,8 +217,6 @@ function Home() {
                 </Link>
               ))}
             </div>
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-background to-transparent" />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-background to-transparent" />
           </div>
         )}
       </section>
