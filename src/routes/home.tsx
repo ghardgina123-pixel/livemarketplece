@@ -83,8 +83,6 @@ function Home() {
     })();
   }, []);
 
-  // Duplicate the feed list so the vertical marquee loops seamlessly.
-  const feedLoop = feed.length > 0 ? [...feed, ...feed] : [];
   return (
     <AppShell>
       <header className="px-5 pt-6 pb-3 text-white" style={{ background: "var(--gradient-brand)" }}>
