@@ -28,6 +28,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
 import { Route as LojaIdRouteImport } from './routes/loja.$id'
 import { Route as LiveIdRouteImport } from './routes/live.$id'
+import { Route as LiveDemoIdRouteImport } from './routes/live-demo.$id'
 import { Route as ImoveisIdRouteImport } from './routes/imoveis.$id'
 import { Route as AuthenticatedTransportadorRouteImport } from './routes/_authenticated/transportador'
 import { Route as AuthenticatedSegurancaRouteImport } from './routes/_authenticated/seguranca'
@@ -145,6 +146,11 @@ const LojaIdRoute = LojaIdRouteImport.update({
 const LiveIdRoute = LiveIdRouteImport.update({
   id: '/live/$id',
   path: '/live/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LiveDemoIdRoute = LiveDemoIdRouteImport.update({
+  id: '/live-demo/$id',
+  path: '/live-demo/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImoveisIdRoute = ImoveisIdRouteImport.update({
@@ -310,6 +316,7 @@ export interface FileRoutesByFullPath {
   '/seguranca': typeof AuthenticatedSegurancaRoute
   '/transportador': typeof AuthenticatedTransportadorRoute
   '/imoveis/$id': typeof ImoveisIdRoute
+  '/live-demo/$id': typeof LiveDemoIdRoute
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
@@ -353,6 +360,7 @@ export interface FileRoutesByTo {
   '/seguranca': typeof AuthenticatedSegurancaRoute
   '/transportador': typeof AuthenticatedTransportadorRoute
   '/imoveis/$id': typeof ImoveisIdRoute
+  '/live-demo/$id': typeof LiveDemoIdRoute
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
@@ -399,6 +407,7 @@ export interface FileRoutesById {
   '/_authenticated/seguranca': typeof AuthenticatedSegurancaRoute
   '/_authenticated/transportador': typeof AuthenticatedTransportadorRoute
   '/imoveis/$id': typeof ImoveisIdRoute
+  '/live-demo/$id': typeof LiveDemoIdRoute
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
@@ -445,6 +454,7 @@ export interface FileRouteTypes {
     | '/seguranca'
     | '/transportador'
     | '/imoveis/$id'
+    | '/live-demo/$id'
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
@@ -488,6 +498,7 @@ export interface FileRouteTypes {
     | '/seguranca'
     | '/transportador'
     | '/imoveis/$id'
+    | '/live-demo/$id'
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
@@ -533,6 +544,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seguranca'
     | '/_authenticated/transportador'
     | '/imoveis/$id'
+    | '/live-demo/$id'
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
@@ -564,6 +576,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SobreRoute: typeof SobreRoute
   TermosRoute: typeof TermosRoute
+  LiveDemoIdRoute: typeof LiveDemoIdRoute
   LiveIdRoute: typeof LiveIdRoute
   LojaIdRoute: typeof LojaIdRoute
   ProdutoIdRoute: typeof ProdutoIdRoute
@@ -704,6 +717,13 @@ declare module '@tanstack/react-router' {
       path: '/live/$id'
       fullPath: '/live/$id'
       preLoaderRoute: typeof LiveIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/live-demo/$id': {
+      id: '/live-demo/$id'
+      path: '/live-demo/$id'
+      fullPath: '/live-demo/$id'
+      preLoaderRoute: typeof LiveDemoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/imoveis/$id': {
@@ -965,6 +985,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SobreRoute: SobreRoute,
   TermosRoute: TermosRoute,
+  LiveDemoIdRoute: LiveDemoIdRoute,
   LiveIdRoute: LiveIdRoute,
   LojaIdRoute: LojaIdRoute,
   ProdutoIdRoute: ProdutoIdRoute,

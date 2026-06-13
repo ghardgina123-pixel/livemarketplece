@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search, Bell, Radio, ShieldCheck, Truck, BadgeCheck, ChevronRight, Star, Store as StoreIcon } from "lucide-react";
+import { Search, Bell, Radio, ShieldCheck, Truck, BadgeCheck, ChevronRight, Star, Store as StoreIcon, PlayCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { formatPrice, useCurrency } from "@/lib/currency";
@@ -12,7 +12,7 @@ import techAsset from "@/assets/sellers/tech.jpg.asset.json";
 import modaAsset from "@/assets/sellers/moda.jpg.asset.json";
 import belezaAsset from "@/assets/sellers/beleza.jpg.asset.json";
 
-type LiveStore = { id: string; name: string; tagline: string; cover: string; emoji: string; image: string; viewers: number };
+type LiveStore = { id: string; name: string; tagline: string; cover: string; emoji: string; image: string; viewers: number; demo?: boolean };
 type FeedProduct = { id: string; name: string; price: number; oldPrice?: number; emoji: string; rating: number; sold: string };
 
 export const Route = createFileRoute("/home")({
@@ -39,6 +39,32 @@ const categories = [
 
 const sellerImages = [organicosAsset.url, techAsset.url, modaAsset.url, belezaAsset.url];
 
+// Lojas demonstrativas (Kikolo Shopping) — exibidas apenas enquanto não houver
+// lojas reais ativas no banco. Assim que vendedores reais ficarem ativos, estas
+// desaparecem automaticamente.
+const DEMO_LIVES: LiveStore[] = [
+  {
+    id: "demo-kikolo-tenis",
+    name: "Kikolo Sneakers",
+    tagline: "Ténis originais · Kikolo Shopping",
+    cover: "from-zinc-700 to-zinc-900",
+    emoji: "👟",
+    image: modaAsset.url,
+    viewers: 142,
+    demo: true,
+  },
+  {
+    id: "demo-kikolo-diversos",
+    name: "Kikolo Diversos",
+    tagline: "Casa, moda e tecnologia · Kikolo Shopping",
+    cover: "from-amber-500 to-rose-600",
+    emoji: "🛍️",
+    image: organicosAsset.url,
+    viewers: 87,
+    demo: true,
+  },
+];
+
 function Home() {
   const currency = useCurrency();
   const [lives, setLives] = useState<LiveStore[]>([]);
@@ -51,8 +77,7 @@ function Home() {
         .select("id, name, description, category")
         .eq("status", "active")
         .limit(8);
-      setLives(
-        (storesData ?? []).map((s, i) => ({
+      const real = (storesData ?? []).map((s, i) => ({
           id: s.id,
           name: s.name,
           tagline: s.description ?? s.category ?? "Loja ao vivo",
@@ -60,8 +85,9 @@ function Home() {
           emoji: ["🛍️", "✨", "🔥", "🎁"][i % 4],
           image: sellerImages[i % sellerImages.length],
           viewers: 0,
-        })),
-      );
+      }));
+      // Quando não houver lojas reais ativas, mostramos as demonstrativas.
+      setLives(real.length > 0 ? real : DEMO_LIVES);
 
       const { data: productsData } = await supabase
         .from("products")
@@ -175,18 +201,27 @@ function Home() {
         ) : (
           <div className="mt-3 flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {lives.map((s) => (
-              <Link key={s.id} to="/loja/$id" params={{ id: s.id }} className="w-40 shrink-0 overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-soft)]">
-                <div className="relative">
-                  <img src={s.image} alt={s.name} loading="lazy" decoding="async" className="h-44 w-full object-cover" />
-                  <span className="absolute left-2 top-2 flex items-center gap-1 rounded-md bg-[var(--live)] px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> Live
-                  </span>
-                </div>
-                <div className="p-2.5">
-                  <p className="truncate text-sm font-semibold">{s.name}</p>
-                  <p className="truncate text-[11px] text-muted-foreground">{s.tagline}</p>
-                </div>
-              </Link>
+              <div key={s.id} className="w-40 shrink-0 overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-soft)]">
+                <Link to={s.demo ? "/live-demo/$id" : "/loja/$id"} params={{ id: s.id }} className="block">
+                  <div className="relative">
+                    <img src={s.image} alt={s.name} loading="lazy" decoding="async" className="h-40 w-full object-cover" />
+                    <span className="absolute left-2 top-2 flex items-center gap-1 rounded-md bg-[var(--live)] px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" /> Live
+                    </span>
+                  </div>
+                  <div className="px-2.5 pt-2">
+                    <p className="truncate text-sm font-semibold">{s.name}</p>
+                    <p className="truncate text-[11px] text-muted-foreground">{s.tagline}</p>
+                  </div>
+                </Link>
+                <Link
+                  to={s.demo ? "/live-demo/$id" : "/live/$id"}
+                  params={{ id: s.id }}
+                  className="m-2 flex items-center justify-center gap-1 rounded-full bg-[var(--live)] px-2 py-1.5 text-[11px] font-bold text-white"
+                >
+                  <PlayCircle size={13} /> Entrar na Live
+                </Link>
+              </div>
             ))}
           </div>
         )}
