@@ -9,9 +9,9 @@ export const Route = createFileRoute("/carrinho")({
   head: () => ({
     meta: [
       { title: "Carrinho — Live Market" },
-      { property: "og:url", content: "https://livemarket.app/carrinho" },
+      { property: "og:url", content: "https://www.livemarketplece.live/carrinho" },
     ],
-    links: [{ rel: "canonical", href: "https://livemarket.app/carrinho" }],
+    links: [{ rel: "canonical", href: "https://www.livemarketplece.live/carrinho" }],
   }),
   component: Cart,
 });

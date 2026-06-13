@@ -16,7 +16,7 @@ export const Route = createFileRoute("/imoveis/$id")({
     meta: [
       { title: `Imóvel — Live Market` },
       { property: "og:title", content: `Imóvel — Live Market` },
-      { property: "og:url", content: `https://livemarket.app/imoveis/${params.id}` },
+      { property: "og:url", content: `https://www.livemarketplece.live/imoveis/${params.id}` },
     ],
   }),
   component: ImovelDetailPage,

@@ -11,9 +11,9 @@ export const Route = createFileRoute("/perfil")({
   head: () => ({
     meta: [
       { title: "Perfil — Live Market" },
-      { property: "og:url", content: "https://livemarket.app/perfil" },
+      { property: "og:url", content: "https://www.livemarketplece.live/perfil" },
     ],
-    links: [{ rel: "canonical", href: "https://livemarket.app/perfil" }],
+    links: [{ rel: "canonical", href: "https://www.livemarketplece.live/perfil" }],
   }),
   component: Perfil,
 });

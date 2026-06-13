@@ -12,9 +12,9 @@ export const Route = createFileRoute("/cadastro")({
   head: () => ({
     meta: [
       { title: "Criar conta — Live Market" },
-      { property: "og:url", content: "https://livemarket.app/cadastro" },
+      { property: "og:url", content: "https://www.livemarketplece.live/cadastro" },
     ],
-    links: [{ rel: "canonical", href: "https://livemarket.app/cadastro" }],
+    links: [{ rel: "canonical", href: "https://www.livemarketplece.live/cadastro" }],
   }),
   component: Signup,
 });

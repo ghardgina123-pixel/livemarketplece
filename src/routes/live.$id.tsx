@@ -16,7 +16,7 @@ export const Route = createFileRoute("/live/$id")({
     meta: [
       { title: "Live — Live Market" },
       { name: "description", content: "Assista à transmissão ao vivo e compre direto da live." },
-      { property: "og:url", content: `https://livemarket.app/live/${params.id}` },
+      { property: "og:url", content: `https://www.livemarketplece.live/live/${params.id}` },
     ],
   }),
   component: LivePage,
