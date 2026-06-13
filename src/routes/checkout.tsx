@@ -44,6 +44,8 @@ function Checkout() {
   const subtotal = useCartTotal();
   const currency = useCurrency();
   const [done, setDone] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [addrLoading, setAddrLoading] = useState(true);
   const [selectedAddrId, setSelectedAddrId] = useState<string | null>(null);
@@ -101,6 +103,7 @@ function Checkout() {
         </div>
         <h1 className="mt-5 text-2xl font-bold">Pedido confirmado!</h1>
         <p className="mt-2 text-sm text-muted-foreground">Você receberá atualizações pelo chat e e-mail. Obrigado por comprar conosco 💚</p>
+        {orderId && <p className="mt-2 text-xs text-muted-foreground">Pedido nº <span className="font-mono">{orderId.slice(0, 8)}</span></p>}
         <button onClick={() => nav({ to: "/home" })} className="mt-8 h-12 w-full rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]">
           Voltar para o início
         </button>
@@ -216,15 +219,30 @@ function Checkout() {
 
       <div className="fixed bottom-0 left-1/2 w-full max-w-[480px] -translate-x-1/2 border-t border-border bg-background p-3">
         <button
-          onClick={() => {
+          onClick={async () => {
+            if (!user) return toast.error("Faça login para finalizar a compra");
             if (!selectedAddr) return toast.error("Selecione um endereço de entrega");
             if (!selectedMethod) return toast.error("Selecione um método de pagamento");
-            setDone(true); cartStore.clear(); toast.success("Pedido realizado!");
+            const storeIds = Array.from(new Set(items.map((i) => i.product.storeId)));
+            if (storeIds.length !== 1) return toast.error("Carrinho com lojas diferentes não é suportado");
+            setSubmitting(true);
+            const { data, error } = await supabase.rpc("create_order_with_items", {
+              p_store_id: storeIds[0],
+              p_address_id: selectedAddr.id,
+              p_items: items.map((i) => ({ product_id: i.product.id, quantity: i.qty })),
+              p_payment_method: selectedMethod.method_type,
+            });
+            setSubmitting(false);
+            if (error) return toast.error(error.message || "Falha ao criar pedido");
+            setOrderId(data as unknown as string);
+            setDone(true);
+            cartStore.clear();
+            toast.success("Pedido realizado!");
           }}
-          disabled={!selectedAddr || !selectedMethod || items.length === 0}
+          disabled={submitting || !selectedAddr || !selectedMethod || items.length === 0}
           className="flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)]"
         >
-          {selectedMethod?.is_cash_on_delivery ? "Confirmar pedido" : "Pagar"} {formatPrice(isInstant ? totalBrl * 0.95 : totalBrl, currency)}
+          {submitting ? <Loader2 className="animate-spin" size={18} /> : <>{selectedMethod?.is_cash_on_delivery ? "Confirmar pedido" : "Pagar"} {formatPrice(isInstant ? totalBrl * 0.95 : totalBrl, currency)}</>}
         </button>
       </div>
     </div>
