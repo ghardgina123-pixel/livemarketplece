@@ -68,7 +68,7 @@ function LivePage() {
   useEffect(() => {
     (async () => {
       const { data: l } = await supabase.from("lives")
-        .select("id, title, status, viewer_count, livekit_room, store:stores(id, name, logo_url)")
+        .select("id, title, status, viewer_count, store:stores(id, name, logo_url)")
         .eq("id", id).maybeSingle();
       setLive((l as unknown as Live) ?? null);
       const { data: lp } = await supabase.from("live_products")
@@ -135,7 +135,7 @@ function LivePage() {
       {/* Player area — LiveKit (lazy, isolado do chat) */}
       <div className="relative aspect-[9/16] w-full bg-gradient-to-br from-zinc-900 to-zinc-700">
         <Suspense fallback={<div className="absolute inset-0 flex items-center justify-center"><Loader2 className="animate-spin text-white" /></div>}>
-          <LivePlayer roomName={live.livekit_room} identity={user?.id ?? `guest-${id}`} displayName={user?.email ?? "Convidado"} />
+          <LivePlayer liveId={live.id} />
         </Suspense>
         <Link to="/lojas" className="absolute left-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 backdrop-blur" aria-label="Voltar"><ArrowLeft size={18} /></Link>
         <div className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-[var(--live)] px-3 py-1 text-[10px] font-bold uppercase shadow-lg">

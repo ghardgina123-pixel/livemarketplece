@@ -3,9 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const inputSchema = z.object({
-  room: z.string().min(1).max(128),
-  identity: z.string().min(1).max(128),
-  name: z.string().min(1).max(128).optional(),
+  liveId: z.string().uuid(),
   canPublish: z.boolean().optional(),
 });
 
@@ -19,28 +17,35 @@ export const issueLiveKitToken = createServerFn({ method: "POST" })
     if (!apiKey || !apiSecret || !wsUrl) {
       throw new Error("LIVEKIT_NOT_CONFIGURED");
     }
-    // Force identity to the authenticated user; ignore client-supplied identity for trust.
+    // Force identity to the authenticated user; never trust client.
     const identity = context.userId;
-    // Derive canPublish server-side: only the owner of the store linked to the
-    // live room may publish. All other callers get subscribe-only tokens.
-    let canPublish = false;
-    if (data.canPublish) {
-      const { data: live } = await context.supabase
-        .from("lives")
-        .select("store_id, stores:store_id(owner_id)")
-        .eq("livekit_room", data.room)
-        .maybeSingle();
-      const ownerId = (live as { stores?: { owner_id?: string } } | null)?.stores?.owner_id;
-      canPublish = !!ownerId && ownerId === context.userId;
-    }
+    // Resolve room and owner server-side via privileged client so internal
+    // livekit_room identifiers never need to be exposed to the browser.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: live } = await supabaseAdmin
+      .from("lives")
+      .select("livekit_room, stores:store_id(owner_id)")
+      .eq("id", data.liveId)
+      .maybeSingle();
+    const room = (live as { livekit_room?: string } | null)?.livekit_room;
+    if (!room) throw new Error("LIVE_NOT_FOUND");
+    const ownerId = (live as { stores?: { owner_id?: string } } | null)?.stores?.owner_id;
+    const canPublish = !!data.canPublish && !!ownerId && ownerId === context.userId;
+    // Derive a non-identifying display name from the profile (never the email).
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("display_name")
+      .eq("id", context.userId)
+      .maybeSingle();
+    const displayName = (profile?.display_name as string | undefined) ?? "Convidado";
     const { AccessToken } = await import("livekit-server-sdk");
     const at = new AccessToken(apiKey, apiSecret, {
       identity,
-      name: data.name ?? identity,
+      name: displayName,
       ttl: 60 * 60, // 1h
     });
     at.addGrant({
-      room: data.room,
+      room,
       roomJoin: true,
       canPublish,
       canSubscribe: true,

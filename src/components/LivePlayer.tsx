@@ -4,7 +4,7 @@ import { Loader2, Video, WifiOff, AlertTriangle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { issueLiveKitToken } from "@/lib/livekit.functions";
 
-type Props = { roomName: string; identity: string; displayName?: string };
+type Props = { liveId: string };
 
 type State = "connecting" | "reconnecting" | "live" | "waiting" | "error" | "unconfigured";
 
@@ -12,7 +12,7 @@ type State = "connecting" | "reconnecting" | "live" | "waiting" | "error" | "unc
  * Player LiveKit isolado do chat — falhas/reconexões aqui não
  * bloqueiam o restante da UI (chat e produtos continuam reativos).
  */
-export function LivePlayer({ roomName, identity, displayName }: Props) {
+export function LivePlayer({ liveId }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const roomRef = useRef<Room | null>(null);
@@ -56,7 +56,7 @@ export function LivePlayer({ roomName, identity, displayName }: Props) {
 
     (async () => {
       try {
-        const { token, url } = await issue({ data: { room: roomName, identity, name: displayName, canPublish: false } });
+        const { token, url } = await issue({ data: { liveId, canPublish: false } });
         if (cancelled) return;
         await room.connect(url, token, { autoSubscribe: true });
         if (cancelled) return;
@@ -80,7 +80,7 @@ export function LivePlayer({ roomName, identity, displayName }: Props) {
       room.disconnect().catch(() => {});
       roomRef.current = null;
     };
-  }, [roomName, identity, displayName, issue]);
+  }, [liveId, issue]);
 
   return (
     <>
