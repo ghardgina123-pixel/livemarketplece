@@ -25,7 +25,7 @@ export const Route = createFileRoute("/live/$id")({
 const msgSchema = z.string().trim().min(1).max(500);
 
 type Live = {
-  id: string; title: string; status: string; viewer_count: number; livekit_room: string;
+ id: string; title: string; status: string; viewer_count: number;
   store: { id: string; name: string; logo_url: string | null } | null;
 };
 type LiveProduct = {
