@@ -49,7 +49,7 @@ export function SettingsSheet({ trigger }: Props) {
 
         <Section title="Minha conta">
           <Row icon={UserIcon} label="Editar perfil" to="/editar-perfil" onClick={close} />
-          <Row icon={MapPin} label="Meus endereços" to="/enderecos" onClick={close} />
+          <Row icon={MapPin} label="Endereços para entrega" to="/enderecos" onClick={close} />
           <Row icon={ShieldCheck} label="Segurança e privacidade" to="/seguranca" onClick={close} />
           <Row icon={Languages} label="Idioma, região e moeda" to="/idioma" onClick={close} />
         </Section>
@@ -71,7 +71,7 @@ export function SettingsSheet({ trigger }: Props) {
               <Row icon={Sparkles} label="CRM Premium" to="/lojista-crm" onClick={close} badge="PRO" badgeTone="premium" />
             </>
           ) : (
-            <Row icon={StoreIcon} label="Quero vender — abrir loja" to="/lojista" onClick={close} />
+            <Row icon={StoreIcon} label="Quero vender / Registrar loja" to="/lojista" onClick={close} />
           )}
         </Section>
 
