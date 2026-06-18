@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Settings, Package, Heart, MapPin, HelpCircle, LogOut, ChevronRight, BadgeCheck, Store as StoreIcon, Truck, Home as HomeIcon, Shield } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Settings, Package, Heart, MapPin, HelpCircle, LogOut, ChevronRight, BadgeCheck, Store as StoreIcon, Truck, Home as HomeIcon, Shield, Camera, Loader2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { CurrencySelector } from "@/components/CurrencySelector";
 import { SettingsSheet } from "@/components/SettingsSheet";
@@ -28,13 +29,43 @@ function Perfil() {
   const { user, signOut } = useAuth();
   const nav = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!user) { setIsAdmin(false); return; }
     supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle()
       .then(({ data }) => setIsAdmin(!!data));
+    supabase.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle()
+      .then(({ data }) => setAvatarUrl(data?.avatar_url ?? null));
   }, [user?.id]);
   const displayName = (user?.user_metadata?.display_name as string) || user?.email?.split("@")[0] || "Convidado";
   const initials = displayName.slice(0, 2).toUpperCase();
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error("Imagem maior que 5MB"); return; }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, {
+        upsert: true, contentType: file.type,
+      });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
+      const url = pub.publicUrl;
+      const { error: profErr } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
+      if (profErr) throw profErr;
+      setAvatarUrl(url);
+      toast.success("Foto de perfil atualizada");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Falha ao carregar foto");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
   const handleLogout = async () => {
     await signOut();
     nav({ to: "/login", replace: true });
@@ -53,7 +84,31 @@ function Perfil() {
           />
         </div>
         <div className="mt-5 flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-2xl font-bold text-secondary">{initials}</div>
+          <button
+            type="button"
+            onClick={() => user && fileRef.current?.click()}
+            disabled={!user || uploading}
+            aria-label="Carregar foto de perfil"
+            className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white text-2xl font-bold text-secondary disabled:opacity-70"
+          >
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={displayName} className="h-full w-full object-cover" />
+            ) : (
+              <span>{initials}</span>
+            )}
+            {user && (
+              <span className="absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground ring-2 ring-white">
+                {uploading ? <Loader2 size={12} className="animate-spin" /> : <Camera size={12} />}
+              </span>
+            )}
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleAvatarUpload}
+          />
           <div>
             <div className="flex items-center gap-1.5">
               <p className="text-lg font-bold">{displayName}</p>
@@ -85,7 +140,7 @@ function Perfil() {
           <li>
             <Link to="/lojista" className="flex w-full items-center gap-3 px-3 py-4 text-left">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl text-white" style={{ background: "var(--gradient-brand)" }}><StoreIcon size={18} /></div>
-              <span className="flex-1 text-sm font-semibold text-foreground">Quero vender / Minha loja</span>
+              <span className="flex-1 text-sm font-semibold text-foreground">Quero vender / Registrar loja</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </Link>
           </li>
@@ -103,7 +158,7 @@ function Perfil() {
           <li>
             <Link to="/imobiliaria" className="flex w-full items-center gap-3 px-3 py-4 text-left">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary"><HomeIcon size={18} /></div>
-              <span className="flex-1 text-sm font-semibold text-foreground">Tenho imóveis / Imobiliária</span>
+              <span className="flex-1 text-sm font-semibold text-foreground">Imobiliária / Registrar imóvel</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </Link>
           </li>
@@ -112,7 +167,7 @@ function Perfil() {
           <li>
             <Link to="/enderecos" className="flex w-full items-center gap-3 px-3 py-4 text-left">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-accent-foreground"><MapPin size={18} /></div>
-              <span className="flex-1 text-sm font-medium text-foreground">Meus endereços</span>
+              <span className="flex-1 text-sm font-medium text-foreground">Endereços para entrega</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </Link>
           </li>

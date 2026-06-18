@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/enderecos")({
-  head: () => ({ meta: [{ title: "Meus endereços — Live Market" }] }),
+  head: () => ({ meta: [{ title: "Endereços para entrega — Live Market" }] }),
   component: AddressesPage,
 });
 
@@ -68,7 +68,7 @@ function AddressesPage() {
           <ArrowLeft size={18} />
         </Link>
         <div className="flex-1">
-          <h1 className="text-lg font-semibold">Meus endereços</h1>
+          <h1 className="text-lg font-semibold">Endereços para entrega</h1>
           <p className="text-xs text-white/80">Para entrega rápida em Angola</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
