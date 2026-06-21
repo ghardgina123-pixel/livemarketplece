@@ -188,3 +188,31 @@
   animation: scroll-y 30s linear infinite;
 }
 .animate-scroll-y:hover { animation-play-state: paused; }
+
+/* ============================================================
+ * Performance utilities — smooth scrolling on low-end devices
+ * ============================================================ */
+
+/* Promote element to its own compositor layer so scroll/transform
+ * runs on the GPU instead of the main thread. Use sparingly on
+ * containers that animate or are part of long scroll surfaces. */
+.gpu {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Skip rendering work for sections that are off-screen.
+ * Browsers that don't support it just ignore the property. */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 600px;
+}
+
+/* Smooth, momentum-based scrolling on iOS / Android webviews. */
+.smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
