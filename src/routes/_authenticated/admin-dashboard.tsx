@@ -33,7 +33,7 @@ function AdminHub() {
         <HomeIcon size={20} />
       </header>
 
-      <div className="px-5 py-4 space-y-3">
+      <div className="cv-auto px-5 py-4 space-y-3">
         <Link to="/admin/lojas" className="flex items-center gap-3 rounded-2xl border bg-card p-4 shadow-sm">
           <StoreIcon className="text-primary" />
           <div className="flex-1">
@@ -98,7 +98,7 @@ function PendingApprovals() {
   };
 
   return (
-    <section className="px-5 py-4">
+    <section className="cv-auto px-5 py-4">
       <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">Aprovação de Lojas · Pendentes</h2>
       {loading ? <div className="flex justify-center py-6"><Loader2 className="animate-spin text-primary" /></div>
         : rows.length === 0 ? <p className="py-4 text-center text-xs text-muted-foreground">Nenhuma loja pendente.</p>
@@ -162,7 +162,7 @@ function MembersManagement() {
   };
 
   return (
-    <section className="px-5 py-4 space-y-4">
+    <section className="cv-auto px-5 py-4 space-y-4">
       <div>
         <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">Gestão de Membros · Lojas Ativas</h2>
         {loading ? <div className="flex justify-center py-6"><Loader2 className="animate-spin text-primary" /></div>

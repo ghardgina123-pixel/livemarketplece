@@ -92,7 +92,7 @@ function Perfil() {
             className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white text-2xl font-bold text-secondary disabled:opacity-70"
           >
             {avatarUrl ? (
-              <img src={avatarUrl} alt={displayName} className="h-full w-full object-cover" />
+              <img src={avatarUrl} alt={displayName} loading="lazy" decoding="async" className="h-full w-full object-cover" />
             ) : (
               <span>{initials}</span>
             )}
@@ -125,7 +125,7 @@ function Perfil() {
         </div>
       </header>
 
-      <ul className="divide-y divide-border px-2">
+      <ul className="cv-auto divide-y divide-border px-2">
         {user && isAdmin && (
           <li>
             <Link to="/admin-dashboard" className="flex w-full items-center gap-3 px-3 py-4 text-left">

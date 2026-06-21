@@ -153,7 +153,7 @@ function Home() {
         </div>
       </header>
 
-      <section className="px-5 pt-4">
+      <section className="cv-auto px-5 pt-4">
         <Link to="/lojas" className="group relative block overflow-hidden rounded-2xl shadow-[var(--shadow-soft)]">
           <img
             src={homeHero}
@@ -175,7 +175,7 @@ function Home() {
         </Link>
       </section>
 
-      <section className="px-5 py-5">
+      <section className="cv-auto px-5 py-5">
         <div className="grid grid-cols-4 gap-3">
           {categories.map((c) => (
             <Link key={c.n} to={c.to} className="flex flex-col items-center gap-1.5">
@@ -186,7 +186,7 @@ function Home() {
         </div>
       </section>
 
-      <section className="pb-5">
+      <section className="cv-auto pb-5">
         <div className="flex items-center justify-between px-5">
           <div className="flex items-center gap-2">
             <span className="flex items-center gap-1 rounded-full bg-[var(--live)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
@@ -199,9 +199,9 @@ function Home() {
         {lives.length === 0 ? (
           <p className="px-5 pt-3 text-xs text-muted-foreground">Nenhuma loja ao vivo no momento.</p>
         ) : (
-          <div className="mt-3 flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="smooth-scroll mt-3 flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {lives.map((s) => (
-              <div key={s.id} className="w-40 shrink-0 overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-soft)]">
+              <div key={s.id} className="gpu w-40 shrink-0 overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-soft)]">
                 <Link to={s.demo ? "/live-demo/$id" : "/loja/$id"} params={{ id: s.id }} className="block">
                   <div className="relative">
                     <img src={s.image} alt={s.name} loading="lazy" decoding="async" className="h-40 w-full object-cover" />
@@ -227,7 +227,7 @@ function Home() {
         )}
       </section>
 
-      <section className="px-5 pb-6">
+      <section className="cv-auto px-5 pb-6">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold">Recomendados para você</h2>
         </div>
