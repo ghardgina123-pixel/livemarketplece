@@ -8,9 +8,21 @@ export const Route = createFileRoute("/loja/$id")({
   head: ({ params }) => ({
     meta: [
       { title: "Loja — Live Market" },
+      { name: "description", content: "Conheça esta loja, veja produtos, lives e converse com o vendedor na Live Market." },
+      { property: "og:title", content: "Loja — Live Market" },
+      { property: "og:description", content: "Conheça esta loja, veja produtos e lives na Live Market." },
       { property: "og:url", content: `https://www.livemarketplece.live/loja/${params.id}` },
     ],
     links: [{ rel: "canonical", href: `https://www.livemarketplece.live/loja/${params.id}` }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Store",
+        "@id": `https://www.livemarketplece.live/loja/${params.id}`,
+        url: `https://www.livemarketplece.live/loja/${params.id}`,
+      }),
+    }],
   }),
   component: LojaPage,
 });
@@ -22,6 +34,10 @@ function LojaPage() {
   const currency = useCurrency();
   if (!store) return <div className="p-6">Loja não encontrada</div>;
 
+  if (typeof document !== "undefined") {
+    document.title = `${store.name} — Live Market`;
+  }
+
   return (
     <div className="mx-auto min-h-screen w-full max-w-[480px] bg-background pb-24">
       <div className="relative">
@@ -30,8 +46,8 @@ function LojaPage() {
         <div className="absolute top-5 flex w-full items-center justify-between px-4 text-white">
           <Link to="/lojas" className="flex h-9 w-9 items-center justify-center rounded-full bg-black/30 backdrop-blur"><ArrowLeft size={18} /></Link>
           <div className="flex gap-2">
-            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-black/30 backdrop-blur"><Heart size={18} /></button>
-            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-black/30 backdrop-blur"><Share2 size={18} /></button>
+            <button aria-label="Seguir loja" className="flex h-9 w-9 items-center justify-center rounded-full bg-black/30 backdrop-blur"><Heart size={18} /></button>
+            <button aria-label="Partilhar loja" className="flex h-9 w-9 items-center justify-center rounded-full bg-black/30 backdrop-blur"><Share2 size={18} /></button>
           </div>
         </div>
         {store.live && (

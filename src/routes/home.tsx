@@ -18,7 +18,10 @@ type FeedProduct = { id: string; name: string; price: number; oldPrice?: number;
 export const Route = createFileRoute("/home")({
   head: () => ({
     meta: [
-      { title: "Início — Live Market" },
+      { title: "Live Market — Mercado ao Vivo em Angola" },
+      { name: "description", content: "Descubra lojas ao vivo em Angola, compre direto da live, converse com vendedores e receba em casa." },
+      { property: "og:title", content: "Live Market — Mercado ao Vivo em Angola" },
+      { property: "og:description", content: "Descubra lojas ao vivo em Angola, compre direto da live e receba em casa." },
       { property: "og:url", content: "https://www.livemarketplece.live/home" },
     ],
     links: [{ rel: "canonical", href: "https://www.livemarketplece.live/home" }],
@@ -125,7 +128,7 @@ function Home() {
             />
             <div>
               <p className="text-xs text-white/70">Olá, bem-vindo 👋</p>
-              <h1 className="text-lg font-bold leading-tight">Live Market</h1>
+              <h1 className="text-lg font-bold leading-tight">Live Market — Mercado ao Vivo em Angola</h1>
               <p className="text-[10px] uppercase tracking-wider text-white/70">O mercado ao vivo no seu ecrã.</p>
             </div>
           </div>

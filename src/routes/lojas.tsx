@@ -9,9 +9,21 @@ export const Route = createFileRoute("/lojas")({
   head: () => ({
     meta: [
       { title: "Lojas — Live Market" },
+      { name: "description", content: "Explore todas as lojas ativas da Live Market em Angola, com lives ao vivo, produtos e avaliações." },
+      { property: "og:title", content: "Lojas — Live Market" },
+      { property: "og:description", content: "Explore todas as lojas ativas da Live Market em Angola." },
       { property: "og:url", content: "https://www.livemarketplece.live/lojas" },
     ],
     links: [{ rel: "canonical", href: "https://www.livemarketplece.live/lojas" }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "Lojas — Live Market",
+        url: "https://www.livemarketplece.live/lojas",
+      }),
+    }],
   }),
   component: Lojas,
 });

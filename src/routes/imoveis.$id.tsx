@@ -14,10 +14,22 @@ import { z } from "zod";
 export const Route = createFileRoute("/imoveis/$id")({
   head: ({ params }) => ({
     meta: [
-      { title: `Imóvel — Live Market` },
-      { property: "og:title", content: `Imóvel — Live Market` },
+      { title: `Detalhes do imóvel — Live Market` },
+      { name: "description", content: "Veja fotos, preço, localização e marque visita a este imóvel em Angola na Live Market." },
+      { property: "og:title", content: `Detalhes do imóvel — Live Market` },
+      { property: "og:description", content: "Veja fotos, preço e localização deste imóvel em Angola na Live Market." },
       { property: "og:url", content: `https://www.livemarketplece.live/imoveis/${params.id}` },
     ],
+    links: [{ rel: "canonical", href: `https://www.livemarketplece.live/imoveis/${params.id}` }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "RealEstateListing",
+        "@id": `https://www.livemarketplece.live/imoveis/${params.id}`,
+        url: `https://www.livemarketplece.live/imoveis/${params.id}`,
+      }),
+    }],
   }),
   component: ImovelDetailPage,
 });
@@ -90,6 +102,10 @@ function ImovelDetailPage() {
   }
   if (!p) {
     return <AppShell><div className="px-5 py-16 text-center text-sm text-muted-foreground">Imóvel não encontrado.</div></AppShell>;
+  }
+
+  if (typeof document !== "undefined") {
+    document.title = `${p.title} — Live Market`;
   }
 
   const whatsapp = p.real_estate_agencies?.phone

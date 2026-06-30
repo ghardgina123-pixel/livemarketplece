@@ -8,10 +8,23 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/produto/$id")({
   head: ({ params }) => ({
     meta: [
-      { title: "Produto — Live Market" },
+      { title: "Detalhes do produto — Live Market" },
+      { name: "description", content: "Veja detalhes, preço e disponibilidade deste produto e compre direto da live na Live Market." },
+      { property: "og:title", content: "Detalhes do produto — Live Market" },
+      { property: "og:description", content: "Veja detalhes, preço e disponibilidade deste produto na Live Market." },
+      { property: "og:type", content: "product" },
       { property: "og:url", content: `https://www.livemarketplece.live/produto/${params.id}` },
     ],
     links: [{ rel: "canonical", href: `https://www.livemarketplece.live/produto/${params.id}` }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "@id": `https://www.livemarketplece.live/produto/${params.id}`,
+        url: `https://www.livemarketplece.live/produto/${params.id}`,
+      }),
+    }],
   }),
   component: ProdutoPage,
 });
@@ -24,15 +37,19 @@ function ProdutoPage() {
   if (!p) return <div className="p-6">Produto não encontrado</div>;
   const store = findStore(p.storeId);
 
+  if (typeof document !== "undefined") {
+    document.title = `${p.name} — Live Market`;
+  }
+
   return (
     <div className="mx-auto min-h-screen w-full max-w-[480px] bg-background pb-28">
       <div className="relative">
         <div className="flex h-80 items-center justify-center bg-accent text-9xl">{p.emoji}</div>
         <div className="absolute top-5 flex w-full items-center justify-between px-4">
-          <button onClick={() => history.back()} className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow"><ArrowLeft size={18} /></button>
+          <button aria-label="Voltar" onClick={() => history.back()} className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow"><ArrowLeft size={18} /></button>
           <div className="flex gap-2">
-            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow"><Heart size={18} /></button>
-            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow"><Share2 size={18} /></button>
+            <button aria-label="Favoritar produto" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow"><Heart size={18} /></button>
+            <button aria-label="Partilhar produto" className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow"><Share2 size={18} /></button>
           </div>
         </div>
       </div>
