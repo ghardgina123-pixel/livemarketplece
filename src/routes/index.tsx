@@ -6,8 +6,10 @@ import logoAsset from "@/assets/live-market-logo.png.asset.json";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Live Market — Compre, Converse e Receba." },
-      { name: "description", content: "O marketplace onde clientes e lojas se conectam em tempo real." },
+      { title: "Live Market — Bem-vindo · Compre, Converse, Receba" },
+      { name: "description", content: "Bem-vindo à Live Market: o marketplace ao vivo de Angola. Entre como cliente ou lojista e comece em segundos." },
+      { property: "og:title", content: "Live Market — Bem-vindo · Compre, Converse, Receba" },
+      { property: "og:description", content: "Bem-vindo à Live Market: o marketplace ao vivo de Angola. Entre como cliente ou lojista." },
       { property: "og:url", content: `${SITE_URL}/` },
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/` }],

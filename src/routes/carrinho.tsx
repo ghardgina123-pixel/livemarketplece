@@ -59,11 +59,11 @@ function Cart() {
               <p className="mt-1 text-sm font-bold text-primary">{formatPrice(p.price, currency)}</p>
               <div className="mt-2 flex items-center justify-between">
                 <div className="flex items-center gap-2 rounded-full bg-muted">
-                  <button onClick={() => cartStore.setQty(p.id, qty - 1)} className="flex h-7 w-7 items-center justify-center"><Minus size={14} /></button>
+                  <button aria-label={`Diminuir quantidade de ${p.name}`} onClick={() => cartStore.setQty(p.id, qty - 1)} className="flex h-7 w-7 items-center justify-center"><Minus size={14} /></button>
                   <span className="text-sm font-semibold">{qty}</span>
-                  <button onClick={() => cartStore.setQty(p.id, qty + 1)} className="flex h-7 w-7 items-center justify-center"><Plus size={14} /></button>
+                  <button aria-label={`Aumentar quantidade de ${p.name}`} onClick={() => cartStore.setQty(p.id, qty + 1)} className="flex h-7 w-7 items-center justify-center"><Plus size={14} /></button>
                 </div>
-                <button onClick={() => cartStore.remove(p.id)} className="text-muted-foreground"><Trash2 size={16} /></button>
+                <button aria-label={`Remover ${p.name} do carrinho`} onClick={() => cartStore.remove(p.id)} className="text-muted-foreground"><Trash2 size={16} /></button>
               </div>
             </div>
           </li>

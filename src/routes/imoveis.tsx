@@ -11,7 +11,18 @@ export const Route = createFileRoute("/imoveis")({
       { name: "description", content: "Casas, apartamentos e terrenos para venda e arrendamento em Angola." },
       { property: "og:title", content: "Imóveis — Live Market" },
       { property: "og:description", content: "Encontre casas, apartamentos e terrenos para venda ou arrendamento." },
+      { property: "og:url", content: "https://www.livemarketplece.live/imoveis" },
     ],
+    links: [{ rel: "canonical", href: "https://www.livemarketplece.live/imoveis" }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "Imóveis — Live Market",
+        url: "https://www.livemarketplece.live/imoveis",
+      }),
+    }],
   }),
   component: ImoveisListPage,
 });
