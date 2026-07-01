@@ -172,7 +172,7 @@ function LiveFeesAdmin() {
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${badgeColor(f.status)}`}>{f.status}</span>
           </div>
           <p className="text-xs text-muted-foreground">{Number(f.amount_aoa).toLocaleString("pt-AO")} Kz · {f.payment_method ?? "—"}</p>
-          {f.proof_url && (
+          {f.proof_url && /^https:\/\//i.test(f.proof_url) && (
             <a href={f.proof_url} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs text-primary underline">
               <ExternalLink size={11} /> Ver comprovativo
             </a>
