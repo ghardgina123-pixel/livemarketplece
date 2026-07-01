@@ -12,7 +12,10 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "Bem-vindo à Live Market: o marketplace ao vivo de Angola. Entre como cliente ou lojista." },
       { property: "og:url", content: `${SITE_URL}/` },
     ],
-    links: [{ rel: "canonical", href: `${SITE_URL}/` }],
+    links: [
+      { rel: "canonical", href: `${SITE_URL}/` },
+      { rel: "preload", as: "image", href: logoAsset.url, fetchpriority: "high" },
+    ],
   }),
   component: Splash,
 });
