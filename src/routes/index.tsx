@@ -12,21 +12,27 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "Bem-vindo à Live Market: o marketplace ao vivo de Angola. Entre como cliente ou lojista." },
       { property: "og:url", content: `${SITE_URL}/` },
     ],
-    links: [{ rel: "canonical", href: `${SITE_URL}/` }],
+    links: [
+      { rel: "canonical", href: `${SITE_URL}/` },
+      { rel: "preload", as: "image", href: logoAsset.url, fetchpriority: "high" },
+    ],
   }),
   component: Splash,
 });
 
 function Splash() {
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col items-center justify-between bg-white px-6 py-12 text-foreground">
+    <main className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col items-center justify-between bg-white px-6 py-12 text-foreground">
       <div className="flex flex-1 flex-col items-center justify-center gap-6">
         <img
           src={logoAsset.url}
           alt="Live Market — Compre, Converse e Receba"
+          width={512}
+          height={512}
           className="mx-auto block h-auto max-h-[40vh] w-auto max-w-[80%] object-contain"
           loading="eager"
           decoding="async"
+          fetchPriority="high"
         />
         <h1 className="sr-only">Live Market — Compre · Converse · Receba.</h1>
         <p className="text-center text-sm font-bold tracking-[0.18em] text-foreground/95">
@@ -52,6 +58,6 @@ function Splash() {
           Já tenho conta · Entrar
         </Link>
       </div>
-    </div>
+    </main>
   );
 }
