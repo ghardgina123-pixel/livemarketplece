@@ -205,7 +205,7 @@ function AdminLojas() {
                 {s.signup_fee_required && (
                   <div className="col-span-2 rounded-lg bg-amber-500/10 p-2 text-[11px]">
                     <p className="font-semibold text-amber-800">Taxa de inscrição (9.600 AOA): {s.fee_status ?? "—"}</p>
-                    {s.fee_proof_url && (
+                    {s.fee_proof_url && /^https:\/\//i.test(s.fee_proof_url) && (
                       <a href={s.fee_proof_url} target="_blank" rel="noreferrer" className="text-primary underline">
                         Ver comprovativo
                       </a>
