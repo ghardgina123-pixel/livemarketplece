@@ -34,6 +34,43 @@ type Account = {
 
 type FieldKey = "phone" | "account_holder" | "account_number" | "iban" | "bank_name" | "card_number" | "card_exp" | "label";
 
+const ANGOLAN_BANKS = [
+  "BAI - Banco Angolano de Investimentos",
+  "BFA - Banco de Fomento Angola",
+  "BIC - Banco BIC",
+  "Atlântico - Banco Millennium Atlântico",
+  "BPC - Banco de Poupança e Crédito",
+  "BNI - Banco de Negócios Internacional",
+  "Standard Bank Angola",
+  "SOL - Banco SOL",
+  "Keve - Banco Keve",
+  "BCI - Banco de Comércio e Indústria",
+  "BCGA - Banco Caixa Geral Angola",
+  "Yetu - Banco Yetu",
+  "VTB Africa",
+  "Access Bank Angola",
+  "Banco Económico",
+  "Outro",
+];
+
+// Conta oficial para transferências bancárias — TUSSALA KAKA
+const COMPANY_BANK_ACCOUNTS = [
+  { bank: "BAI - Banco Angolano de Investimentos", holder: "TUSSALA KAKA - COMÉRCIO E PRESTAÇÃO DE SERVIÇOS (SU), LDA.", iban: "AO06 0040 0000 0000 0000 0000 0" },
+  { bank: "BFA - Banco de Fomento Angola", holder: "TUSSALA KAKA - COMÉRCIO E PRESTAÇÃO DE SERVIÇOS (SU), LDA.", iban: "AO06 0006 0000 0000 0000 0000 0" },
+];
+
+function categoryOf(methodType: string): "digital" | "compensation" | "local" {
+  if (["multicaixa_express", "ekwanza", "unitel_money", "afrimoney", "kwik", "stripe_card"].includes(methodType)) return "digital";
+  if (["bank_transfer", "multicaixa_reference"].includes(methodType)) return "compensation";
+  return "local";
+}
+
+const CATEGORY_META: Record<"digital" | "compensation" | "local", { title: string; subtitle: string }> = {
+  digital: { title: "Pagamentos Digitais Imediatos", subtitle: "Confirmação em segundos" },
+  compensation: { title: "Pagamentos de Compensação", subtitle: "Transferência ou referência" },
+  local: { title: "Pagamento no Local", subtitle: "Ao receber a encomenda" },
+};
+
 function fieldsFor(methodType: string): FieldKey[] {
   switch (methodType) {
     case "multicaixa_express":
@@ -53,6 +90,17 @@ function fieldsFor(methodType: string): FieldKey[] {
     default:
       return ["account_holder", "label"];
   }
+}
+
+function displayNameFor(m: Method): string {
+  if (m.method_type === "stripe_card") return "Cartão Visa/Mastercard";
+  return m.display_name;
+}
+
+function descriptionFor(m: Method): string {
+  if (m.method_type === "cash_on_delivery") return "Pague com cartão ou TPA ao receber a sua encomenda";
+  if (m.method_type === "stripe_card") return "AppyPay em breve — integração local Angola";
+  return m.description || getBrand(m.method_type).tagline || "";
 }
 
 function Pagamentos() {
@@ -90,6 +138,12 @@ function Pagamentos() {
     return map;
   }, [accounts]);
 
+  const grouped = useMemo(() => {
+    const g: Record<"digital" | "compensation" | "local", Method[]> = { digital: [], compensation: [], local: [] };
+    items.forEach((m) => g[categoryOf(m.method_type)].push(m));
+    return g;
+  }, [items]);
+
   return (
     <AppShell>
       <header className="flex items-center gap-3 px-5 pt-6 pb-4 text-white" style={{ background: "var(--gradient-brand)" }}>
@@ -101,43 +155,58 @@ function Pagamentos() {
         {loading ? (
           <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" /></div>
         ) : (
-          <ul className="space-y-2">
-            {items.map((m) => {
-              const saved = accountsByMethod.get(m.id) ?? [];
+          <div className="space-y-6">
+            {(["digital", "compensation", "local"] as const).map((cat) => {
+              const list = grouped[cat];
+              if (list.length === 0) return null;
+              const meta = CATEGORY_META[cat];
               return (
-                <li key={m.id}>
-                  <button
-                    type="button"
-                    onClick={() => setActive(m)}
-                    className="flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition active:scale-[0.99]"
-                    style={{ borderColor: getBrand(m.method_type).ring, background: getBrand(m.method_type).tint }}
-                  >
-                    <BrandLogo methodType={m.method_type} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold">{m.display_name}</p>
-                        {saved.length > 0 && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-primary">
-                            <Check size={10} /> {saved.length}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-[11px] text-muted-foreground line-clamp-1">
-                        {saved.length > 0
-                          ? (saved[0].phone || saved[0].iban || (saved[0].card_last4 ? `•••• ${saved[0].card_last4}` : saved[0].label) || "Configurado")
-                          : (m.description || getBrand(m.method_type).tagline)}
-                      </p>
-                    </div>
-                    {m.is_cash_on_delivery ? (
-                      <span className="rounded-full bg-white/70 px-2 py-0.5 text-[9px] font-bold uppercase">Na entrega</span>
-                    ) : (
-                      <ChevronRight size={18} className="text-muted-foreground" />
-                    )}
-                  </button>
-                </li>
+                <section key={cat}>
+                  <div className="mb-2 px-1">
+                    <h2 className="text-xs font-bold uppercase tracking-wide text-foreground">{meta.title}</h2>
+                    <p className="text-[10px] text-muted-foreground">{meta.subtitle}</p>
+                  </div>
+                  <ul className="space-y-2">
+                    {list.map((m) => {
+                      const saved = accountsByMethod.get(m.id) ?? [];
+                      return (
+                        <li key={m.id}>
+                          <button
+                            type="button"
+                            onClick={() => setActive(m)}
+                            className="flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition active:scale-[0.99]"
+                            style={{ borderColor: getBrand(m.method_type).ring, background: getBrand(m.method_type).tint }}
+                          >
+                            <BrandLogo methodType={m.method_type} />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm font-semibold">{displayNameFor(m)}</p>
+                                {saved.length > 0 && (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-primary">
+                                    <Check size={10} /> {saved.length}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-muted-foreground line-clamp-1">
+                                {saved.length > 0
+                                  ? (saved[0].phone || saved[0].iban || (saved[0].card_last4 ? `•••• ${saved[0].card_last4}` : saved[0].label) || "Configurado")
+                                  : descriptionFor(m)}
+                              </p>
+                            </div>
+                            {m.is_cash_on_delivery ? (
+                              <span className="rounded-full bg-white/70 px-2 py-0.5 text-[9px] font-bold uppercase">Na entrega</span>
+                            ) : (
+                              <ChevronRight size={18} className="text-muted-foreground" />
+                            )}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </section>
               );
             })}
-          </ul>
+          </div>
         )}
       </div>
 
@@ -219,15 +288,32 @@ function PaymentSheet({
           <BrandLogo methodType={method.method_type} />
           <div className="flex-1">
             <SheetHeader className="space-y-0 text-left">
-              <SheetTitle className="text-base text-white">{method.display_name}</SheetTitle>
+              <SheetTitle className="text-base text-white">{displayNameFor(method)}</SheetTitle>
               <SheetDescription className="text-xs text-white/80">
-                {method.description || brand.tagline || "Preencha os dados de pagamento"}
+                {descriptionFor(method) || "Preencha os dados de pagamento"}
               </SheetDescription>
             </SheetHeader>
           </div>
         </div>
 
         <div className="space-y-4 px-5 py-5">
+          {method.method_type === "bank_transfer" && (
+            <section className="rounded-2xl border border-primary/30 bg-primary/5 p-3">
+              <h3 className="text-xs font-bold uppercase text-primary">Dados oficiais para transferência</h3>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                Efetue a transferência para uma das contas abaixo (TUSSALA KAKA - COMÉRCIO E PRESTAÇÃO DE SERVIÇOS, (SU), LDA.):
+              </p>
+              <ul className="mt-2 space-y-2">
+                {COMPANY_BANK_ACCOUNTS.map((c) => (
+                  <li key={c.bank} className="rounded-lg bg-white/70 p-2 text-[11px]">
+                    <p className="font-semibold">{c.bank}</p>
+                    <p className="text-muted-foreground">IBAN: <span className="font-mono">{c.iban}</span></p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           {accounts.length > 0 && (
             <section>
               <h3 className="mb-2 text-xs font-bold uppercase text-muted-foreground">Guardados</h3>
@@ -235,7 +321,7 @@ function PaymentSheet({
                 {accounts.map((a) => (
                   <li key={a.id} className="flex items-center justify-between rounded-xl border border-border p-3 text-sm">
                     <div>
-                      <p className="font-semibold">{a.label || a.account_holder || method.display_name}</p>
+                      <p className="font-semibold">{a.label || a.account_holder || displayNameFor(method)}</p>
                       <p className="text-xs text-muted-foreground">
                         {a.phone || a.iban || (a.card_last4 ? `•••• ${a.card_last4}` : "")}
                       </p>
@@ -264,7 +350,19 @@ function PaymentSheet({
               <Field label="IBAN" value={form.iban ?? ""} onChange={(v) => set("iban", v.toUpperCase())} placeholder="AO06 0000 0000 0000 0000 0000 0" />
             )}
             {keys.includes("bank_name") && (
-              <Field label="Banco" value={form.bank_name ?? ""} onChange={(v) => set("bank_name", v)} placeholder="Ex.: BAI, BFA, BIC" />
+              <div className="space-y-1.5">
+                <Label className="text-xs">Banco</Label>
+                <select
+                  value={form.bank_name ?? ""}
+                  onChange={(e) => set("bank_name", e.target.value)}
+                  className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="">Selecione o banco</option>
+                  {ANGOLAN_BANKS.map((b) => (
+                    <option key={b} value={b}>{b}</option>
+                  ))}
+                </select>
+              </div>
             )}
             {keys.includes("card_number") && (
               <Field label="Número do cartão" value={form.card_number ?? ""} onChange={(v) => set("card_number", v)} placeholder="0000 0000 0000 0000" inputMode="numeric" />
