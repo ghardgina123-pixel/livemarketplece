@@ -76,13 +76,6 @@ function Login() {
           {busy ? <Loader2 className="animate-spin" size={18} /> : "Entrar"}
         </Button>
 
-        <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
-          <div className="h-px flex-1 bg-border" />ou continue com<div className="h-px flex-1 bg-border" />
-        </div>
-        <Button variant="outline" type="button" onClick={onGoogle} disabled={busy} className="h-11 w-full rounded-xl">
-          Continuar com Google
-        </Button>
-
         <p className="mt-8 text-center text-sm text-muted-foreground">
           Novo por aqui?{" "}
           <Link to="/cadastro" className="font-semibold text-primary">Criar conta</Link>
