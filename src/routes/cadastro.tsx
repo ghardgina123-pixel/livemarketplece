@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { Mail, Lock, User as UserIcon, Phone, ShieldCheck, Loader2, ShoppingBag, Store as StoreIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Mail, Lock, User as UserIcon, Phone, ShieldCheck, Loader2, ShoppingBag, Store as StoreIcon, Sparkles, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +24,15 @@ function Signup() {
   const [accountType, setAccountType] = useState<"customer" | "seller">("customer");
   const [f, setF] = useState({ name: "", email: "", phone: "", pwd: "" });
   const [busy, setBusy] = useState(false);
+  const [sellerStatus, setSellerStatus] = useState<{ approved_count: number; slots_left: number; fee_required: boolean; fee_aoa: number } | null>(null);
+
+  useEffect(() => {
+    let cancel = false;
+    supabase.rpc("seller_signup_status").then(({ data }) => {
+      if (!cancel && data) setSellerStatus(data as { approved_count: number; slots_left: number; fee_required: boolean; fee_aoa: number });
+    });
+    return () => { cancel = true; };
+  }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,10 +106,29 @@ function Signup() {
           <Field icon={<Lock size={18} />} type="password" placeholder="Crie uma senha (mín. 6)" value={f.pwd} onChange={(v) => setF({ ...f, pwd: v })} required />
         </div>
         {accountType === "seller" ? (
-          <div className="mt-5 flex items-start gap-2 rounded-xl bg-primary/10 p-3 text-xs text-foreground">
-            <StoreIcon size={16} className="mt-0.5 shrink-0 text-primary" />
-            Após criar a conta você completa os dados da empresa (NIF, endereço, banco e localização no mapa) no painel da loja.
-          </div>
+          <>
+            {sellerStatus && (
+              <div className={`mt-5 flex items-start gap-2 rounded-xl p-3 text-xs ${sellerStatus.fee_required ? "bg-amber-500/10 text-amber-900 dark:text-amber-200" : "bg-emerald-500/10 text-emerald-900 dark:text-emerald-200"}`}>
+                {sellerStatus.fee_required ? <AlertCircle size={16} className="mt-0.5 shrink-0" /> : <Sparkles size={16} className="mt-0.5 shrink-0" />}
+                <div>
+                  <p className="font-bold">
+                    {sellerStatus.fee_required
+                      ? "As 50 vagas gratuitas foram preenchidas."
+                      : `Restam ${sellerStatus.slots_left} de 50 vagas gratuitas.`}
+                  </p>
+                  <p className="mt-1 leading-relaxed">
+                    {sellerStatus.fee_required
+                      ? `Será cobrada a Taxa de Inscrição de ${sellerStatus.fee_aoa.toLocaleString("pt-AO")} AOA após criar a conta.`
+                      : "As primeiras 50 lojas aprovadas ficam isentas da taxa de adesão. Garanta a sua vaga!"}
+                  </p>
+                </div>
+              </div>
+            )}
+            <div className="mt-3 flex items-start gap-2 rounded-xl bg-primary/10 p-3 text-xs text-foreground">
+              <StoreIcon size={16} className="mt-0.5 shrink-0 text-primary" />
+              Após criar a conta você completa os dados da empresa (NIF, endereço, banco e localização no mapa) no painel da loja.
+            </div>
+          </>
         ) : (
           <div className="mt-5 flex items-start gap-2 rounded-xl bg-accent p-3 text-xs text-accent-foreground">
             <ShieldCheck size={16} className="mt-0.5 shrink-0" />
