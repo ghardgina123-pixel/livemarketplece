@@ -4,7 +4,6 @@ import { Mail, Lock, Radio, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 
@@ -42,14 +41,6 @@ function Login() {
     nav({ to: "/home", replace: true });
   };
 
-  const onGoogle = async () => {
-    setBusy(true);
-    const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/home" });
-    if (res.error) {
-      setBusy(false);
-      toast.error("Falha ao entrar com Google");
-    }
-  };
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col bg-background">
@@ -83,13 +74,6 @@ function Login() {
 
         <Button type="submit" disabled={busy} className="mt-6 h-12 w-full rounded-xl text-base font-semibold shadow-[var(--shadow-glow)]">
           {busy ? <Loader2 className="animate-spin" size={18} /> : "Entrar"}
-        </Button>
-
-        <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
-          <div className="h-px flex-1 bg-border" />ou continue com<div className="h-px flex-1 bg-border" />
-        </div>
-        <Button variant="outline" type="button" onClick={onGoogle} disabled={busy} className="h-11 w-full rounded-xl">
-          Continuar com Google
         </Button>
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
