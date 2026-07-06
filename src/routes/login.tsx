@@ -41,14 +41,6 @@ function Login() {
     nav({ to: "/home", replace: true });
   };
 
-  const onGoogle = async () => {
-    setBusy(true);
-    const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/home" });
-    if (res.error) {
-      setBusy(false);
-      toast.error("Falha ao entrar com Google");
-    }
-  };
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col bg-background">
