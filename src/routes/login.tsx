@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Mail, Lock, Radio, Loader2 } from "lucide-react";
+import { Mail, Lock, Radio, Loader2, Chrome } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 
@@ -41,6 +42,25 @@ function Login() {
     nav({ to: "/home", replace: true });
   };
 
+  const onGoogle = async () => {
+    setBusy(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+      extraParams: { prompt: "select_account" },
+    });
+    setBusy(false);
+    if (result.error) {
+      toast.error(result.error.message || "Falha ao entrar com Google");
+      return;
+    }
+    if (result.redirected) {
+      // Browser will redirect to Google.
+      return;
+    }
+    // Tokens received and session set — navigate home.
+    nav({ to: "/home", replace: true });
+  };
+
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col bg-background">
@@ -74,6 +94,23 @@ function Login() {
 
         <Button type="submit" disabled={busy} className="mt-6 h-12 w-full rounded-xl text-base font-semibold shadow-[var(--shadow-glow)]">
           {busy ? <Loader2 className="animate-spin" size={18} /> : "Entrar"}
+        </Button>
+
+        <div className="mt-4 flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs text-muted-foreground">ou continue com</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          disabled={busy}
+          onClick={onGoogle}
+          className="mt-4 h-12 w-full rounded-xl text-base font-semibold"
+        >
+          <Chrome size={18} className="mr-2" />
+          Continuar com Google
         </Button>
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
