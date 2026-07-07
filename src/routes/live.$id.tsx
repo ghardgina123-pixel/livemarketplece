@@ -97,6 +97,10 @@ function LivePage() {
         setMsgs((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m].slice(-200)));
         setProfiles((p) => { if (!p[m.sender_id]) queueProfile(m.sender_id); return p; });
       })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "lives", filter: `id=eq.${id}` }, (payload) => {
+        const updated = payload.new as { status: string; viewer_count: number };
+        setLive((prev) => (prev ? { ...prev, status: updated.status, viewer_count: updated.viewer_count } : prev));
+      })
       .subscribe();
     return () => {
       supabase.removeChannel(ch);

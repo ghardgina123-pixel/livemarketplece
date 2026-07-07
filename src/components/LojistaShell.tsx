@@ -21,6 +21,7 @@ const NAV = [
   { to: "/lojista/produtos", label: "Produtos", icon: Package },
   { to: "/lojista/pedidos", label: "Pedidos", icon: ShoppingBag },
   { to: "/lojista/videos", label: "Shorts da loja", icon: Film },
+  { to: "/lojista/lives", label: "Lives", icon: Radio },
   { to: "/lojista-crm", label: "CRM Premium", icon: Wallet },
 ] as const;
 
@@ -102,9 +103,6 @@ export function LojistaShell({ title, children }: { title: string; children: Rea
               <Link to="/lojista" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground hover:bg-accent">
                 <Settings size={18} /> Configurações da loja
               </Link>
-              <div className="mt-2 rounded-lg bg-muted/40 px-3 py-2 text-[10px] text-muted-foreground">
-                <Radio size={12} className="mr-1 inline" /> Lives em breve
-              </div>
             </nav>
           </SheetContent>
         </Sheet>

@@ -4,6 +4,9 @@ import { Heart, MessageCircle, Share2, ShoppingBag, Loader2, ArrowLeft, Play } f
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { cartStore } from "@/lib/cart-store";
+import { useAuth } from "@/hooks/use-auth";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/shorts")({
@@ -72,6 +75,33 @@ function ShortsFeed() {
 function ShortCard({ short }: { short: Short }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
+  const { user } = useAuth();
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(0);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [comments, setComments] = useState<Array<{ id: string; text: string; user_id: string; created_at: string }>>([]);
+  const [commentText, setCommentText] = useState("");
+  const [commentsLoaded, setCommentsLoaded] = useState(false);
+  const [commentsCount, setCommentsCount] = useState(0);
+
+  // Carrega totais (likes + comments) e se o utilizador atual já curtiu.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const [{ count: lc }, { count: cc }] = await Promise.all([
+        supabase.from("short_likes").select("*", { count: "exact", head: true }).eq("video_id", short.id),
+        supabase.from("short_comments").select("*", { count: "exact", head: true }).eq("video_id", short.id),
+      ]);
+      if (cancelled) return;
+      setLikes(lc ?? 0);
+      setCommentsCount(cc ?? 0);
+      if (user) {
+        const { data } = await supabase.from("short_likes").select("video_id").eq("video_id", short.id).eq("user_id", user.id).maybeSingle();
+        if (!cancelled) setLiked(!!data);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [short.id, user?.id]);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -86,6 +116,60 @@ function ShortCard({ short }: { short: Short }) {
     io.observe(v);
     return () => io.disconnect();
   }, []);
+
+  const toggleLike = async () => {
+    if (!user) return toast.error("Entre para curtir");
+    // Optimistic UI
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikes((n) => n + (wasLiked ? -1 : 1));
+    if (wasLiked) {
+      const { error } = await supabase.from("short_likes").delete().eq("video_id", short.id).eq("user_id", user.id);
+      if (error) { setLiked(true); setLikes((n) => n + 1); toast.error("Não foi possível remover a curtida"); }
+    } else {
+      const { error } = await supabase.from("short_likes").insert({ video_id: short.id, user_id: user.id });
+      if (error) { setLiked(false); setLikes((n) => n - 1); toast.error("Não foi possível curtir"); }
+    }
+  };
+
+  const openComments = async () => {
+    setCommentsOpen(true);
+    if (commentsLoaded) return;
+    const { data } = await supabase.from("short_comments").select("id, text, user_id, created_at").eq("video_id", short.id).order("created_at", { ascending: false }).limit(100);
+    setComments(data ?? []);
+    setCommentsLoaded(true);
+  };
+
+  const sendComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return toast.error("Entre para comentar");
+    const text = commentText.trim();
+    if (!text) return;
+    setCommentText("");
+    const { data, error } = await supabase.from("short_comments").insert({ video_id: short.id, user_id: user.id, text }).select("id, text, user_id, created_at").single();
+    if (error) { setCommentText(text); toast.error(error.message); return; }
+    if (data) { setComments((prev) => [data, ...prev]); setCommentsCount((n) => n + 1); }
+  };
+
+  const share = async () => {
+    const url = `${window.location.origin}/shorts?v=${short.id}`;
+    const title = short.product?.name ?? "Live Market — Shorts";
+    const text = short.caption ?? "Confira este vídeo no Live Market";
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      try {
+        await navigator.share({ title, text, url });
+        return;
+      } catch (err) {
+        if ((err as { name?: string }).name === "AbortError") return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copiado!");
+    } catch {
+      toast.error("Não foi possível partilhar");
+    }
+  };
 
   const buy = () => {
     if (!short.product) return;
@@ -151,17 +235,61 @@ function ShortCard({ short }: { short: Short }) {
         )}
       </div>
       <div className="absolute right-3 bottom-32 flex flex-col gap-4 text-white">
-        <SideAction icon={<Heart size={24} />} label="Curtir" />
-        <SideAction icon={<MessageCircle size={24} />} label="Comentar" />
-        <SideAction icon={<Share2 size={24} />} label="Compartilhar" />
+        <SideAction
+          icon={<Heart size={24} className={liked ? "fill-red-500 text-red-500" : ""} />}
+          label={likes ? likes.toString() : "Curtir"}
+          onClick={toggleLike}
+        />
+        <SideAction
+          icon={<MessageCircle size={24} />}
+          label={commentsCount ? commentsCount.toString() : "Comentar"}
+          onClick={openComments}
+        />
+        <SideAction icon={<Share2 size={24} />} label="Partilhar" onClick={share} />
       </div>
+
+      <Sheet open={commentsOpen} onOpenChange={setCommentsOpen}>
+        <SheetContent side="bottom" className="flex h-[70vh] flex-col p-0">
+          <SheetHeader className="border-b p-4 text-left">
+            <SheetTitle>Comentários {commentsCount > 0 && <span className="text-muted-foreground text-sm font-normal">· {commentsCount}</span>}</SheetTitle>
+          </SheetHeader>
+          <div className="flex-1 space-y-3 overflow-y-auto p-4">
+            {!commentsLoaded && <div className="flex justify-center py-6"><Loader2 className="animate-spin text-primary" /></div>}
+            {commentsLoaded && comments.length === 0 && (
+              <p className="py-8 text-center text-sm text-muted-foreground">Seja o primeiro a comentar 💬</p>
+            )}
+            {comments.map((c) => (
+              <div key={c.id} className="flex items-start gap-2 text-sm">
+                <div className="mt-0.5 h-7 w-7 shrink-0 rounded-full bg-muted" />
+                <div className="flex-1">
+                  <p className="text-xs font-semibold text-primary">Usuário</p>
+                  <p className="text-foreground">{c.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <form onSubmit={sendComment} className="flex items-center gap-2 border-t bg-background p-3">
+            <Input
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder={user ? "Escreva um comentário…" : "Entre para comentar"}
+              maxLength={500}
+              disabled={!user}
+              className="flex-1"
+            />
+            <button type="submit" disabled={!user || !commentText.trim()} className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-40">
+              Enviar
+            </button>
+          </form>
+        </SheetContent>
+      </Sheet>
     </section>
   );
 }
 
-function SideAction({ icon, label }: { icon: React.ReactNode; label: string }) {
+function SideAction({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick?: () => void }) {
   return (
-    <button className="flex flex-col items-center gap-1" aria-label={label}>
+    <button className="flex flex-col items-center gap-1" aria-label={label} onClick={onClick} type="button">
       <span className="flex h-11 w-11 items-center justify-center rounded-full bg-black/40 backdrop-blur">{icon}</span>
       <span className="text-[10px]">{label}</span>
     </button>

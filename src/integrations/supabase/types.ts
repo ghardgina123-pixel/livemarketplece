@@ -1183,6 +1183,64 @@ export type Database = {
           },
         ]
       }
+      short_comments: {
+        Row: {
+          created_at: string
+          id: string
+          text: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          text: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          text?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "short_comments_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "product_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      short_likes: {
+        Row: {
+          created_at: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "short_likes_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "product_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_private: {
         Row: {
           bank_account: string | null

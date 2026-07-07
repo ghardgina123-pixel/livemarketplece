@@ -49,6 +49,7 @@ import { Route as ApiPublicExchangeRouteImport } from './routes/api/public/excha
 import { Route as AuthenticatedLojistaVideosRouteImport } from './routes/_authenticated/lojista.videos'
 import { Route as AuthenticatedLojistaProdutosRouteImport } from './routes/_authenticated/lojista.produtos'
 import { Route as AuthenticatedLojistaPedidosRouteImport } from './routes/_authenticated/lojista.pedidos'
+import { Route as AuthenticatedLojistaLivesRouteImport } from './routes/_authenticated/lojista.lives'
 import { Route as AuthenticatedLojistaDashboardRouteImport } from './routes/_authenticated/lojista.dashboard'
 import { Route as AuthenticatedAdminLojasRouteImport } from './routes/_authenticated/admin.lojas'
 import { Route as AuthenticatedAdminImobiliariasRouteImport } from './routes/_authenticated/admin.imobiliarias'
@@ -263,6 +264,12 @@ const AuthenticatedLojistaPedidosRoute =
     path: '/pedidos',
     getParentRoute: () => AuthenticatedLojistaRoute,
   } as any)
+const AuthenticatedLojistaLivesRoute =
+  AuthenticatedLojistaLivesRouteImport.update({
+    id: '/lives',
+    path: '/lives',
+    getParentRoute: () => AuthenticatedLojistaRoute,
+  } as any)
 const AuthenticatedLojistaDashboardRoute =
   AuthenticatedLojistaDashboardRouteImport.update({
     id: '/dashboard',
@@ -335,6 +342,7 @@ export interface FileRoutesByFullPath {
   '/admin/imobiliarias': typeof AuthenticatedAdminImobiliariasRoute
   '/admin/lojas': typeof AuthenticatedAdminLojasRoute
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
+  '/lojista/lives': typeof AuthenticatedLojistaLivesRoute
   '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
   '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/lojista/videos': typeof AuthenticatedLojistaVideosRoute
@@ -381,6 +389,7 @@ export interface FileRoutesByTo {
   '/admin/imobiliarias': typeof AuthenticatedAdminImobiliariasRoute
   '/admin/lojas': typeof AuthenticatedAdminLojasRoute
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
+  '/lojista/lives': typeof AuthenticatedLojistaLivesRoute
   '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
   '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/lojista/videos': typeof AuthenticatedLojistaVideosRoute
@@ -430,6 +439,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/imobiliarias': typeof AuthenticatedAdminImobiliariasRoute
   '/_authenticated/admin/lojas': typeof AuthenticatedAdminLojasRoute
   '/_authenticated/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
+  '/_authenticated/lojista/lives': typeof AuthenticatedLojistaLivesRoute
   '/_authenticated/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
   '/_authenticated/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/_authenticated/lojista/videos': typeof AuthenticatedLojistaVideosRoute
@@ -479,6 +489,7 @@ export interface FileRouteTypes {
     | '/admin/imobiliarias'
     | '/admin/lojas'
     | '/lojista/dashboard'
+    | '/lojista/lives'
     | '/lojista/pedidos'
     | '/lojista/produtos'
     | '/lojista/videos'
@@ -525,6 +536,7 @@ export interface FileRouteTypes {
     | '/admin/imobiliarias'
     | '/admin/lojas'
     | '/lojista/dashboard'
+    | '/lojista/lives'
     | '/lojista/pedidos'
     | '/lojista/produtos'
     | '/lojista/videos'
@@ -573,6 +585,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/imobiliarias'
     | '/_authenticated/admin/lojas'
     | '/_authenticated/lojista/dashboard'
+    | '/_authenticated/lojista/lives'
     | '/_authenticated/lojista/pedidos'
     | '/_authenticated/lojista/produtos'
     | '/_authenticated/lojista/videos'
@@ -892,6 +905,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLojistaPedidosRouteImport
       parentRoute: typeof AuthenticatedLojistaRoute
     }
+    '/_authenticated/lojista/lives': {
+      id: '/_authenticated/lojista/lives'
+      path: '/lives'
+      fullPath: '/lojista/lives'
+      preLoaderRoute: typeof AuthenticatedLojistaLivesRouteImport
+      parentRoute: typeof AuthenticatedLojistaRoute
+    }
     '/_authenticated/lojista/dashboard': {
       id: '/_authenticated/lojista/dashboard'
       path: '/dashboard'
@@ -939,6 +959,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedLojistaRouteChildren {
   AuthenticatedLojistaDashboardRoute: typeof AuthenticatedLojistaDashboardRoute
+  AuthenticatedLojistaLivesRoute: typeof AuthenticatedLojistaLivesRoute
   AuthenticatedLojistaPedidosRoute: typeof AuthenticatedLojistaPedidosRoute
   AuthenticatedLojistaProdutosRoute: typeof AuthenticatedLojistaProdutosRoute
   AuthenticatedLojistaVideosRoute: typeof AuthenticatedLojistaVideosRoute
@@ -947,6 +968,7 @@ interface AuthenticatedLojistaRouteChildren {
 
 const AuthenticatedLojistaRouteChildren: AuthenticatedLojistaRouteChildren = {
   AuthenticatedLojistaDashboardRoute: AuthenticatedLojistaDashboardRoute,
+  AuthenticatedLojistaLivesRoute: AuthenticatedLojistaLivesRoute,
   AuthenticatedLojistaPedidosRoute: AuthenticatedLojistaPedidosRoute,
   AuthenticatedLojistaProdutosRoute: AuthenticatedLojistaProdutosRoute,
   AuthenticatedLojistaVideosRoute: AuthenticatedLojistaVideosRoute,
@@ -1037,13 +1059,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
