@@ -42,6 +42,25 @@ function Login() {
     nav({ to: "/home", replace: true });
   };
 
+  const onGoogle = async () => {
+    setBusy(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+      extraParams: { prompt: "select_account" },
+    });
+    setBusy(false);
+    if (result.error) {
+      toast.error(result.error.message || "Falha ao entrar com Google");
+      return;
+    }
+    if (result.redirected) {
+      // Browser will redirect to Google.
+      return;
+    }
+    // Tokens received and session set — navigate home.
+    nav({ to: "/home", replace: true });
+  };
+
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col bg-background">
