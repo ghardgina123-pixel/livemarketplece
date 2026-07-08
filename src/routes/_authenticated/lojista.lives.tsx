@@ -136,7 +136,7 @@ function LivesManager() {
               <p className="text-[11px] text-muted-foreground">Estado: {statusLabel(activeLive.status)}</p>
             </div>
             {activeLive.status !== "live" ? (
-              <Button size="sm" onClick={() => startLive(activeLive.id)}>
+              <Button size="sm" onClick={() => setConfirmId(activeLive.id)}>
                 <Play size={14} className="mr-1" /> Iniciar live
               </Button>
             ) : (
