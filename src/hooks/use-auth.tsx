@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         toast.info("Sessão expirada por inatividade. Entre novamente.");
       }, INACTIVITY_TIMEOUT_MS);
     };
-    const events: Array<keyof WindowEventMap> = ["mousemove", "mousedown", "keydown", "touchstart", "scroll", "visibilitychange"];
+    const events = ["mousemove", "mousedown", "keydown", "touchstart", "scroll", "visibilitychange"] as const;
     events.forEach((ev) => window.addEventListener(ev, reset, { passive: true }));
     reset();
     return () => {
