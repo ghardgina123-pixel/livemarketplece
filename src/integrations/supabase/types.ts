@@ -83,6 +83,36 @@ export type Database = {
           },
         ]
       }
+      admin_notifications: {
+        Row: {
+          created_at: string
+          emailed_at: string | null
+          id: string
+          kind: string
+          payload: Json
+          read_at: string | null
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          emailed_at?: string | null
+          id?: string
+          kind: string
+          payload?: Json
+          read_at?: string | null
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          emailed_at?: string | null
+          id?: string
+          kind?: string
+          payload?: Json
+          read_at?: string | null
+          subject?: string
+        }
+        Relationships: []
+      }
       agency_live_fees: {
         Row: {
           agency_id: string
@@ -271,6 +301,101 @@ export type Database = {
         }
         Relationships: []
       }
+      deliveries: {
+        Row: {
+          assigned_at: string | null
+          courier_id: string | null
+          created_at: string
+          delivered_at: string | null
+          dropoff_lat: number | null
+          dropoff_lng: number | null
+          id: string
+          order_id: string
+          picked_up_at: string | null
+          pickup_lat: number | null
+          pickup_lng: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          courier_id?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          dropoff_lat?: number | null
+          dropoff_lng?: number | null
+          id?: string
+          order_id: string
+          picked_up_at?: string | null
+          pickup_lat?: number | null
+          pickup_lng?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_at?: string | null
+          courier_id?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          dropoff_lat?: number | null
+          dropoff_lng?: number | null
+          id?: string
+          order_id?: string
+          picked_up_at?: string | null
+          pickup_lat?: number | null
+          pickup_lng?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deliveries_courier_id_fkey"
+            columns: ["courier_id"]
+            isOneToOne: false
+            referencedRelation: "couriers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deliveries_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_tracking: {
+        Row: {
+          delivery_id: string
+          id: number
+          lat: number
+          lng: number
+          updated_at: string
+        }
+        Insert: {
+          delivery_id: string
+          id?: number
+          lat: number
+          lng: number
+          updated_at?: string
+        }
+        Update: {
+          delivery_id?: string
+          id?: number
+          lat?: number
+          lng?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_tracking_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: false
+            referencedRelation: "deliveries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -385,6 +510,36 @@ export type Database = {
           source?: string
           to_currency?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      global_notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          ref_id: string | null
+          title: string
+          url: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          ref_id?: string | null
+          title: string
+          url?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          ref_id?: string | null
+          title?: string
+          url?: string | null
         }
         Relationships: []
       }
@@ -1157,6 +1312,36 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       real_estate_agencies: {
         Row: {
           cover_url: string | null
@@ -1386,6 +1571,8 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          is_online: boolean
+          last_seen_at: string | null
           lat: number | null
           lng: number | null
           logo_url: string | null
@@ -1407,6 +1594,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_online?: boolean
+          last_seen_at?: string | null
           lat?: number | null
           lng?: number | null
           logo_url?: string | null
@@ -1428,6 +1617,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_online?: boolean
+          last_seen_at?: string | null
           lat?: number | null
           lng?: number | null
           logo_url?: string | null
@@ -1481,6 +1672,42 @@ export type Database = {
           id?: string
           metadata?: Json | null
           reason?: string
+        }
+        Relationships: []
+      }
+      user_notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          read_at: string | null
+          ref_id: string | null
+          title: string
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          read_at?: string | null
+          ref_id?: string | null
+          title: string
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          read_at?: string | null
+          ref_id?: string | null
+          title?: string
+          url?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1639,6 +1866,14 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_delivery_courier: {
+        Args: { _delivery_id: string; _user: string }
+        Returns: boolean
+      }
+      is_delivery_participant: {
+        Args: { _delivery_id: string; _user: string }
         Returns: boolean
       }
       move_to_dlq: {
