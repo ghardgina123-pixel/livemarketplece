@@ -5,6 +5,14 @@ import { LojistaShell, useLojistaStore } from "@/components/LojistaShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -35,6 +43,7 @@ function LivesManager() {
   const [title, setTitle] = useState("");
   const [creating, setCreating] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
 
   const storeId = store?.id;
 
@@ -78,6 +87,7 @@ function LivesManager() {
   };
 
   const startLive = async (id: string) => {
+    setConfirmId(null);
     const { error } = await supabase.from("lives").update({ status: "live", started_at: new Date().toISOString() }).eq("id", id);
     if (error) return toast.error(error.message);
     setActiveId(id);
@@ -126,7 +136,7 @@ function LivesManager() {
               <p className="text-[11px] text-muted-foreground">Estado: {statusLabel(activeLive.status)}</p>
             </div>
             {activeLive.status !== "live" ? (
-              <Button size="sm" onClick={() => startLive(activeLive.id)}>
+              <Button size="sm" onClick={() => setConfirmId(activeLive.id)}>
                 <Play size={14} className="mr-1" /> Iniciar live
               </Button>
             ) : (
@@ -174,7 +184,7 @@ function LivesManager() {
                 </div>
                 <div className="flex gap-1.5">
                   {l.status === "scheduled" && (
-                    <Button size="sm" onClick={() => { setActiveId(l.id); startLive(l.id); }}>
+                    <Button size="sm" onClick={() => setConfirmId(l.id)}>
                       <Play size={12} className="mr-1" /> Iniciar
                     </Button>
                   )}
@@ -194,6 +204,23 @@ function LivesManager() {
           </ul>
         )}
       </section>
+
+      <Dialog open={!!confirmId} onOpenChange={(open) => { if (!open) setConfirmId(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Iniciar transmissão ao vivo?</DialogTitle>
+            <DialogDescription>
+              Ao confirmar, a live ficará pública e os espetadores poderão assistir em tempo real. Certifica-te de que a câmara e o microfone estão prontos.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmId(null)}>Cancelar</Button>
+            <Button onClick={() => confirmId && startLive(confirmId)}>
+              <Radio size={14} className="mr-2" /> Iniciar agora
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
