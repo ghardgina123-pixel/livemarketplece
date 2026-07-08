@@ -87,6 +87,7 @@ function LivesManager() {
   };
 
   const startLive = async (id: string) => {
+    setConfirmId(null);
     const { error } = await supabase.from("lives").update({ status: "live", started_at: new Date().toISOString() }).eq("id", id);
     if (error) return toast.error(error.message);
     setActiveId(id);
