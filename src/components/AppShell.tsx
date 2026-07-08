@@ -1,6 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { Home, Store, Play, ShoppingCart, User } from "lucide-react";
 import { useCartCount } from "@/lib/cart-store";
+import { NotificationBell } from "@/components/NotificationBell";
 import type { ReactNode } from "react";
 
 const tabs = [
@@ -16,6 +17,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const count = useCartCount();
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col bg-background pb-20">
+      <div className="pointer-events-none fixed top-3 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 px-3">
+        <div className="pointer-events-auto flex justify-end">
+          <NotificationBell />
+        </div>
+      </div>
       <main>{children}</main>
       <nav aria-label="Navegação principal" className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-border bg-background/95 backdrop-blur-xl">
         <ul className="grid grid-cols-5">
