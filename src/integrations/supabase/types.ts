@@ -388,6 +388,32 @@ export type Database = {
         }
         Relationships: []
       }
+      live_likes: {
+        Row: {
+          created_at: string
+          live_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          live_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          live_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_likes_live_id_fkey"
+            columns: ["live_id"]
+            isOneToOne: false
+            referencedRelation: "lives"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       live_messages: {
         Row: {
           created_at: string
@@ -446,6 +472,35 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_viewers: {
+        Row: {
+          joined_at: string
+          last_seen_at: string
+          live_id: string
+          user_id: string
+        }
+        Insert: {
+          joined_at?: string
+          last_seen_at?: string
+          live_id: string
+          user_id: string
+        }
+        Update: {
+          joined_at?: string
+          last_seen_at?: string
+          live_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_viewers_live_id_fkey"
+            columns: ["live_id"]
+            isOneToOne: false
+            referencedRelation: "lives"
             referencedColumns: ["id"]
           },
         ]
