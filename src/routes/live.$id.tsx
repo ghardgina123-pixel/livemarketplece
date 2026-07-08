@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Radio, Send, Users, ShoppingBag, Loader2 } from "lucide-react";
+import { ArrowLeft, Radio, Send, Users, ShoppingBag, Loader2, Heart, Share2 } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -41,6 +41,10 @@ function LivePage() {
   const [msgs, setMsgs] = useState<LiveMsg[]>([]);
   const [text, setText] = useState("");
   const [profiles, setProfiles] = useState<Record<string, { display_name: string | null; avatar_url: string | null }>>({});
+  const [viewerCount, setViewerCount] = useState<number>(0);
+  const [likeCount, setLikeCount] = useState<number>(0);
+  const [liked, setLiked] = useState<boolean>(false);
+  const [likeBusy, setLikeBusy] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const pendingProfileIds = useRef<Set<string>>(new Set());
   const profileFlushRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -101,12 +105,115 @@ function LivePage() {
         const updated = payload.new as { status: string; viewer_count: number };
         setLive((prev) => (prev ? { ...prev, status: updated.status, viewer_count: updated.viewer_count } : prev));
       })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "live_likes", filter: `live_id=eq.${id}` }, (payload) => {
+        const row = payload.new as { user_id: string };
+        setLikeCount((n) => n + 1);
+        if (user && row.user_id === user.id) setLiked(true);
+      })
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "live_likes", filter: `live_id=eq.${id}` }, (payload) => {
+        const row = payload.old as { user_id: string };
+        setLikeCount((n) => Math.max(0, n - 1));
+        if (user && row.user_id === user.id) setLiked(false);
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "live_viewers", filter: `live_id=eq.${id}` }, () => {
+        // Recalcula a contagem de viewers ativos (últimos 60s) sob demanda.
+        refreshViewerCount();
+      })
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
       if (profileFlushRef.current) clearTimeout(profileFlushRef.current);
     };
-  }, [id, queueProfile]);
+  }, [id, queueProfile, user]);
+
+  // ------------ Viewers (presence via heartbeat) ------------
+  const refreshViewerCount = useCallback(async () => {
+    const cutoff = new Date(Date.now() - 60_000).toISOString();
+    const { count } = await supabase
+      .from("live_viewers")
+      .select("*", { count: "exact", head: true })
+      .eq("live_id", id)
+      .gte("last_seen_at", cutoff);
+    setViewerCount(count ?? 0);
+  }, [id]);
+
+  useEffect(() => {
+    refreshViewerCount();
+    if (!user) return;
+    const beat = async () => {
+      await supabase.from("live_viewers").upsert(
+        { live_id: id, user_id: user.id, last_seen_at: new Date().toISOString() },
+        { onConflict: "live_id,user_id" },
+      );
+    };
+    beat();
+    const iv = setInterval(beat, 30_000);
+    const onVis = () => { if (document.visibilityState === "visible") beat(); };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      clearInterval(iv);
+      document.removeEventListener("visibilitychange", onVis);
+      supabase.from("live_viewers").delete().eq("live_id", id).eq("user_id", user.id).then(() => {});
+    };
+  }, [id, user, refreshViewerCount]);
+
+  // ------------ Likes (contagem + estado do próprio user) ------------
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { count } = await supabase
+        .from("live_likes").select("*", { count: "exact", head: true }).eq("live_id", id);
+      if (!cancelled) setLikeCount(count ?? 0);
+      if (user) {
+        const { data } = await supabase
+          .from("live_likes").select("user_id").eq("live_id", id).eq("user_id", user.id).maybeSingle();
+        if (!cancelled) setLiked(!!data);
+      } else if (!cancelled) {
+        setLiked(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [id, user]);
+
+  const toggleLike = useCallback(async () => {
+    if (!user) return toast.error("Entre para curtir");
+    if (likeBusy) return;
+    setLikeBusy(true);
+    const wasLiked = liked;
+    // Optimista — o Realtime confirma no INSERT/DELETE de todos os clientes.
+    setLiked(!wasLiked);
+    setLikeCount((n) => Math.max(0, n + (wasLiked ? -1 : 1)));
+    const { error } = wasLiked
+      ? await supabase.from("live_likes").delete().eq("live_id", id).eq("user_id", user.id)
+      : await supabase.from("live_likes").insert({ live_id: id, user_id: user.id });
+    if (error) {
+      setLiked(wasLiked);
+      setLikeCount((n) => Math.max(0, n + (wasLiked ? 1 : -1)));
+      toast.error(error.message);
+    }
+    setLikeBusy(false);
+  }, [user, liked, likeBusy, id]);
+
+  // ------------ Share ------------
+  const share = useCallback(async () => {
+    const url = typeof window !== "undefined" ? window.location.href : `https://www.livemarketplece.live/live/${id}`;
+    const title = live?.title ?? "Live Market";
+    const shareText = `Assiste a live "${title}" agora na Live Market`;
+    try {
+      if (typeof navigator !== "undefined" && "share" in navigator) {
+        await (navigator as Navigator).share({ title, text: shareText, url });
+        return;
+      }
+    } catch {
+      // usuário cancelou — cai no fallback
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copiado");
+    } catch {
+      toast.error("Não foi possível partilhar");
+    }
+  }, [id, live?.title]);
 
   // Auto-scroll em rAF — evita reflow síncrono a cada mensagem
   useEffect(() => {
@@ -150,7 +257,31 @@ function LivePage() {
           <span className="font-semibold">{live.store?.name}</span>
         </div>
         <div className="absolute right-3 bottom-3 flex items-center gap-1 rounded-full bg-black/50 px-3 py-1 text-xs backdrop-blur">
-          <Users size={12} /> {live.viewer_count}
+          <Users size={12} /> {viewerCount}
+        </div>
+        {/* Ações sociais */}
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col items-center gap-3">
+          <button
+            onClick={toggleLike}
+            aria-pressed={liked}
+            aria-label={liked ? "Remover gosto" : "Gostar"}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-black/50 backdrop-blur transition active:scale-95"
+          >
+            <Heart
+              size={22}
+              className={liked ? "fill-[var(--live,#ef4444)] text-[var(--live,#ef4444)]" : "text-white"}
+            />
+          </button>
+          <span className="rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-semibold backdrop-blur">
+            {likeCount}
+          </span>
+          <button
+            onClick={share}
+            aria-label="Partilhar"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-black/50 backdrop-blur transition active:scale-95"
+          >
+            <Share2 size={20} className="text-white" />
+          </button>
         </div>
       </div>
 
