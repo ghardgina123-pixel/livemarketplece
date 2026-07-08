@@ -204,6 +204,23 @@ function LivesManager() {
           </ul>
         )}
       </section>
+
+      <Dialog open={!!confirmId} onOpenChange={(open) => { if (!open) setConfirmId(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Iniciar transmissão ao vivo?</DialogTitle>
+            <DialogDescription>
+              Ao confirmar, a live ficará pública e os espetadores poderão assistir em tempo real. Certifica-te de que a câmara e o microfone estão prontos.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmId(null)}>Cancelar</Button>
+            <Button onClick={() => confirmId && startLive(confirmId)}>
+              <Radio size={14} className="mr-2" /> Iniciar agora
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
