@@ -43,6 +43,7 @@ function LivesManager() {
   const [title, setTitle] = useState("");
   const [creating, setCreating] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
 
   const storeId = store?.id;
 
