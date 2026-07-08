@@ -45,6 +45,7 @@ import { Route as AuthenticatedAfiliadosRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authenticated/admin-dashboard'
 import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin-crm'
 import { Route as AuthenticatedLojistaIndexRouteImport } from './routes/_authenticated/lojista.index'
+import { Route as ApiPublicPushDispatchRouteImport } from './routes/api/public/push-dispatch'
 import { Route as ApiPublicExchangeRouteImport } from './routes/api/public/exchange'
 import { Route as AuthenticatedLojistaVideosRouteImport } from './routes/_authenticated/lojista.videos'
 import { Route as AuthenticatedLojistaProdutosRouteImport } from './routes/_authenticated/lojista.produtos'
@@ -241,6 +242,11 @@ const AuthenticatedLojistaIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedLojistaRoute,
   } as any)
+const ApiPublicPushDispatchRoute = ApiPublicPushDispatchRouteImport.update({
+  id: '/api/public/push-dispatch',
+  path: '/api/public/push-dispatch',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicExchangeRoute = ApiPublicExchangeRouteImport.update({
   id: '/api/public/exchange',
   path: '/api/public/exchange',
@@ -347,6 +353,7 @@ export interface FileRoutesByFullPath {
   '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/lojista/videos': typeof AuthenticatedLojistaVideosRoute
   '/api/public/exchange': typeof ApiPublicExchangeRoute
+  '/api/public/push-dispatch': typeof ApiPublicPushDispatchRoute
   '/lojista/': typeof AuthenticatedLojistaIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -394,6 +401,7 @@ export interface FileRoutesByTo {
   '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/lojista/videos': typeof AuthenticatedLojistaVideosRoute
   '/api/public/exchange': typeof ApiPublicExchangeRoute
+  '/api/public/push-dispatch': typeof ApiPublicPushDispatchRoute
   '/lojista': typeof AuthenticatedLojistaIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -444,6 +452,7 @@ export interface FileRoutesById {
   '/_authenticated/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/_authenticated/lojista/videos': typeof AuthenticatedLojistaVideosRoute
   '/api/public/exchange': typeof ApiPublicExchangeRoute
+  '/api/public/push-dispatch': typeof ApiPublicPushDispatchRoute
   '/_authenticated/lojista/': typeof AuthenticatedLojistaIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -494,6 +503,7 @@ export interface FileRouteTypes {
     | '/lojista/produtos'
     | '/lojista/videos'
     | '/api/public/exchange'
+    | '/api/public/push-dispatch'
     | '/lojista/'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -541,6 +551,7 @@ export interface FileRouteTypes {
     | '/lojista/produtos'
     | '/lojista/videos'
     | '/api/public/exchange'
+    | '/api/public/push-dispatch'
     | '/lojista'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -590,6 +601,7 @@ export interface FileRouteTypes {
     | '/_authenticated/lojista/produtos'
     | '/_authenticated/lojista/videos'
     | '/api/public/exchange'
+    | '/api/public/push-dispatch'
     | '/_authenticated/lojista/'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -618,6 +630,7 @@ export interface RootRouteChildren {
   LojaIdRoute: typeof LojaIdRoute
   ProdutoIdRoute: typeof ProdutoIdRoute
   ApiPublicExchangeRoute: typeof ApiPublicExchangeRoute
+  ApiPublicPushDispatchRoute: typeof ApiPublicPushDispatchRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
@@ -877,6 +890,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLojistaIndexRouteImport
       parentRoute: typeof AuthenticatedLojistaRoute
     }
+    '/api/public/push-dispatch': {
+      id: '/api/public/push-dispatch'
+      path: '/api/public/push-dispatch'
+      fullPath: '/api/public/push-dispatch'
+      preLoaderRoute: typeof ApiPublicPushDispatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/exchange': {
       id: '/api/public/exchange'
       path: '/api/public/exchange'
@@ -1052,6 +1072,7 @@ const rootRouteChildren: RootRouteChildren = {
   LojaIdRoute: LojaIdRoute,
   ProdutoIdRoute: ProdutoIdRoute,
   ApiPublicExchangeRoute: ApiPublicExchangeRoute,
+  ApiPublicPushDispatchRoute: ApiPublicPushDispatchRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
