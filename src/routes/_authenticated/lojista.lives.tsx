@@ -184,7 +184,7 @@ function LivesManager() {
                 </div>
                 <div className="flex gap-1.5">
                   {l.status === "scheduled" && (
-                    <Button size="sm" onClick={() => { setActiveId(l.id); startLive(l.id); }}>
+                    <Button size="sm" onClick={() => setConfirmId(l.id)}>
                       <Play size={12} className="mr-1" /> Iniciar
                     </Button>
                   )}
