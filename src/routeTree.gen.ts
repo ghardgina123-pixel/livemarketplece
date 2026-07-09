@@ -25,6 +25,7 @@ import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RastreioOrderIdRouteImport } from './routes/rastreio.$orderId'
 import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
 import { Route as LojaIdRouteImport } from './routes/loja.$id'
 import { Route as LiveIdRouteImport } from './routes/live.$id'
@@ -135,6 +136,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RastreioOrderIdRoute = RastreioOrderIdRouteImport.update({
+  id: '/rastreio/$orderId',
+  path: '/rastreio/$orderId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProdutoIdRoute = ProdutoIdRouteImport.update({
@@ -345,6 +351,7 @@ export interface FileRoutesByFullPath {
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/rastreio/$orderId': typeof RastreioOrderIdRoute
   '/admin/imobiliarias': typeof AuthenticatedAdminImobiliariasRoute
   '/admin/lojas': typeof AuthenticatedAdminLojasRoute
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
@@ -393,6 +400,7 @@ export interface FileRoutesByTo {
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/rastreio/$orderId': typeof RastreioOrderIdRoute
   '/admin/imobiliarias': typeof AuthenticatedAdminImobiliariasRoute
   '/admin/lojas': typeof AuthenticatedAdminLojasRoute
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
@@ -444,6 +452,7 @@ export interface FileRoutesById {
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/rastreio/$orderId': typeof RastreioOrderIdRoute
   '/_authenticated/admin/imobiliarias': typeof AuthenticatedAdminImobiliariasRoute
   '/_authenticated/admin/lojas': typeof AuthenticatedAdminLojasRoute
   '/_authenticated/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
@@ -495,6 +504,7 @@ export interface FileRouteTypes {
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
+    | '/rastreio/$orderId'
     | '/admin/imobiliarias'
     | '/admin/lojas'
     | '/lojista/dashboard'
@@ -543,6 +553,7 @@ export interface FileRouteTypes {
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
+    | '/rastreio/$orderId'
     | '/admin/imobiliarias'
     | '/admin/lojas'
     | '/lojista/dashboard'
@@ -593,6 +604,7 @@ export interface FileRouteTypes {
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
+    | '/rastreio/$orderId'
     | '/_authenticated/admin/imobiliarias'
     | '/_authenticated/admin/lojas'
     | '/_authenticated/lojista/dashboard'
@@ -629,6 +641,7 @@ export interface RootRouteChildren {
   LiveIdRoute: typeof LiveIdRoute
   LojaIdRoute: typeof LojaIdRoute
   ProdutoIdRoute: typeof ProdutoIdRoute
+  RastreioOrderIdRoute: typeof RastreioOrderIdRoute
   ApiPublicExchangeRoute: typeof ApiPublicExchangeRoute
   ApiPublicPushDispatchRoute: typeof ApiPublicPushDispatchRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -748,6 +761,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rastreio/$orderId': {
+      id: '/rastreio/$orderId'
+      path: '/rastreio/$orderId'
+      fullPath: '/rastreio/$orderId'
+      preLoaderRoute: typeof RastreioOrderIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/produto/$id': {
@@ -1071,6 +1091,7 @@ const rootRouteChildren: RootRouteChildren = {
   LiveIdRoute: LiveIdRoute,
   LojaIdRoute: LojaIdRoute,
   ProdutoIdRoute: ProdutoIdRoute,
+  RastreioOrderIdRoute: RastreioOrderIdRoute,
   ApiPublicExchangeRoute: ApiPublicExchangeRoute,
   ApiPublicPushDispatchRoute: ApiPublicPushDispatchRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
