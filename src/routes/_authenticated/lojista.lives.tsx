@@ -86,11 +86,28 @@ function LivesManager() {
     if (storeId) load(storeId);
   };
 
-  const startLive = async (id: string) => {
+  // Prepara a live: apenas abre o painel de transmissão. O estado só passa
+  // a "live" DEPOIS de a publicação LiveKit ter sido bem-sucedida (rollback
+  // automático se a câmara/microfone falhar).
+  const prepareLive = (id: string) => {
     setConfirmId(null);
-    const { error } = await supabase.from("lives").update({ status: "live", started_at: new Date().toISOString() }).eq("id", id);
-    if (error) return toast.error(error.message);
     setActiveId(id);
+  };
+
+  const markLive = async (id: string) => {
+    const { error } = await supabase
+      .from("lives")
+      .update({ status: "live", started_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) toast.error(error.message);
+  };
+
+  const rollbackLive = async (id: string, reason: string) => {
+    await supabase
+      .from("lives")
+      .update({ status: "scheduled", started_at: null })
+      .eq("id", id);
+    toast.error(reason || "Não foi possível iniciar a transmissão.");
   };
 
   const endLive = async (id: string) => {
@@ -136,20 +153,23 @@ function LivesManager() {
               <p className="text-[11px] text-muted-foreground">Estado: {statusLabel(activeLive.status)}</p>
             </div>
             {activeLive.status !== "live" ? (
-              <Button size="sm" onClick={() => setConfirmId(activeLive.id)}>
-                <Play size={14} className="mr-1" /> Iniciar live
-              </Button>
+              <span className="text-[11px] text-muted-foreground">Clique em “Iniciar câmara” abaixo</span>
             ) : (
               <Button size="sm" variant="destructive" onClick={() => endLive(activeLive.id)}>
                 <Square size={14} className="mr-1" /> Encerrar
               </Button>
             )}
           </div>
-          {activeLive.status === "live" && (
-            <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin text-primary" /></div>}>
-              <LivePublisher liveId={activeLive.id} />
-            </Suspense>
-          )}
+          <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="animate-spin text-primary" /></div>}>
+            <LivePublisher
+              liveId={activeLive.id}
+              onConnected={() => markLive(activeLive.id)}
+              onDisconnected={() => {
+                if (activeLive.status === "live") endLive(activeLive.id);
+              }}
+              onError={(msg) => rollbackLive(activeLive.id, msg)}
+            />
+          </Suspense>
           <Link to="/live/$id" params={{ id: activeLive.id }} className="mt-3 inline-flex items-center gap-1 text-xs text-primary underline">
             Ver como espetador <ExternalLink size={11} />
           </Link>
@@ -208,15 +228,15 @@ function LivesManager() {
       <Dialog open={!!confirmId} onOpenChange={(open) => { if (!open) setConfirmId(null); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Iniciar transmissão ao vivo?</DialogTitle>
+            <DialogTitle>Preparar transmissão ao vivo?</DialogTitle>
             <DialogDescription>
-              Ao confirmar, a live ficará pública e os espetadores poderão assistir em tempo real. Certifica-te de que a câmara e o microfone estão prontos.
+              Vamos abrir o painel de câmara. A live só ficará pública depois de a câmara ligar com sucesso — se falhar, o estado é revertido automaticamente.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmId(null)}>Cancelar</Button>
-            <Button onClick={() => confirmId && startLive(confirmId)}>
-              <Radio size={14} className="mr-2" /> Iniciar agora
+            <Button onClick={() => confirmId && prepareLive(confirmId)}>
+              <Radio size={14} className="mr-2" /> Preparar câmara
             </Button>
           </DialogFooter>
         </DialogContent>
