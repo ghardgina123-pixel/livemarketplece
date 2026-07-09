@@ -141,7 +141,12 @@ function ConversationView({ conversationId, userId, onBack }: { conversationId: 
   const [msgs, setMsgs] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [peerOnline, setPeerOnline] = useState(false);
+  const [peerTyping, setPeerTyping] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+  const presenceRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const typingTimeoutRef = useRef<number | null>(null);
+  const lastTypingSentRef = useRef(0);
 
   useEffect(() => {
     (async () => {
@@ -181,6 +186,42 @@ function ConversationView({ conversationId, userId, onBack }: { conversationId: 
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs.length]);
 
+  // Presence + typing channel
+  useEffect(() => {
+    if (!conv) return;
+    const channel = supabase.channel(`chat-presence-${conversationId}`, {
+      config: { presence: { key: userId } },
+    });
+    presenceRef.current = channel;
+    channel
+      .on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState() as Record<string, unknown[]>;
+        const others = Object.keys(state).filter((k) => k !== userId);
+        setPeerOnline(others.length > 0);
+      })
+      .on("broadcast", { event: "typing" }, (payload) => {
+        if (payload.payload?.userId === userId) return;
+        setPeerTyping(true);
+        if (typingTimeoutRef.current) window.clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = window.setTimeout(() => setPeerTyping(false), 2500);
+      })
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") await channel.track({ online_at: new Date().toISOString() });
+      });
+    return () => {
+      if (typingTimeoutRef.current) window.clearTimeout(typingTimeoutRef.current);
+      supabase.removeChannel(channel);
+      presenceRef.current = null;
+    };
+  }, [conversationId, userId, conv?.id]);
+
+  const sendTyping = () => {
+    const now = Date.now();
+    if (now - lastTypingSentRef.current < 1500) return;
+    lastTypingSentRef.current = now;
+    presenceRef.current?.send({ type: "broadcast", event: "typing", payload: { userId } });
+  };
+
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     const text = input.trim();
@@ -205,7 +246,15 @@ function ConversationView({ conversationId, userId, onBack }: { conversationId: 
         </div>
         <div className="flex-1 min-w-0">
           <p className="truncate text-sm font-semibold">{name}</p>
-          <p className="text-[11px] text-primary">● realtime</p>
+          <p className="text-[11px]" aria-live="polite">
+            {peerTyping ? (
+              <span className="text-primary">a escrever…</span>
+            ) : peerOnline ? (
+              <span className="text-primary">● online</span>
+            ) : (
+              <span className="text-muted-foreground">offline</span>
+            )}
+          </p>
         </div>
       </header>
       <div className="flex-1 space-y-3 px-4 py-4">
@@ -226,7 +275,14 @@ function ConversationView({ conversationId, userId, onBack }: { conversationId: 
         <div ref={endRef} />
       </div>
       <form onSubmit={send} className="sticky bottom-0 flex items-center gap-2 border-t border-border bg-background p-3">
-        <Input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Mensagem…" maxLength={4000} className="h-11 flex-1 rounded-full bg-muted" />
+        <Input
+          value={input}
+          onChange={(e) => { setInput(e.target.value); sendTyping(); }}
+          placeholder="Mensagem…"
+          maxLength={4000}
+          aria-label="Mensagem"
+          className="h-11 flex-1 rounded-full bg-muted"
+        />
         <button type="submit" disabled={sending || !input.trim()} className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-glow)] disabled:opacity-50">
           {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
         </button>
