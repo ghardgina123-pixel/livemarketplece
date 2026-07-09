@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { Room, RoomEvent, createLocalTracks, Track, type LocalTrack } from "livekit-client";
+import {
+  Room,
+  RoomEvent,
+  createLocalTracks,
+  Track,
+  VideoPresets,
+  type LocalTrack,
+  type VideoCaptureOptions,
+} from "livekit-client";
 import { Loader2, Video, VideoOff, Radio, AlertTriangle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { issueLiveKitToken } from "@/lib/livekit.functions";
@@ -8,6 +16,7 @@ type Props = {
   liveId: string;
   onConnected?: () => void;
   onDisconnected?: () => void;
+  onError?: (message: string) => void;
 };
 
 type State = "idle" | "requesting" | "publishing" | "error" | "unconfigured";
@@ -16,7 +25,7 @@ type State = "idle" | "requesting" | "publishing" | "error" | "unconfigured";
  * Publisher LiveKit — usado pelo lojista para iniciar a transmissão em direto.
  * Solicita câmara + microfone e publica as tracks na sala do LiveKit.
  */
-export function LivePublisher({ liveId, onConnected, onDisconnected }: Props) {
+export function LivePublisher({ liveId, onConnected, onDisconnected, onError }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const roomRef = useRef<Room | null>(null);
   const tracksRef = useRef<LocalTrack[]>([]);
@@ -52,14 +61,21 @@ export function LivePublisher({ liveId, onConnected, onDisconnected }: Props) {
           if (cam.state === "denied") throw new Error("Permissão da câmara bloqueada. Ative-a nas definições do browser.");
         } catch { /* alguns browsers móveis não suportam permissions.query; segue-se em frente */ }
       }
+      // Constraints leves — pensado para 3G/4G e smartphones modestos:
+      // 720p @ 24fps máximo, degradação preferida em resolução, echo cancel.
+      const videoBase: VideoCaptureOptions = {
+        resolution: VideoPresets.h720.resolution,
+        facingMode: "environment",
+      };
+      const audioBase = { echoCancellation: true, noiseSuppression: true, autoGainControl: true } as const;
       try {
-        tracks = await createLocalTracks({ audio: true, video: { facingMode: "environment" } });
+        tracks = await createLocalTracks({ audio: audioBase, video: videoBase });
       } catch (envErr) {
         // Fallback: câmara frontal (muitos telemóveis não têm "environment" acessível
         // ou o browser rejeita a constraint exata).
         const name = (envErr as { name?: string } | null)?.name;
         if (name === "OverconstrainedError" || name === "NotFoundError" || name === "ConstraintNotSatisfiedError") {
-          tracks = await createLocalTracks({ audio: true, video: { facingMode: "user" } });
+          tracks = await createLocalTracks({ audio: audioBase, video: { ...videoBase, facingMode: "user" } });
         } else {
           throw envErr;
         }
@@ -71,7 +87,16 @@ export function LivePublisher({ liveId, onConnected, onDisconnected }: Props) {
       if (videoTrack && videoRef.current) videoTrack.attach(videoRef.current);
 
       const { token, url } = await issue({ data: { liveId, canPublish: true } });
-      const room = new Room({ adaptiveStream: true, dynacast: true });
+      const room = new Room({
+        adaptiveStream: true,
+        dynacast: true,
+        publishDefaults: {
+          simulcast: true,
+          videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360],
+          videoCodec: "vp8", // maior compatibilidade em Android antigo / iOS Safari
+        },
+        videoCaptureDefaults: { resolution: VideoPresets.h720.resolution },
+      });
       roomRef.current = room;
       room.on(RoomEvent.Disconnected, () => { setState("idle"); onDisconnected?.(); });
       await room.connect(url, token);
@@ -90,6 +115,7 @@ export function LivePublisher({ liveId, onConnected, onDisconnected }: Props) {
       if (msg.includes("LIVEKIT_NOT_CONFIGURED")) setState("unconfigured");
       else { setErrorMsg(msg); setState("error"); }
       await stop().catch(() => {});
+      onError?.(msg);
     }
   };
 
