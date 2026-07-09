@@ -15,7 +15,7 @@ export function PresenceHeartbeat() {
     ping(true);
     const interval = window.setInterval(() => { if (document.visibilityState === "visible") ping(true); }, 45000);
     const onVis = () => ping(document.visibilityState === "visible");
-    const onBeforeUnload = () => { navigator.sendBeacon?.("/api/public/noop"); ping(false); };
+    const onBeforeUnload = () => { ping(false); };
     document.addEventListener("visibilitychange", onVis);
     window.addEventListener("beforeunload", onBeforeUnload);
     return () => {
