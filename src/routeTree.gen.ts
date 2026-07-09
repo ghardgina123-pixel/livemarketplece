@@ -53,6 +53,7 @@ import { Route as AuthenticatedLojistaProdutosRouteImport } from './routes/_auth
 import { Route as AuthenticatedLojistaPedidosRouteImport } from './routes/_authenticated/lojista.pedidos'
 import { Route as AuthenticatedLojistaLivesRouteImport } from './routes/_authenticated/lojista.lives'
 import { Route as AuthenticatedLojistaDashboardRouteImport } from './routes/_authenticated/lojista.dashboard'
+import { Route as AuthenticatedEntregadorDeliveryIdRouteImport } from './routes/_authenticated/entregador.$deliveryId'
 import { Route as AuthenticatedAdminLojasRouteImport } from './routes/_authenticated/admin.lojas'
 import { Route as AuthenticatedAdminImobiliariasRouteImport } from './routes/_authenticated/admin.imobiliarias'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -288,6 +289,12 @@ const AuthenticatedLojistaDashboardRoute =
     path: '/dashboard',
     getParentRoute: () => AuthenticatedLojistaRoute,
   } as any)
+const AuthenticatedEntregadorDeliveryIdRoute =
+  AuthenticatedEntregadorDeliveryIdRouteImport.update({
+    id: '/entregador/$deliveryId',
+    path: '/entregador/$deliveryId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminLojasRoute = AuthenticatedAdminLojasRouteImport.update({
   id: '/admin/lojas',
   path: '/admin/lojas',
@@ -354,6 +361,7 @@ export interface FileRoutesByFullPath {
   '/rastreio/$orderId': typeof RastreioOrderIdRoute
   '/admin/imobiliarias': typeof AuthenticatedAdminImobiliariasRoute
   '/admin/lojas': typeof AuthenticatedAdminLojasRoute
+  '/entregador/$deliveryId': typeof AuthenticatedEntregadorDeliveryIdRoute
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
   '/lojista/lives': typeof AuthenticatedLojistaLivesRoute
   '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
@@ -403,6 +411,7 @@ export interface FileRoutesByTo {
   '/rastreio/$orderId': typeof RastreioOrderIdRoute
   '/admin/imobiliarias': typeof AuthenticatedAdminImobiliariasRoute
   '/admin/lojas': typeof AuthenticatedAdminLojasRoute
+  '/entregador/$deliveryId': typeof AuthenticatedEntregadorDeliveryIdRoute
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
   '/lojista/lives': typeof AuthenticatedLojistaLivesRoute
   '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
@@ -455,6 +464,7 @@ export interface FileRoutesById {
   '/rastreio/$orderId': typeof RastreioOrderIdRoute
   '/_authenticated/admin/imobiliarias': typeof AuthenticatedAdminImobiliariasRoute
   '/_authenticated/admin/lojas': typeof AuthenticatedAdminLojasRoute
+  '/_authenticated/entregador/$deliveryId': typeof AuthenticatedEntregadorDeliveryIdRoute
   '/_authenticated/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
   '/_authenticated/lojista/lives': typeof AuthenticatedLojistaLivesRoute
   '/_authenticated/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
@@ -507,6 +517,7 @@ export interface FileRouteTypes {
     | '/rastreio/$orderId'
     | '/admin/imobiliarias'
     | '/admin/lojas'
+    | '/entregador/$deliveryId'
     | '/lojista/dashboard'
     | '/lojista/lives'
     | '/lojista/pedidos'
@@ -556,6 +567,7 @@ export interface FileRouteTypes {
     | '/rastreio/$orderId'
     | '/admin/imobiliarias'
     | '/admin/lojas'
+    | '/entregador/$deliveryId'
     | '/lojista/dashboard'
     | '/lojista/lives'
     | '/lojista/pedidos'
@@ -607,6 +619,7 @@ export interface FileRouteTypes {
     | '/rastreio/$orderId'
     | '/_authenticated/admin/imobiliarias'
     | '/_authenticated/admin/lojas'
+    | '/_authenticated/entregador/$deliveryId'
     | '/_authenticated/lojista/dashboard'
     | '/_authenticated/lojista/lives'
     | '/_authenticated/lojista/pedidos'
@@ -959,6 +972,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLojistaDashboardRouteImport
       parentRoute: typeof AuthenticatedLojistaRoute
     }
+    '/_authenticated/entregador/$deliveryId': {
+      id: '/_authenticated/entregador/$deliveryId'
+      path: '/entregador/$deliveryId'
+      fullPath: '/entregador/$deliveryId'
+      preLoaderRoute: typeof AuthenticatedEntregadorDeliveryIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/lojas': {
       id: '/_authenticated/admin/lojas'
       path: '/admin/lojas'
@@ -1035,6 +1055,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTransportadorRoute: typeof AuthenticatedTransportadorRoute
   AuthenticatedAdminImobiliariasRoute: typeof AuthenticatedAdminImobiliariasRoute
   AuthenticatedAdminLojasRoute: typeof AuthenticatedAdminLojasRoute
+  AuthenticatedEntregadorDeliveryIdRoute: typeof AuthenticatedEntregadorDeliveryIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1054,6 +1075,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTransportadorRoute: AuthenticatedTransportadorRoute,
   AuthenticatedAdminImobiliariasRoute: AuthenticatedAdminImobiliariasRoute,
   AuthenticatedAdminLojasRoute: AuthenticatedAdminLojasRoute,
+  AuthenticatedEntregadorDeliveryIdRoute:
+    AuthenticatedEntregadorDeliveryIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -60,7 +60,7 @@ function EntregadorPage() {
   };
 
   const setStatus = async (next: string) => {
-    const patch: Record<string, unknown> = { status: next };
+    const patch: { status: string; picked_up_at?: string; delivered_at?: string } = { status: next };
     if (next === "in_transit") patch.picked_up_at = new Date().toISOString();
     if (next === "delivered") { patch.delivered_at = new Date().toISOString(); stop(); }
     const { error } = await supabase.from("deliveries").update(patch).eq("id", deliveryId);
