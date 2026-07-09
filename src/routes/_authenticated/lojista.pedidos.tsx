@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2, Clock, CheckCircle2, Package, Truck, XCircle } from "lucide-react";
+import { Loader2, Clock, CheckCircle2, Package, Truck, XCircle, MapPin, Copy } from "lucide-react";
 import { LojistaShell, useLojistaStore } from "@/components/LojistaShell";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +23,7 @@ type Order = {
   payment_method: string | null;
   created_at: string;
   customer_id: string;
+  delivery_id?: string | null;
 };
 
 const STATUS_META: Record<OrderStatus, { label: string; cls: string; icon: typeof Clock }> = {
@@ -53,10 +54,11 @@ function Pedidos() {
     if (!store) return;
     const { data } = await supabase
       .from("orders")
-      .select("id, total_aoa, status, payment_method, created_at, customer_id")
+      .select("id, total_aoa, status, payment_method, created_at, customer_id, deliveries(id)")
       .eq("store_id", store.id)
       .order("created_at", { ascending: false });
-    setItems((data as Order[]) ?? []);
+    const rows = ((data as any[]) ?? []).map((r) => ({ ...r, delivery_id: r.deliveries?.[0]?.id ?? null })) as Order[];
+    setItems(rows);
     setLoading(false);
   };
   useEffect(() => { load(); }, [store?.id]);
@@ -70,13 +72,33 @@ function Pedidos() {
     setItems((prev) => prev.map((o) => (o.id === id ? { ...o, status: next } : o)));
   };
 
+  const createDelivery = async (orderId: string) => {
+    setUpdating(orderId);
+    const { data, error } = await supabase.rpc("seller_create_delivery", { _order_id: orderId });
+    setUpdating(null);
+    if (error) return toast.error(error.message);
+    const deliveryId = data as string;
+    const url = `${window.location.origin}/entregador/${deliveryId}`;
+    try { await navigator.clipboard.writeText(url); } catch { /* ignore */ }
+    toast.success("Entrega criada — link copiado para o estafeta.");
+    setItems((prev) => prev.map((o) => (o.id === orderId ? { ...o, delivery_id: deliveryId, status: "shipped" as OrderStatus } : o)));
+  };
+
   if (!store) return null;
 
   return (
     <div>
       <h2 className="mb-3 text-sm font-bold">{items.length} pedido(s)</h2>
       {loading ? (
-        <div className="flex justify-center py-10"><Loader2 className="animate-spin text-primary" /></div>
+        <ul className="space-y-3" aria-busy="true" aria-label="Carregando pedidos">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <li key={i} className="animate-pulse rounded-xl border border-border p-3">
+              <div className="h-3 w-24 rounded bg-muted" />
+              <div className="mt-2 h-4 w-32 rounded bg-muted" />
+              <div className="mt-2 h-3 w-40 rounded bg-muted" />
+            </li>
+          ))}
+        </ul>
       ) : items.length === 0 ? (
         <Empty label="Nenhum pedido ainda." />
       ) : (
@@ -116,6 +138,38 @@ function Pedidos() {
                     {updating === o.id && <Loader2 size={14} className="animate-spin text-primary" />}
                   </div>
                 )}
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  {!o.delivery_id ? (
+                    (o.status === "paid" || o.status === "preparing" || o.status === "shipped") && (
+                      <button
+                        onClick={() => createDelivery(o.id)}
+                        disabled={updating === o.id}
+                        className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-[11px] font-semibold text-primary-foreground focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-60"
+                      >
+                        <Truck size={12} /> Criar entrega
+                      </button>
+                    )
+                  ) : (
+                    <>
+                      <Link
+                        to="/rastreio/$orderId"
+                        params={{ orderId: o.id }}
+                        className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-[11px] font-semibold hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <MapPin size={12} /> Ver mapa
+                      </Link>
+                      <button
+                        onClick={async () => {
+                          const url = `${window.location.origin}/entregador/${o.delivery_id}`;
+                          try { await navigator.clipboard.writeText(url); toast.success("Link do estafeta copiado"); } catch { toast.error("Não foi possível copiar"); }
+                        }}
+                        className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-[11px] font-semibold hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <Copy size={12} /> Copiar link do estafeta
+                      </button>
+                    </>
+                  )}
+                </div>
               </li>
             );
           })}
