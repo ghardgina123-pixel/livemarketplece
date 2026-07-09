@@ -870,6 +870,62 @@ export type Database = {
           },
         ]
       }
+      payment_intents: {
+        Row: {
+          amount_aoa: number
+          commission_pct: number
+          created_at: string
+          external_id: string | null
+          id: string
+          order_id: string
+          platform_fee_aoa: number
+          provider: string
+          raw_payload: Json | null
+          reference: string | null
+          status: string
+          store_amount_aoa: number
+          updated_at: string
+        }
+        Insert: {
+          amount_aoa: number
+          commission_pct?: number
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          order_id: string
+          platform_fee_aoa: number
+          provider?: string
+          raw_payload?: Json | null
+          reference?: string | null
+          status?: string
+          store_amount_aoa: number
+          updated_at?: string
+        }
+        Update: {
+          amount_aoa?: number
+          commission_pct?: number
+          created_at?: string
+          external_id?: string | null
+          id?: string
+          order_id?: string
+          platform_fee_aoa?: number
+          provider?: string
+          raw_payload?: Json | null
+          reference?: string | null
+          status?: string
+          store_amount_aoa?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_intents_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_methods: {
         Row: {
           config: Json
@@ -1086,6 +1142,8 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          is_online: boolean
+          last_seen_at: string | null
           phone: string | null
           updated_at: string
         }
@@ -1095,6 +1153,8 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id: string
+          is_online?: boolean
+          last_seen_at?: string | null
           phone?: string | null
           updated_at?: string
         }
@@ -1104,6 +1164,8 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          is_online?: boolean
+          last_seen_at?: string | null
           phone?: string | null
           updated_at?: string
         }
@@ -1897,6 +1959,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      seller_create_delivery: { Args: { _order_id: string }; Returns: string }
       seller_signup_status: { Args: never; Returns: Json }
     }
     Enums: {

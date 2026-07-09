@@ -16,6 +16,7 @@ import { Toaster } from "sonner";
 import { AuthProvider } from "@/hooks/use-auth";
 import { RealtimeNotifier } from "@/components/RealtimeNotifier";
 import { PushRegistrar } from "@/components/PushRegistrar";
+import { PresenceHeartbeat } from "@/components/PresenceHeartbeat";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
 
 function NotFoundComponent() {
@@ -156,6 +157,7 @@ function RootComponent() {
           <Toaster position="top-center" richColors />
           <RealtimeNotifier />
           <PushRegistrar />
+          <PresenceHeartbeat />
         </ClientOnly>
       </AuthProvider>
     </QueryClientProvider>

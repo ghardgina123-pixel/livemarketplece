@@ -25,6 +25,7 @@ import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RastreioOrderIdRouteImport } from './routes/rastreio.$orderId'
 import { Route as ProdutoIdRouteImport } from './routes/produto.$id'
 import { Route as LojaIdRouteImport } from './routes/loja.$id'
 import { Route as LiveIdRouteImport } from './routes/live.$id'
@@ -46,12 +47,14 @@ import { Route as AuthenticatedAdminDashboardRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminCrmRouteImport } from './routes/_authenticated/admin-crm'
 import { Route as AuthenticatedLojistaIndexRouteImport } from './routes/_authenticated/lojista.index'
 import { Route as ApiPublicPushDispatchRouteImport } from './routes/api/public/push-dispatch'
+import { Route as ApiPublicMulticaixaCallbackRouteImport } from './routes/api/public/multicaixa-callback'
 import { Route as ApiPublicExchangeRouteImport } from './routes/api/public/exchange'
 import { Route as AuthenticatedLojistaVideosRouteImport } from './routes/_authenticated/lojista.videos'
 import { Route as AuthenticatedLojistaProdutosRouteImport } from './routes/_authenticated/lojista.produtos'
 import { Route as AuthenticatedLojistaPedidosRouteImport } from './routes/_authenticated/lojista.pedidos'
 import { Route as AuthenticatedLojistaLivesRouteImport } from './routes/_authenticated/lojista.lives'
 import { Route as AuthenticatedLojistaDashboardRouteImport } from './routes/_authenticated/lojista.dashboard'
+import { Route as AuthenticatedEntregadorDeliveryIdRouteImport } from './routes/_authenticated/entregador.$deliveryId'
 import { Route as AuthenticatedAdminLojasRouteImport } from './routes/_authenticated/admin.lojas'
 import { Route as AuthenticatedAdminImobiliariasRouteImport } from './routes/_authenticated/admin.imobiliarias'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
@@ -135,6 +138,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RastreioOrderIdRoute = RastreioOrderIdRouteImport.update({
+  id: '/rastreio/$orderId',
+  path: '/rastreio/$orderId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProdutoIdRoute = ProdutoIdRouteImport.update({
@@ -247,6 +255,12 @@ const ApiPublicPushDispatchRoute = ApiPublicPushDispatchRouteImport.update({
   path: '/api/public/push-dispatch',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMulticaixaCallbackRoute =
+  ApiPublicMulticaixaCallbackRouteImport.update({
+    id: '/api/public/multicaixa-callback',
+    path: '/api/public/multicaixa-callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicExchangeRoute = ApiPublicExchangeRouteImport.update({
   id: '/api/public/exchange',
   path: '/api/public/exchange',
@@ -281,6 +295,12 @@ const AuthenticatedLojistaDashboardRoute =
     id: '/dashboard',
     path: '/dashboard',
     getParentRoute: () => AuthenticatedLojistaRoute,
+  } as any)
+const AuthenticatedEntregadorDeliveryIdRoute =
+  AuthenticatedEntregadorDeliveryIdRouteImport.update({
+    id: '/entregador/$deliveryId',
+    path: '/entregador/$deliveryId',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminLojasRoute = AuthenticatedAdminLojasRouteImport.update({
   id: '/admin/lojas',
@@ -345,14 +365,17 @@ export interface FileRoutesByFullPath {
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/rastreio/$orderId': typeof RastreioOrderIdRoute
   '/admin/imobiliarias': typeof AuthenticatedAdminImobiliariasRoute
   '/admin/lojas': typeof AuthenticatedAdminLojasRoute
+  '/entregador/$deliveryId': typeof AuthenticatedEntregadorDeliveryIdRoute
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
   '/lojista/lives': typeof AuthenticatedLojistaLivesRoute
   '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
   '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/lojista/videos': typeof AuthenticatedLojistaVideosRoute
   '/api/public/exchange': typeof ApiPublicExchangeRoute
+  '/api/public/multicaixa-callback': typeof ApiPublicMulticaixaCallbackRoute
   '/api/public/push-dispatch': typeof ApiPublicPushDispatchRoute
   '/lojista/': typeof AuthenticatedLojistaIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -393,14 +416,17 @@ export interface FileRoutesByTo {
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/rastreio/$orderId': typeof RastreioOrderIdRoute
   '/admin/imobiliarias': typeof AuthenticatedAdminImobiliariasRoute
   '/admin/lojas': typeof AuthenticatedAdminLojasRoute
+  '/entregador/$deliveryId': typeof AuthenticatedEntregadorDeliveryIdRoute
   '/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
   '/lojista/lives': typeof AuthenticatedLojistaLivesRoute
   '/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
   '/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/lojista/videos': typeof AuthenticatedLojistaVideosRoute
   '/api/public/exchange': typeof ApiPublicExchangeRoute
+  '/api/public/multicaixa-callback': typeof ApiPublicMulticaixaCallbackRoute
   '/api/public/push-dispatch': typeof ApiPublicPushDispatchRoute
   '/lojista': typeof AuthenticatedLojistaIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -444,14 +470,17 @@ export interface FileRoutesById {
   '/live/$id': typeof LiveIdRoute
   '/loja/$id': typeof LojaIdRoute
   '/produto/$id': typeof ProdutoIdRoute
+  '/rastreio/$orderId': typeof RastreioOrderIdRoute
   '/_authenticated/admin/imobiliarias': typeof AuthenticatedAdminImobiliariasRoute
   '/_authenticated/admin/lojas': typeof AuthenticatedAdminLojasRoute
+  '/_authenticated/entregador/$deliveryId': typeof AuthenticatedEntregadorDeliveryIdRoute
   '/_authenticated/lojista/dashboard': typeof AuthenticatedLojistaDashboardRoute
   '/_authenticated/lojista/lives': typeof AuthenticatedLojistaLivesRoute
   '/_authenticated/lojista/pedidos': typeof AuthenticatedLojistaPedidosRoute
   '/_authenticated/lojista/produtos': typeof AuthenticatedLojistaProdutosRoute
   '/_authenticated/lojista/videos': typeof AuthenticatedLojistaVideosRoute
   '/api/public/exchange': typeof ApiPublicExchangeRoute
+  '/api/public/multicaixa-callback': typeof ApiPublicMulticaixaCallbackRoute
   '/api/public/push-dispatch': typeof ApiPublicPushDispatchRoute
   '/_authenticated/lojista/': typeof AuthenticatedLojistaIndexRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -495,14 +524,17 @@ export interface FileRouteTypes {
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
+    | '/rastreio/$orderId'
     | '/admin/imobiliarias'
     | '/admin/lojas'
+    | '/entregador/$deliveryId'
     | '/lojista/dashboard'
     | '/lojista/lives'
     | '/lojista/pedidos'
     | '/lojista/produtos'
     | '/lojista/videos'
     | '/api/public/exchange'
+    | '/api/public/multicaixa-callback'
     | '/api/public/push-dispatch'
     | '/lojista/'
     | '/lovable/email/auth/preview'
@@ -543,14 +575,17 @@ export interface FileRouteTypes {
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
+    | '/rastreio/$orderId'
     | '/admin/imobiliarias'
     | '/admin/lojas'
+    | '/entregador/$deliveryId'
     | '/lojista/dashboard'
     | '/lojista/lives'
     | '/lojista/pedidos'
     | '/lojista/produtos'
     | '/lojista/videos'
     | '/api/public/exchange'
+    | '/api/public/multicaixa-callback'
     | '/api/public/push-dispatch'
     | '/lojista'
     | '/lovable/email/auth/preview'
@@ -593,14 +628,17 @@ export interface FileRouteTypes {
     | '/live/$id'
     | '/loja/$id'
     | '/produto/$id'
+    | '/rastreio/$orderId'
     | '/_authenticated/admin/imobiliarias'
     | '/_authenticated/admin/lojas'
+    | '/_authenticated/entregador/$deliveryId'
     | '/_authenticated/lojista/dashboard'
     | '/_authenticated/lojista/lives'
     | '/_authenticated/lojista/pedidos'
     | '/_authenticated/lojista/produtos'
     | '/_authenticated/lojista/videos'
     | '/api/public/exchange'
+    | '/api/public/multicaixa-callback'
     | '/api/public/push-dispatch'
     | '/_authenticated/lojista/'
     | '/lovable/email/auth/preview'
@@ -629,7 +667,9 @@ export interface RootRouteChildren {
   LiveIdRoute: typeof LiveIdRoute
   LojaIdRoute: typeof LojaIdRoute
   ProdutoIdRoute: typeof ProdutoIdRoute
+  RastreioOrderIdRoute: typeof RastreioOrderIdRoute
   ApiPublicExchangeRoute: typeof ApiPublicExchangeRoute
+  ApiPublicMulticaixaCallbackRoute: typeof ApiPublicMulticaixaCallbackRoute
   ApiPublicPushDispatchRoute: typeof ApiPublicPushDispatchRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -748,6 +788,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rastreio/$orderId': {
+      id: '/rastreio/$orderId'
+      path: '/rastreio/$orderId'
+      fullPath: '/rastreio/$orderId'
+      preLoaderRoute: typeof RastreioOrderIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/produto/$id': {
@@ -897,6 +944,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPushDispatchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/multicaixa-callback': {
+      id: '/api/public/multicaixa-callback'
+      path: '/api/public/multicaixa-callback'
+      fullPath: '/api/public/multicaixa-callback'
+      preLoaderRoute: typeof ApiPublicMulticaixaCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/exchange': {
       id: '/api/public/exchange'
       path: '/api/public/exchange'
@@ -938,6 +992,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/lojista/dashboard'
       preLoaderRoute: typeof AuthenticatedLojistaDashboardRouteImport
       parentRoute: typeof AuthenticatedLojistaRoute
+    }
+    '/_authenticated/entregador/$deliveryId': {
+      id: '/_authenticated/entregador/$deliveryId'
+      path: '/entregador/$deliveryId'
+      fullPath: '/entregador/$deliveryId'
+      preLoaderRoute: typeof AuthenticatedEntregadorDeliveryIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/lojas': {
       id: '/_authenticated/admin/lojas'
@@ -1015,6 +1076,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTransportadorRoute: typeof AuthenticatedTransportadorRoute
   AuthenticatedAdminImobiliariasRoute: typeof AuthenticatedAdminImobiliariasRoute
   AuthenticatedAdminLojasRoute: typeof AuthenticatedAdminLojasRoute
+  AuthenticatedEntregadorDeliveryIdRoute: typeof AuthenticatedEntregadorDeliveryIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1034,6 +1096,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTransportadorRoute: AuthenticatedTransportadorRoute,
   AuthenticatedAdminImobiliariasRoute: AuthenticatedAdminImobiliariasRoute,
   AuthenticatedAdminLojasRoute: AuthenticatedAdminLojasRoute,
+  AuthenticatedEntregadorDeliveryIdRoute:
+    AuthenticatedEntregadorDeliveryIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -1071,7 +1135,9 @@ const rootRouteChildren: RootRouteChildren = {
   LiveIdRoute: LiveIdRoute,
   LojaIdRoute: LojaIdRoute,
   ProdutoIdRoute: ProdutoIdRoute,
+  RastreioOrderIdRoute: RastreioOrderIdRoute,
   ApiPublicExchangeRoute: ApiPublicExchangeRoute,
+  ApiPublicMulticaixaCallbackRoute: ApiPublicMulticaixaCallbackRoute,
   ApiPublicPushDispatchRoute: ApiPublicPushDispatchRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
