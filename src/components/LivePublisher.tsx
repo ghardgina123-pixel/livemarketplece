@@ -25,7 +25,10 @@ export function LivePublisher({ liveId, onConnected, onDisconnected }: Props) {
   const issue = useServerFn(issueLiveKitToken);
 
   const stop = async () => {
-    tracksRef.current.forEach((t) => t.stop());
+    tracksRef.current.forEach((t) => {
+      try { t.detach().forEach((el) => el.remove()); } catch { /* noop */ }
+      try { t.stop(); } catch { /* noop */ }
+    });
     tracksRef.current = [];
     if (roomRef.current) await roomRef.current.disconnect().catch(() => {});
     roomRef.current = null;
@@ -36,22 +39,54 @@ export function LivePublisher({ liveId, onConnected, onDisconnected }: Props) {
   const start = async () => {
     setState("requesting");
     setErrorMsg(null);
+    // CRITICAL (mobile): getUserMedia deve ser chamado sincronamente dentro
+    // do gesto do utilizador — antes de qualquer outro await — senão o
+    // iOS/Android bloqueiam a câmara/mic silenciosamente. Por isso pedimos
+    // as tracks PRIMEIRO e só depois emitimos o token e ligamos à sala.
+    let tracks: LocalTrack[] = [];
     try {
+      // Verificação proativa da permissão (dá mensagem melhor no telemóvel).
+      if (typeof navigator !== "undefined" && "permissions" in navigator) {
+        try {
+          const cam = await navigator.permissions.query({ name: "camera" as PermissionName });
+          if (cam.state === "denied") throw new Error("Permissão da câmara bloqueada. Ative-a nas definições do browser.");
+        } catch { /* alguns browsers móveis não suportam permissions.query; segue-se em frente */ }
+      }
+      try {
+        tracks = await createLocalTracks({ audio: true, video: { facingMode: "environment" } });
+      } catch (envErr) {
+        // Fallback: câmara frontal (muitos telemóveis não têm "environment" acessível
+        // ou o browser rejeita a constraint exata).
+        const name = (envErr as { name?: string } | null)?.name;
+        if (name === "OverconstrainedError" || name === "NotFoundError" || name === "ConstraintNotSatisfiedError") {
+          tracks = await createLocalTracks({ audio: true, video: { facingMode: "user" } });
+        } else {
+          throw envErr;
+        }
+      }
+      tracksRef.current = tracks;
+      // Attach a preview local imediatamente para o utilizador ver a câmara
+      // mesmo antes de a ligação LiveKit estar estabelecida.
+      const videoTrack = tracks.find((t) => t.kind === Track.Kind.Video);
+      if (videoTrack && videoRef.current) videoTrack.attach(videoRef.current);
+
       const { token, url } = await issue({ data: { liveId, canPublish: true } });
       const room = new Room({ adaptiveStream: true, dynacast: true });
       roomRef.current = room;
       room.on(RoomEvent.Disconnected, () => { setState("idle"); onDisconnected?.(); });
       await room.connect(url, token);
-      const tracks = await createLocalTracks({ audio: true, video: { facingMode: "environment" } });
-      tracksRef.current = tracks;
       for (const t of tracks) {
         await room.localParticipant.publishTrack(t);
-        if (t.kind === Track.Kind.Video && videoRef.current) t.attach(videoRef.current);
       }
       setState("publishing");
       onConnected?.();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
+      const err = e as { name?: string; message?: string };
+      let msg = err?.message || String(e);
+      if (err?.name === "NotAllowedError") msg = "Permissão negada. Autorize a câmara e microfone nas definições do browser.";
+      else if (err?.name === "NotFoundError") msg = "Nenhuma câmara ou microfone encontrado no dispositivo.";
+      else if (err?.name === "NotReadableError") msg = "A câmara está a ser usada por outra aplicação. Feche-a e tente novamente.";
+      else if (err?.name === "OverconstrainedError") msg = "A câmara pedida não é suportada neste dispositivo.";
       if (msg.includes("LIVEKIT_NOT_CONFIGURED")) setState("unconfigured");
       else { setErrorMsg(msg); setState("error"); }
       await stop().catch(() => {});
