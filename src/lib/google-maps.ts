@@ -1,13 +1,17 @@
-let promise: Promise<typeof google.maps> | null = null;
+// Use loose typing – we don't ship @types/google.maps
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GMaps = any;
+
+let promise: Promise<GMaps> | null = null;
 
 declare global {
   interface Window {
     __lmInitGoogleMaps?: () => void;
-    google?: typeof google;
+    google?: { maps: GMaps };
   }
 }
 
-export function loadGoogleMaps(): Promise<typeof google.maps> {
+export function loadGoogleMaps(): Promise<GMaps> {
   if (typeof window === "undefined") return Promise.reject(new Error("ssr"));
   if (window.google?.maps) return Promise.resolve(window.google.maps);
   if (promise) return promise;
