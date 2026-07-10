@@ -162,6 +162,8 @@ export function LivePublisher({ liveId, onConnected, onDisconnected, onError }: 
   };
 
   const fail = async (error: unknown, notify = true) => {
+    // eslint-disable-next-line no-console
+    console.error("[LivePublisher] falha", error);
     const message = getErrorMessage(error);
     disconnectedByUserRef.current = true;
     await cleanupRoom();
