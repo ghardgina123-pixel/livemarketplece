@@ -10,7 +10,6 @@ import {
   VideoPresets,
   type LocalTrack,
   type LocalTrackPublication,
-  type VideoCaptureOptions,
 } from "livekit-client";
 import { Loader2, Video, VideoOff, Radio, AlertTriangle, Mic, CheckCircle2, ShieldCheck } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
@@ -34,17 +33,23 @@ const audioConstraints = {
   autoGainControl: true,
 } as const;
 
-const cameraOptions: VideoCaptureOptions[] = [
+const cameraConstraints: MediaTrackConstraints[] = [
   {
-    facingMode: "environment",
-    resolution: { width: 960, height: 540, frameRate: 24 },
+    facingMode: { ideal: "environment" },
+    width: { ideal: 960, max: 960 },
+    height: { ideal: 540, max: 540 },
+    frameRate: { ideal: 24, max: 24 },
   },
   {
-    facingMode: "user",
-    resolution: { width: 960, height: 540, frameRate: 24 },
+    facingMode: { ideal: "user" },
+    width: { ideal: 960, max: 960 },
+    height: { ideal: 540, max: 540 },
+    frameRate: { ideal: 24, max: 24 },
   },
   {
-    resolution: { width: 640, height: 360, frameRate: 20 },
+    width: { ideal: 640, max: 640 },
+    height: { ideal: 360, max: 360 },
+    frameRate: { ideal: 20, max: 20 },
   },
 ];
 
@@ -189,7 +194,7 @@ export function LivePublisher({ liveId, onConnected, onDisconnected, onError }: 
 
   const acquireTracks = async () => {
     let lastError: unknown;
-    for (const video of cameraOptions) {
+    for (const video of cameraConstraints) {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video });
         const videoTrack = stream.getVideoTracks()[0];
