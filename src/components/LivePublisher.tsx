@@ -180,6 +180,7 @@ export function LivePublisher({ liveId, onConnected, onDisconnected, onError }: 
 
   const fail = async (error: unknown, notify = true) => {
     const message = getErrorMessage(error);
+    disconnectedByUserRef.current = true;
     await cleanupRoom();
     await cleanupHardware();
     if (message.includes("LIVEKIT_NOT_CONFIGURED")) {
