@@ -65,33 +65,31 @@ export function LivePublisher({ liveId, onConnected, onDisconnected, onError }: 
   // preview local + medidor de áudio. NÃO liga ao LiveKit nem marca a
   // live como AO VIVO — o lojista tem de confirmar depois.
   const preflight = async () => {
-    setState("requesting");
+    // CRÍTICO (Chrome Android): getUserMedia tem de ser chamado como a
+    // primeira operação assíncrona dentro do handler de clique, para
+    // preservar a "user gesture chain". Qualquer await antes disto faz o
+    // browser móvel rejeitar silenciosamente o pedido de câmara.
     setErrorMsg(null);
     setMicOk(false);
+    const videoBase: VideoCaptureOptions = {
+      resolution: VideoPresets.h720.resolution,
+      // facingMode como ideal (não estrito) — evita OverconstrainedError
+      // em telemóveis sem câmara traseira.
+      facingMode: "environment",
+    };
+    const audioBase = { echoCancellation: true, noiseSuppression: true, autoGainControl: true } as const;
+    // Inicia o pedido de tracks IMEDIATAMENTE, sem awaits antes.
+    const tracksPromise = createLocalTracks({ audio: audioBase, video: videoBase }).catch(async (envErr) => {
+      const name = (envErr as { name?: string } | null)?.name;
+      if (name === "OverconstrainedError" || name === "NotFoundError" || name === "ConstraintNotSatisfiedError") {
+        return createLocalTracks({ audio: audioBase, video: { facingMode: "user", resolution: VideoPresets.h720.resolution } });
+      }
+      throw envErr;
+    });
+    setState("requesting");
     let tracks: LocalTrack[] = [];
     try {
-      // Verificação proativa da permissão (dá mensagem melhor no telemóvel).
-      if (typeof navigator !== "undefined" && "permissions" in navigator) {
-        try {
-          const cam = await navigator.permissions.query({ name: "camera" as PermissionName });
-          if (cam.state === "denied") throw new Error("Permissão da câmara bloqueada. Ative-a nas definições do browser.");
-        } catch { /* alguns browsers móveis não suportam permissions.query; segue-se em frente */ }
-      }
-      const videoBase: VideoCaptureOptions = {
-        resolution: VideoPresets.h720.resolution,
-        facingMode: "environment",
-      };
-      const audioBase = { echoCancellation: true, noiseSuppression: true, autoGainControl: true } as const;
-      try {
-        tracks = await createLocalTracks({ audio: audioBase, video: videoBase });
-      } catch (envErr) {
-        const name = (envErr as { name?: string } | null)?.name;
-        if (name === "OverconstrainedError" || name === "NotFoundError" || name === "ConstraintNotSatisfiedError") {
-          tracks = await createLocalTracks({ audio: audioBase, video: { ...videoBase, facingMode: "user" } });
-        } else {
-          throw envErr;
-        }
-      }
+      tracks = await tracksPromise;
       // Valida que temos vídeo E áudio disponíveis.
       const videoTrack = tracks.find((t) => t.kind === Track.Kind.Video);
       const audioTrack = tracks.find((t) => t.kind === Track.Kind.Audio) as LocalAudioTrack | undefined;
