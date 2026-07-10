@@ -75,14 +75,14 @@ export function LivePublisher({ liveId, onConnected, onDisconnected, onError }: 
       resolution: VideoPresets.h720.resolution,
       // facingMode como ideal (não estrito) — evita OverconstrainedError
       // em telemóveis sem câmara traseira.
-      facingMode: { ideal: "environment" },
+      facingMode: "environment",
     };
     const audioBase = { echoCancellation: true, noiseSuppression: true, autoGainControl: true } as const;
     // Inicia o pedido de tracks IMEDIATAMENTE, sem awaits antes.
     const tracksPromise = createLocalTracks({ audio: audioBase, video: videoBase }).catch(async (envErr) => {
       const name = (envErr as { name?: string } | null)?.name;
       if (name === "OverconstrainedError" || name === "NotFoundError" || name === "ConstraintNotSatisfiedError") {
-        return createLocalTracks({ audio: audioBase, video: { facingMode: { ideal: "user" }, resolution: VideoPresets.h720.resolution } });
+        return createLocalTracks({ audio: audioBase, video: { facingMode: "user", resolution: VideoPresets.h720.resolution } });
       }
       throw envErr;
     });
