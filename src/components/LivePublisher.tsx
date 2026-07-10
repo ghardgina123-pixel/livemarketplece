@@ -2,13 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import {
   AudioPresets,
   ConnectionState,
-  LocalAudioTrack,
-  LocalVideoTrack,
   Room,
   RoomEvent,
   Track,
   VideoPresets,
+  createLocalTracks,
   type LocalTrack,
+  type LocalAudioTrack,
+  type LocalVideoTrack,
   type LocalTrackPublication,
 } from "livekit-client";
 import { Loader2, Video, VideoOff, Radio, AlertTriangle, Mic, CheckCircle2, ShieldCheck } from "lucide-react";
@@ -33,25 +34,11 @@ const audioConstraints = {
   autoGainControl: true,
 } as const;
 
-const cameraConstraints: MediaTrackConstraints[] = [
-  {
-    facingMode: { ideal: "environment" },
-    width: { ideal: 960, max: 960 },
-    height: { ideal: 540, max: 540 },
-    frameRate: { ideal: 24, max: 24 },
-  },
-  {
-    facingMode: { ideal: "user" },
-    width: { ideal: 960, max: 960 },
-    height: { ideal: 540, max: 540 },
-    frameRate: { ideal: 24, max: 24 },
-  },
-  {
-    width: { ideal: 640, max: 640 },
-    height: { ideal: 360, max: 360 },
-    frameRate: { ideal: 20, max: 20 },
-  },
-];
+const videoConstraintTiers = [
+  { facingMode: "environment", resolution: VideoPresets.h540 },
+  { facingMode: "user", resolution: VideoPresets.h540 },
+  { facingMode: undefined, resolution: VideoPresets.h360 },
+] as const;
 
 function withTimeout<T>(promise: Promise<T>, ms: number, message: string) {
   let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -96,23 +83,19 @@ function waitForVideoReady(video: HTMLVideoElement) {
 
 function getErrorMessage(error: unknown) {
   const err = error as { name?: string; message?: string };
-  const detail = err?.message || err?.name || String(error);
+  const name = err?.name ?? "";
+  const detail = err?.message || name || String(error);
 
   if (detail.includes("LIVEKIT_NOT_CONFIGURED")) return "LIVEKIT_NOT_CONFIGURED";
-  if (err?.name === "NotAllowedError") {
-    return "Erro no dispositivo: permissão de câmara/microfone negada. Autorize no Chrome e tente novamente.";
-  }
-  if (err?.name === "NotFoundError") {
-    return "Erro no dispositivo: nenhuma câmara ou microfone encontrado.";
-  }
-  if (err?.name === "NotReadableError") {
-    return "Erro no dispositivo: a câmara ou microfone está em uso por outra aplicação.";
-  }
-  if (err?.name === "OverconstrainedError" || err?.name === "ConstraintNotSatisfiedError") {
-    return "Erro no dispositivo: a resolução/câmara pedida não é suportada neste telemóvel.";
-  }
-  if (detail.startsWith("Erro no dispositivo:")) return detail;
-  return `Erro no dispositivo: ${detail}`;
+  const prefix = name ? `[${name}] ` : "";
+  if (name === "NotAllowedError") return `${prefix}Permissão de câmara/microfone negada. Autorize no browser e recarregue.`;
+  if (name === "NotFoundError") return `${prefix}Nenhuma câmara ou microfone encontrado neste dispositivo.`;
+  if (name === "NotReadableError") return `${prefix}Câmara/microfone em uso por outra aplicação.`;
+  if (name === "OverconstrainedError" || name === "ConstraintNotSatisfiedError")
+    return `${prefix}Formato de vídeo não suportado: ${detail}`;
+  if (name === "SecurityError") return `${prefix}Acesso bloqueado (contexto inseguro / HTTPS).`;
+  if (detail.startsWith("[")) return detail;
+  return `${prefix}${detail}`;
 }
 
 export function LivePublisher({ liveId, onConnected, onDisconnected, onError }: Props) {
@@ -179,6 +162,8 @@ export function LivePublisher({ liveId, onConnected, onDisconnected, onError }: 
   };
 
   const fail = async (error: unknown, notify = true) => {
+    // eslint-disable-next-line no-console
+    console.error("[LivePublisher] falha", error);
     const message = getErrorMessage(error);
     disconnectedByUserRef.current = true;
     await cleanupRoom();
@@ -193,21 +178,28 @@ export function LivePublisher({ liveId, onConnected, onDisconnected, onError }: 
     if (notify) onError?.(message);
   };
 
-  const acquireTracks = async () => {
+  const acquireTracks = async (): Promise<LocalTrack[]> => {
     let lastError: unknown;
-    for (const video of cameraConstraints) {
+    for (const tier of videoConstraintTiers) {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video });
-        const videoTrack = stream.getVideoTracks()[0];
-        const audioTrack = stream.getAudioTracks()[0];
-        if (!videoTrack) throw new Error("Erro no dispositivo: a câmara não devolveu imagem.");
-        if (!audioTrack) throw new Error("Erro no dispositivo: o microfone não foi encontrado.");
-
-        return [
-          new LocalVideoTrack(videoTrack, video, true),
-          new LocalAudioTrack(audioTrack, audioConstraints, true),
-        ] satisfies LocalTrack[];
+        const tracks = await createLocalTracks({
+          audio: audioConstraints,
+          video: {
+            resolution: tier.resolution,
+            facingMode: tier.facingMode,
+          },
+        });
+        if (!tracks.some((t) => t.kind === Track.Kind.Video)) {
+          throw new Error("A câmara não devolveu vídeo.");
+        }
+        if (!tracks.some((t) => t.kind === Track.Kind.Audio)) {
+          throw new Error("O microfone não foi encontrado.");
+        }
+        return tracks;
       } catch (error) {
+        // Log técnico completo para diagnóstico no console do browser
+        // eslint-disable-next-line no-console
+        console.warn("[LivePublisher] createLocalTracks falhou", tier, error);
         lastError = error;
       }
     }

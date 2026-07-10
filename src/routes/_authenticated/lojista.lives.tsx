@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Loader2, Radio, Play, Square, Plus, Users, ExternalLink } from "lucide-react";
+import { Loader2, Radio, Play, Square, Plus, Users, ExternalLink, Trash2 } from "lucide-react";
 import { LojistaShell, useLojistaStore } from "@/components/LojistaShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +44,8 @@ function LivesManager() {
   const [creating, setCreating] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const storeId = store?.id;
 
@@ -114,6 +116,17 @@ function LivesManager() {
     const { error } = await supabase.from("lives").update({ status: "ended", ended_at: new Date().toISOString() }).eq("id", id);
     if (error) return toast.error(error.message);
     if (activeId === id) setActiveId(null);
+  };
+
+  const deleteLive = async (id: string) => {
+    setDeleting(true);
+    const { error } = await supabase.from("lives").delete().eq("id", id);
+    setDeleting(false);
+    setDeleteId(null);
+    if (error) return toast.error(error.message);
+    if (activeId === id) setActiveId(null);
+    toast.success("Live apagada");
+    if (storeId) load(storeId);
   };
 
   const activeLive = lives?.find((l) => l.id === activeId) ?? null;
@@ -204,9 +217,14 @@ function LivesManager() {
                 </div>
                 <div className="flex gap-1.5">
                   {l.status === "scheduled" && (
-                    <Button size="sm" onClick={() => setConfirmId(l.id)}>
-                      <Play size={12} className="mr-1" /> Iniciar
-                    </Button>
+                    <>
+                      <Button size="sm" onClick={() => setConfirmId(l.id)}>
+                        <Play size={12} className="mr-1" /> Iniciar
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setDeleteId(l.id)} aria-label="Apagar live">
+                        <Trash2 size={12} />
+                      </Button>
+                    </>
                   )}
                   {l.status === "live" && (
                     <>
@@ -217,6 +235,11 @@ function LivesManager() {
                         <Square size={12} className="mr-1" /> Parar
                       </Button>
                     </>
+                  )}
+                  {l.status === "ended" && (
+                    <Button size="sm" variant="outline" onClick={() => setDeleteId(l.id)} aria-label="Apagar live">
+                      <Trash2 size={12} />
+                    </Button>
                   )}
                 </div>
               </li>
@@ -237,6 +260,23 @@ function LivesManager() {
             <Button variant="outline" onClick={() => setConfirmId(null)}>Cancelar</Button>
             <Button onClick={() => confirmId && prepareLive(confirmId)}>
               <Radio size={14} className="mr-2" /> Preparar câmara
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Apagar esta live?</DialogTitle>
+            <DialogDescription>
+              A live e todo o histórico associado (mensagens, produtos destacados) serão removidos definitivamente. Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteId(null)} disabled={deleting}>Cancelar</Button>
+            <Button variant="destructive" onClick={() => deleteId && deleteLive(deleteId)} disabled={deleting}>
+              {deleting ? <Loader2 className="animate-spin" size={14} /> : <><Trash2 size={14} className="mr-2" /> Apagar</>}
             </Button>
           </DialogFooter>
         </DialogContent>
