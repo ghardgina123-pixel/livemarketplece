@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
       { title: "Live Market — Bem-vindo · Compre, Converse, Receba" },
       { name: "description", content: "Bem-vindo à Live Market: o marketplace ao vivo de Angola. Entre como cliente ou lojista e comece em segundos." },
       { property: "og:title", content: "Live Market — Bem-vindo · Compre, Converse, Receba" },
-      { property: "og:description", content: "Bem-vindo à Live Market: o marketplace ao vivo de Angola. Entre como cliente ou lojista." },
+      { property: "og:description", content: "Bem-vindo à Live Market: o marketplace ao vivo de Angola. Entre como cliente ou lojista e comece em segundos." },
       { property: "og:url", content: `${SITE_URL}/` },
     ],
     links: [
