@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Mail, Lock, Radio, Loader2, Chrome } from "lucide-react";
+import { Mail, Lock, Radio, Loader2, Chrome, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +25,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showPwd, setShowPwd] = useState(false);
 
   useEffect(() => {
     if (user) nav({ to: "/home", replace: true });
@@ -33,12 +34,29 @@ function Login() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password: pwd });
+    const cleanEmail = email.trim().toLowerCase();
+    console.info("[login] submit", { email: cleanEmail, pwdLen: pwd.length });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: cleanEmail,
+      password: pwd,
+    });
     setBusy(false);
     if (error) {
-      toast.error(error.message === "Invalid login credentials" ? "E-mail ou senha incorretos" : error.message);
+      // Log detalhado para debug do gestor do Chrome / API
+      console.error("[login] falha", {
+        name: error.name,
+        message: error.message,
+        status: (error as { status?: number }).status,
+        code: (error as { code?: string }).code,
+      });
+      const msg =
+        error.message === "Invalid login credentials"
+          ? "E-mail ou senha incorretos"
+          : `[${(error as { code?: string }).code ?? error.name}] ${error.message}`;
+      toast.error(msg);
       return;
     }
+    console.info("[login] ok", { userId: data.user?.id });
     nav({ to: "/home", replace: true });
   };
 
@@ -81,11 +99,44 @@ function Login() {
         <div className="mt-6 space-y-4">
           <div className="relative">
             <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-            <Input type="email" required className="h-12 pl-10" placeholder="seu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input
+              type="email"
+              name="email"
+              id="email"
+              autoComplete="username"
+              inputMode="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              required
+              className="h-12 pl-10"
+              placeholder="seu@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           <div className="relative">
             <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-            <Input type="password" required minLength={6} className="h-12 pl-10" placeholder="Senha" value={pwd} onChange={(e) => setPwd(e.target.value)} />
+            <Input
+              type={showPwd ? "text" : "password"}
+              name="password"
+              id="current-password"
+              autoComplete="current-password"
+              required
+              minLength={6}
+              className="h-12 pl-10 pr-10"
+              placeholder="Senha"
+              value={pwd}
+              onChange={(e) => setPwd(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPwd((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              aria-label={showPwd ? "Ocultar senha" : "Mostrar senha"}
+            >
+              {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
           <div className="flex justify-end">
             <button type="button" className="text-xs font-medium text-primary">Esqueci minha senha</button>
