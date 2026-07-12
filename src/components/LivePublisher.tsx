@@ -112,6 +112,43 @@ export function LivePublisher({ liveId, onConnected, onDisconnected, onError }: 
   const [cameraOk, setCameraOk] = useState(false);
   const issue = useServerFn(issueLiveKitToken);
 
+  // (1) Pré-aquecimento de permissões: pede acesso à câmara/microfone assim que o
+  // componente monta, para que a permissão já esteja concedida quando o utilizador
+  // clica em "Ligar câmara". Libertamos os tracks imediatamente — só queremos o prompt.
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        if (navigator.permissions) {
+          try {
+            const cam = await navigator.permissions.query({ name: "camera" as PermissionName });
+            const mic = await navigator.permissions.query({ name: "microphone" as PermissionName });
+            // eslint-disable-next-line no-console
+            console.info("[LivePublisher] permissions", { camera: cam.state, microphone: mic.state });
+            if (cam.state === "granted" && mic.state === "granted") return;
+            if (cam.state === "denied" || mic.state === "denied") return;
+          } catch {
+            // Permissions API pode não suportar 'camera'/'microphone' — seguimos.
+          }
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        if (cancelled) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
+        // Prompt aceite — libertar imediatamente. O clique real irá voltar a pedir sem prompt.
+        stream.getTracks().forEach((t) => t.stop());
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.warn("[LivePublisher] pré-permissão falhou (o utilizador terá o prompt no clique)", error);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const cleanupHardware = async () => {
     if (audioMeterRef.current) {
       cancelAnimationFrame(audioMeterRef.current);
@@ -285,6 +322,27 @@ export function LivePublisher({ liveId, onConnected, onDisconnected, onError }: 
       }
 
       const { token, url } = await issue({ data: { liveId, canPublish: true } });
+      // (4) Log de diagnóstico do token para confirmar validade / expiração.
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1] ?? ""));
+        const now = Math.floor(Date.now() / 1000);
+        // eslint-disable-next-line no-console
+        console.info("[LivePublisher] livekit token", {
+          url,
+          iat: payload.iat,
+          exp: payload.exp,
+          expiresInSec: typeof payload.exp === "number" ? payload.exp - now : null,
+          identity: payload.sub,
+          room: payload.video?.room,
+          canPublish: payload.video?.canPublish,
+        });
+        if (typeof payload.exp === "number" && payload.exp - now < 30) {
+          throw new Error("Erro no dispositivo: token LiveKit já expirou (exp < 30s).");
+        }
+      } catch (decodeError) {
+        // eslint-disable-next-line no-console
+        console.warn("[LivePublisher] não foi possível decodificar o token LiveKit", decodeError);
+      }
       const room = new Room({
         adaptiveStream: true,
         dynacast: true,
@@ -333,6 +391,9 @@ export function LivePublisher({ liveId, onConnected, onDisconnected, onError }: 
       setState("publishing");
       onConnected?.();
     } catch (error) {
+      // (3) Log técnico específico da conexão LiveKit para o debug pedido.
+      // eslint-disable-next-line no-console
+      console.error("[LivePublisher] connectToLiveKit failed", error);
       await fail(error);
     }
   };
