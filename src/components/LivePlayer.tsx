@@ -87,7 +87,7 @@ export function LivePlayer({ liveId }: Props) {
       <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 h-full w-full object-cover" />
       <audio ref={audioRef} autoPlay />
       {state !== "live" && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/70 text-center text-white/85 backdrop-blur-sm">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/80 text-center text-white/85">
           {state === "connecting" && <><Loader2 className="animate-spin" /> <p className="text-sm">Conectando ao stream…</p></>}
           {state === "reconnecting" && <><WifiOff /> <p className="text-sm">Reconectando…</p><p className="text-[11px] text-white/60">Sua conexão oscilou. O chat continua ativo.</p></>}
           {state === "waiting" && <><Video /> <p className="text-sm">Aguardando o lojista iniciar a transmissão</p></>}

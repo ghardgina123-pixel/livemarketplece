@@ -10,7 +10,7 @@ export function CurrencySelector({ variant = "pill" }: { variant?: "pill" | "row
     variant === "pill" ? (
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur-md"
+        className="flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1.5 text-[11px] font-semibold text-white"
       >
         <span className="text-sm leading-none">{current.flag}</span>
         {current.code}
