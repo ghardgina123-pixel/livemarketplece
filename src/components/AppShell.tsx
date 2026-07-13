@@ -18,8 +18,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col bg-background pb-20">
       <div className="pointer-events-none fixed top-3 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 px-3">
-        <div className="pointer-events-auto flex justify-end">
-          <NotificationBell />
+        <div className="flex justify-end">
+          {/* Só a sineta captura toques; a área restante fica transparente para não sobrepor botões do header. */}
+          <div className="pointer-events-auto">
+            <NotificationBell />
+          </div>
         </div>
       </div>
       <main>{children}</main>
