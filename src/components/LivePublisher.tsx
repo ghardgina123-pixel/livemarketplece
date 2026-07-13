@@ -29,15 +29,21 @@ const PREVIEW_TIMEOUT_MS = 3_000;
 const PUBLISH_TIMEOUT_MS = 8_000;
 
 const audioConstraints = {
-  echoCancellation: true,
-  noiseSuppression: true,
-  autoGainControl: true,
+  // Otimização para hardware fraco (ex: Unisoc T606): desativar processamento
+  // extra de áudio reduz carga no DSP e evita timeouts do pipeline de media.
+  echoCancellation: false,
+  noiseSuppression: false,
+  autoGainControl: false,
 } as const;
 
+// Resolução baixa forçada (640x480 @ 15fps) para dispositivos entry-level
+// Android. VideoPresets.h480 = 640x480. Reduz drasticamente o consumo do
+// encoder por software e evita ecrã preto por timeout do WebRTC.
+const LOW_RES = { width: 640, height: 480, frameRate: 15 } as const;
 const videoConstraintTiers = [
-  { facingMode: "environment", resolution: VideoPresets.h540 },
-  { facingMode: "user", resolution: VideoPresets.h540 },
-  { facingMode: undefined, resolution: VideoPresets.h360 },
+  { facingMode: "environment", resolution: LOW_RES },
+  { facingMode: "user", resolution: LOW_RES },
+  { facingMode: undefined, resolution: { width: 480, height: 360, frameRate: 15 } },
 ] as const;
 
 function withTimeout<T>(promise: Promise<T>, ms: number, message: string) {
@@ -350,13 +356,14 @@ export function LivePublisher({ liveId, onConnected, onDisconnected, onError }: 
           audioPreset: AudioPresets.speech,
           dtx: true,
           red: true,
-          simulcast: true,
+          // Simulcast desativado em hardware fraco: cada camada extra é um
+          // encoder VP8 por software adicional — causa freeze / ecrã preto.
+          simulcast: false,
           videoCodec: "vp8",
-          videoEncoding: { maxBitrate: 800_000, maxFramerate: 24 },
-          videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360],
+          videoEncoding: { maxBitrate: 350_000, maxFramerate: 15 },
           degradationPreference: "maintain-framerate",
         },
-        videoCaptureDefaults: { resolution: { width: 960, height: 540, frameRate: 24 } },
+        videoCaptureDefaults: { resolution: { width: 640, height: 480, frameRate: 15 } },
       });
       roomRef.current = room;
       room.on(RoomEvent.Disconnected, () => {
