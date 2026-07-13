@@ -172,7 +172,7 @@ export function NotificationBell() {
         <button
           type="button"
           aria-label={`Notificações${unreadCount ? `, ${unreadCount} por ler` : ""}`}
-          className="relative flex h-10 w-10 items-center justify-center rounded-full bg-background/80 backdrop-blur border border-border shadow-sm transition active:scale-95"
+          className="relative flex h-10 w-10 items-center justify-center rounded-full bg-background border border-border shadow-sm transition active:scale-95"
         >
           <Bell size={18} className="text-foreground" />
           {unreadCount > 0 && (

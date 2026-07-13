@@ -26,7 +26,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </div>
       <main>{children}</main>
-      <nav aria-label="Navegação principal" className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-border bg-background/95 backdrop-blur-xl">
+      <nav aria-label="Navegação principal" className="fixed bottom-0 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 border-t border-border bg-background">
         <ul className="grid grid-cols-5">
           {tabs.map(({ to, icon: Icon, label }) => {
             const active = pathname === to || (to !== "/home" && pathname.startsWith(to));
