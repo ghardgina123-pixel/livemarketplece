@@ -159,9 +159,17 @@ function LivesManager() {
           <Plus size={18} className="text-primary" />
           <h2 className="text-sm font-semibold">Nova transmissão</h2>
         </div>
-        <form onSubmit={create} className="space-y-3">
+        <Button
+          onClick={quickCreate}
+          disabled={creating}
+          className="w-full"
+          size="lg"
+        >
+          {creating ? <Loader2 className="animate-spin" size={18} /> : <><Radio size={18} className="mr-2" /> Criar live</>}
+        </Button>
+        <form onSubmit={create} className="mt-4 space-y-3 border-t border-border pt-4">
           <div>
-            <Label htmlFor="live-title" className="text-xs">Título da live</Label>
+            <Label htmlFor="live-title" className="text-xs">Título personalizado (opcional)</Label>
             <Input
               id="live-title"
               value={title}
@@ -171,8 +179,8 @@ function LivesManager() {
               className="mt-1"
             />
           </div>
-          <Button type="submit" disabled={!title.trim() || creating} className="w-full">
-            {creating ? <Loader2 className="animate-spin" size={16} /> : "Criar live"}
+          <Button type="submit" disabled={!title.trim() || creating} variant="outline" className="w-full">
+            {creating ? <Loader2 className="animate-spin" size={16} /> : "Criar live com título"}
           </Button>
         </form>
       </section>
