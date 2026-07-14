@@ -1,4 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { PanelErrorBoundary } from "@/components/PanelErrorBoundary";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Store as StoreIcon, Home as HomeIcon, Building2, CheckCircle2, XCircle, Loader2, UserPlus, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/_authenticated/admin-dashboard")({
     if (!isAdmin) throw redirect({ to: "/perfil" });
   },
   component: AdminHub,
+  errorComponent: PanelErrorBoundary,
 });
 
 type StoreRow = { id: string; name: string; status: string; phone: string | null; category: string | null; created_at: string };
