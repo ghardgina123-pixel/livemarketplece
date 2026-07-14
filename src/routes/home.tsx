@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search, Bell, Radio, ShieldCheck, Truck, BadgeCheck, ChevronRight, Star, Store as StoreIcon, PlayCircle } from "lucide-react";
+import { Search, Radio, ShieldCheck, Truck, BadgeCheck, ChevronRight, Star, Store as StoreIcon, PlayCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { formatPrice, useCurrency } from "@/lib/currency";
@@ -132,16 +132,14 @@ function Home() {
               <p className="text-[10px] uppercase tracking-wider text-white/70">O mercado ao vivo no seu ecrã.</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          {/* Reservar espaço à direita para o sino flutuante fixo (NotificationBell no AppShell). */}
+          <div className="flex items-center gap-2 pr-12">
             <Link
               to="/lojista"
               className="flex h-9 items-center gap-1.5 rounded-full bg-white/15 px-3 text-[11px] font-semibold backdrop-blur-md hover:bg-white/25"
+              style={{ touchAction: "manipulation" }}
             >
               <StoreIcon size={14} /> Área do Lojista
-            </Link>
-            <Link to="/ajuda" aria-label="Notificações" className="relative flex h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-md">
-              <Bell size={18} />
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[var(--live)]" />
             </Link>
           </div>
         </div>
