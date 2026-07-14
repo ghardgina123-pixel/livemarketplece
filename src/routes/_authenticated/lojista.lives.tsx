@@ -69,23 +69,43 @@ function LivesManager() {
     return () => { supabase.removeChannel(ch); };
   }, [storeId]);
 
+  const makeRoom = () => `store-${storeId!.slice(0, 8)}-${Date.now().toString(36)}`;
+
   const create = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!storeId || !title.trim()) return;
     setCreating(true);
-    // livekit_room precisa ser único e curto — usar id da loja + timestamp
-    const room = `store-${storeId.slice(0, 8)}-${Date.now().toString(36)}`;
     const { data, error } = await supabase
       .from("lives")
-      .insert({ store_id: storeId, title: title.trim(), livekit_room: room, status: "scheduled" })
+      .insert({ store_id: storeId, title: title.trim(), livekit_room: makeRoom(), status: "scheduled" })
       .select("id")
       .single();
     setCreating(false);
     if (error) return toast.error(error.message);
     setTitle("");
-    toast.success("Live criada. Clique em Iniciar para transmitir.");
-    if (data?.id) setActiveId(data.id);
-    if (storeId) load(storeId);
+    toast.success("Live criada. A preparar câmara…");
+    if (data?.id) {
+      if (storeId) await load(storeId);
+      prepareLive(data.id);
+    }
+  };
+
+  const quickCreate = async () => {
+    if (!storeId) return;
+    setCreating(true);
+    const defaultTitle = `Live de ${store?.name ?? "loja"}`;
+    const { data, error } = await supabase
+      .from("lives")
+      .insert({ store_id: storeId, title: defaultTitle, livekit_room: makeRoom(), status: "scheduled" })
+      .select("id")
+      .single();
+    setCreating(false);
+    if (error) return toast.error(error.message);
+    toast.success("Live criada. A preparar câmara…");
+    if (data?.id) {
+      if (storeId) await load(storeId);
+      prepareLive(data.id);
+    }
   };
 
   // Prepara a live: apenas abre o painel de transmissão. O estado só passa
