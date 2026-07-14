@@ -18,6 +18,7 @@ export const Route = createFileRoute("/_authenticated/admin-dashboard")({
     if (!isAdmin) throw redirect({ to: "/perfil" });
   },
   component: AdminHub,
+  errorComponent: PanelErrorBoundary,
 });
 
 type StoreRow = { id: string; name: string; status: string; phone: string | null; category: string | null; created_at: string };
