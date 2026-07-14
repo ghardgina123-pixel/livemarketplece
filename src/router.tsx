@@ -12,7 +12,22 @@ export const getRouter = () => {
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
         refetchOnMount: false,
-        retry: 1,
+        // Retry transient network/5xx failures 2x with backoff; skip auth/permission
+        // errors (4xx) which won't succeed on retry.
+        retry: (failureCount, error: unknown) => {
+          const err = error as { status?: number; message?: string } | null;
+          const status = err?.status;
+          if (status && status >= 400 && status < 500) return false;
+          const msg = (err?.message ?? "").toLowerCase();
+          if (msg.includes("jwt") || msg.includes("unauthorized") || msg.includes("permission")) return false;
+          return failureCount < 2;
+        },
+        retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 4000),
+        networkMode: "online",
+      },
+      mutations: {
+        retry: 0,
+        networkMode: "online",
       },
     },
   });
