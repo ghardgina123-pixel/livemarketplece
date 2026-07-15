@@ -68,7 +68,7 @@ export function LojistaShell({ title, children }: { title: string; children: Rea
 
   return (
     <AppShell>
-      <header className="relative z-20 flex items-center gap-3 px-5 pt-6 pb-4 text-white" style={{ background: "var(--gradient-brand)" }}>
+      <header className="relative z-20 flex items-center gap-3 px-5 pr-16 pt-6 pb-4 text-white" style={{ background: "var(--gradient-brand)" }}>
         <BackButton fallback="/perfil" />
         <Sheet>
           <SheetTrigger asChild>
@@ -110,12 +110,12 @@ export function LojistaShell({ title, children }: { title: string; children: Rea
             </nav>
           </SheetContent>
         </Sheet>
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="truncate text-xs text-white/80">{store.name}</p>
-          <h1 className="text-lg font-semibold">{title}</h1>
+          <h1 className="truncate text-lg font-semibold">{title}</h1>
         </div>
         {store.logo_url && (
-          <img src={store.logo_url} alt="Logo" className="h-9 w-9 rounded-full border-2 border-white/50 object-cover" />
+          <img src={store.logo_url} alt="Logo" className="h-9 w-9 shrink-0 rounded-full border-2 border-white/50 object-cover" />
         )}
       </header>
       <div className="px-5 py-5">{children}</div>
