@@ -108,6 +108,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "default" },
       { name: "apple-mobile-web-app-title", content: "Live Market" },
       { name: "mobile-web-app-capable", content: "yes" },
+      { name: "google", content: "notranslate" },
       { title: "Live Market — Bem-vindo · Compre, Converse, Receba" },
       { name: "description", content: "Bem-vindo à Live Market: o marketplace ao vivo de Angola. Entre como cliente ou lojista e comece em segundos." },
       { name: "author", content: "Live Market" },
@@ -150,7 +151,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-PT" translate="no" className="notranslate">
       <head>
         <HeadContent />
       </head>
