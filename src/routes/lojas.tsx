@@ -1,11 +1,28 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, Star, Radio, BadgeCheck } from "lucide-react";
+import { Search, Radio, BadgeCheck } from "lucide-react";
 import { AppShell, StoreCover } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
-import { stores } from "@/lib/data";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { fallback, zodValidator } from "@tanstack/zod-adapter";
+import { z } from "zod";
+
+type StoreRow = {
+  id: string;
+  name: string;
+  description: string | null;
+  category: string | null;
+  logo_url: string | null;
+  cover_url: string | null;
+  is_live: boolean;
+};
+
+const searchSchema = z.object({
+  q: fallback(z.string(), "").default(""),
+});
 
 export const Route = createFileRoute("/lojas")({
+  validateSearch: zodValidator(searchSchema),
   head: () => ({
     meta: [
       { title: "Lojas — Live Market" },
@@ -29,12 +46,57 @@ export const Route = createFileRoute("/lojas")({
 });
 
 function Lojas() {
-  const [q, setQ] = useState("");
+  const initial = Route.useSearch().q ?? "";
+  const [q, setQ] = useState(initial);
   const [filter, setFilter] = useState<"all" | "live">("all");
-  const list = stores.filter((s) =>
-    (filter === "all" || s.live) &&
-    (s.name.toLowerCase().includes(q.toLowerCase()) || s.category.toLowerCase().includes(q.toLowerCase()))
-  );
+  const [rows, setRows] = useState<StoreRow[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const { data: storesData } = await supabase
+        .from("stores")
+        .select("id, name, description, category, logo_url, cover_url")
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      const ids = (storesData ?? []).map((s) => s.id);
+      let liveSet = new Set<string>();
+      if (ids.length) {
+        const { data: livesData } = await supabase
+          .from("lives")
+          .select("store_id, status")
+          .in("store_id", ids)
+          .eq("status", "live");
+        liveSet = new Set((livesData ?? []).map((l) => l.store_id));
+      }
+      setRows(
+        (storesData ?? []).map((s) => ({
+          id: s.id,
+          name: s.name,
+          description: s.description,
+          category: s.category,
+          logo_url: s.logo_url,
+          cover_url: s.cover_url,
+          is_live: liveSet.has(s.id),
+        })),
+      );
+    })();
+  }, []);
+
+  const needle = q.trim().toLowerCase();
+  const list = rows.filter((s) => {
+    if (filter === "live" && !s.is_live) return false;
+    if (!needle) return true;
+    return (
+      s.name.toLowerCase().includes(needle) ||
+      (s.category ?? "").toLowerCase().includes(needle) ||
+      (s.description ?? "").toLowerCase().includes(needle)
+    );
+  });
+
+  const gradients = ["from-emerald-400 to-teal-600", "from-blue-500 to-indigo-700", "from-pink-400 to-rose-600", "from-amber-400 to-orange-600"];
+  const emojis = ["🛍️", "✨", "🔥", "🎁"];
+
   return (
     <AppShell>
       <header className="sticky top-0 z-30 bg-background/95 px-5 pt-6 pb-3 backdrop-blur-xl">
@@ -54,26 +116,35 @@ function Lojas() {
       </header>
 
       <ul className="space-y-3 px-5 pt-2">
-        {list.map((s) => (
+        {list.length === 0 && (
+          <li className="rounded-2xl bg-muted/40 p-6 text-center text-xs text-muted-foreground">
+            {rows.length === 0 ? "A carregar lojas…" : "Nenhuma loja encontrada."}
+          </li>
+        )}
+        {list.map((s, i) => (
           <li key={s.id}>
             <Link to="/loja/$id" params={{ id: s.id }} className="flex gap-3 rounded-2xl bg-card p-3 shadow-[var(--shadow-soft)]">
-              <StoreCover gradient={s.cover} emoji={s.emoji} className="h-20 w-20 shrink-0 rounded-xl" />
+              {s.logo_url ? (
+                <img src={s.logo_url} alt={s.name} className="h-20 w-20 shrink-0 rounded-xl object-cover" loading="lazy" />
+              ) : (
+                <StoreCover gradient={gradients[i % gradients.length]} emoji={emojis[i % emojis.length]} className="h-20 w-20 shrink-0 rounded-xl" />
+              )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <p className="truncate font-semibold">{s.name}</p>
                   <BadgeCheck size={14} className="shrink-0 text-primary" />
-                  {s.live && (
+                  {s.is_live && (
                     <span className="ml-auto flex items-center gap-1 rounded-md bg-[var(--live)] px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">
                       <Radio size={9} /> live
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground">{s.tagline}</p>
-                <div className="mt-2 flex items-center gap-3 text-[11px] text-muted-foreground">
-                  <span className="flex items-center gap-1"><Star size={11} className="fill-yellow-400 text-yellow-400" />{s.rating}</span>
-                  <span>{s.followers} seguidores</span>
-                  <span className="rounded-full bg-accent px-2 py-0.5 text-accent-foreground">{s.category}</span>
-                </div>
+                <p className="line-clamp-2 text-xs text-muted-foreground">{s.description ?? s.category ?? "Loja ativa na Live Market"}</p>
+                {s.category && (
+                  <div className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <span className="rounded-full bg-accent px-2 py-0.5 text-accent-foreground">{s.category}</span>
+                  </div>
+                )}
               </div>
             </Link>
           </li>
