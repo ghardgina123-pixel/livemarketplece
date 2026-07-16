@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Search, Radio, ShieldCheck, Truck, BadgeCheck, ChevronRight, Star, Store as StoreIcon, PlayCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -70,11 +70,35 @@ const DEMO_LIVES: LiveStore[] = [
 
 function Home() {
   const currency = useCurrency();
+  const navigate = useNavigate();
+  const [q, setQ] = useState("");
   const [lives, setLives] = useState<LiveStore[]>([]);
   const [feed, setFeed] = useState<FeedProduct[]>([]);
 
   useEffect(() => {
     (async () => {
+      // 1) Lojas realmente em direto (lives.status='live')
+      const { data: liveRows } = await supabase
+        .from("lives")
+        .select("store_id, viewer_count, stores!inner(id, name, description, category, status)")
+        .eq("status", "live")
+        .limit(12);
+      const liveStores = (liveRows ?? [])
+        .filter((r) => (r as unknown as { stores: { status: string } }).stores?.status === "active")
+        .map((r, i) => {
+          const s = (r as unknown as { stores: { id: string; name: string; description: string | null; category: string | null } }).stores;
+          return {
+            id: s.id,
+            name: s.name,
+            tagline: s.description ?? s.category ?? "Ao vivo agora",
+            cover: ["from-emerald-400 to-teal-600", "from-blue-500 to-indigo-700", "from-pink-400 to-rose-600", "from-amber-400 to-orange-600"][i % 4],
+            emoji: ["🛍️", "✨", "🔥", "🎁"][i % 4],
+            image: sellerImages[i % sellerImages.length],
+            viewers: (r as unknown as { viewer_count: number }).viewer_count ?? 0,
+          } as LiveStore;
+        });
+
+      // 2) Fallback: lojas ativas quando ninguém está em direto
       const { data: storesData } = await supabase
         .from("stores")
         .select("id, name, description, category")
@@ -89,8 +113,8 @@ function Home() {
           image: sellerImages[i % sellerImages.length],
           viewers: 0,
       }));
-      // Quando não houver lojas reais ativas, mostramos as demonstrativas.
-      setLives(real.length > 0 ? real : DEMO_LIVES);
+      // Prioridade: lives reais > lojas ativas > demo Kikolo.
+      setLives(liveStores.length > 0 ? liveStores : real.length > 0 ? real : DEMO_LIVES);
 
       const { data: productsData } = await supabase
         .from("products")
@@ -143,10 +167,23 @@ function Home() {
             </Link>
           </div>
         </div>
-        <Link to="/lojas" className="relative mt-4 block">
+        <form
+          className="relative mt-4 block"
+          onSubmit={(e) => {
+            e.preventDefault();
+            navigate({ to: "/lojas", search: { q } });
+          }}
+        >
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-          <Input readOnly placeholder="Buscar produtos, lojas, lives…" className="h-11 cursor-pointer rounded-xl border-0 bg-white pl-10 text-foreground placeholder:text-muted-foreground" />
-        </Link>
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            enterKeyHint="search"
+            aria-label="Buscar produtos, lojas, lives"
+            placeholder="Buscar produtos, lojas, lives…"
+            className="h-11 rounded-xl border-0 bg-white pl-10 text-foreground placeholder:text-muted-foreground"
+          />
+        </form>
         <div className="mt-3 flex items-center gap-3 text-[11px] text-white/85">
           <span className="flex items-center gap-1"><ShieldCheck size={13} /> Compra protegida</span>
           <span className="flex items-center gap-1"><Truck size={13} /> Frete rápido</span>
