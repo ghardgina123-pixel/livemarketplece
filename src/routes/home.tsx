@@ -12,7 +12,7 @@ import techAsset from "@/assets/sellers/tech.jpg.asset.json";
 import modaAsset from "@/assets/sellers/moda.jpg.asset.json";
 import belezaAsset from "@/assets/sellers/beleza.jpg.asset.json";
 
-type LiveStore = { id: string; name: string; tagline: string; cover: string; emoji: string; image: string; viewers: number; demo?: boolean };
+type LiveStore = { id: string; liveId?: string; name: string; tagline: string; cover: string; emoji: string; image: string; viewers: number; demo?: boolean };
 type FeedProduct = { id: string; name: string; price: number; oldPrice?: number; emoji: string; rating: number; sold: string };
 
 export const Route = createFileRoute("/home")({
@@ -76,19 +76,23 @@ function Home() {
   const [feed, setFeed] = useState<FeedProduct[]>([]);
 
   useEffect(() => {
-    (async () => {
+    let cancelled = false;
+    const load = async () => {
       // 1) Lojas realmente em direto (lives.status='live')
       const { data: liveRows } = await supabase
         .from("lives")
-        .select("store_id, viewer_count, stores!inner(id, name, description, category, status)")
+        .select("id, store_id, viewer_count, stores!inner(id, name, description, category, status)")
         .eq("status", "live")
         .limit(12);
+      if (cancelled) return;
       const liveStores = (liveRows ?? [])
         .filter((r) => (r as unknown as { stores: { status: string } }).stores?.status === "active")
         .map((r, i) => {
           const s = (r as unknown as { stores: { id: string; name: string; description: string | null; category: string | null } }).stores;
+          const liveId = (r as unknown as { id: string }).id;
           return {
             id: s.id,
+            liveId,
             name: s.name,
             tagline: s.description ?? s.category ?? "Ao vivo agora",
             cover: ["from-emerald-400 to-teal-600", "from-blue-500 to-indigo-700", "from-pink-400 to-rose-600", "from-amber-400 to-orange-600"][i % 4],
@@ -133,7 +137,18 @@ function Home() {
           sold: String(p.stock ?? 0),
         })),
       );
-    })();
+    };
+    load();
+    // Realtime: qualquer transição de status em `lives` re-busca a listagem
+    // para garantir que a Home aponta sempre para a sessão ativa correta.
+    const ch = supabase
+      .channel("home-lives")
+      .on("postgres_changes", { event: "*", schema: "public", table: "lives" }, () => load())
+      .subscribe();
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(ch);
+    };
   }, []);
 
   return (
@@ -252,13 +267,31 @@ function Home() {
                     <p className="truncate text-[11px] text-muted-foreground">{s.tagline}</p>
                   </div>
                 </Link>
-                <Link
-                  to={s.demo ? "/live-demo/$id" : "/live/$id"}
-                  params={{ id: s.id }}
-                  className="m-2 flex items-center justify-center gap-1 rounded-full bg-[var(--live)] px-2 py-1.5 text-[11px] font-bold text-white"
-                >
-                  <PlayCircle size={13} /> Entrar na Live
-                </Link>
+                {s.demo ? (
+                  <Link
+                    to="/live-demo/$id"
+                    params={{ id: s.id }}
+                    className="m-2 flex items-center justify-center gap-1 rounded-full bg-[var(--live)] px-2 py-1.5 text-[11px] font-bold text-white"
+                  >
+                    <PlayCircle size={13} /> Entrar na Live
+                  </Link>
+                ) : s.liveId ? (
+                  <Link
+                    to="/live/$id"
+                    params={{ id: s.liveId }}
+                    className="m-2 flex items-center justify-center gap-1 rounded-full bg-[var(--live)] px-2 py-1.5 text-[11px] font-bold text-white"
+                  >
+                    <PlayCircle size={13} /> Entrar na Live
+                  </Link>
+                ) : (
+                  <Link
+                    to="/loja/$id"
+                    params={{ id: s.id }}
+                    className="m-2 flex items-center justify-center gap-1 rounded-full bg-muted px-2 py-1.5 text-[11px] font-bold text-foreground"
+                  >
+                    Visitar loja
+                  </Link>
+                )}
               </div>
             ))}
           </div>
