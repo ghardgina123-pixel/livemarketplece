@@ -76,13 +76,15 @@ function Home() {
   const [feed, setFeed] = useState<FeedProduct[]>([]);
 
   useEffect(() => {
-    (async () => {
+    let cancelled = false;
+    const load = async () => {
       // 1) Lojas realmente em direto (lives.status='live')
       const { data: liveRows } = await supabase
         .from("lives")
         .select("id, store_id, viewer_count, stores!inner(id, name, description, category, status)")
         .eq("status", "live")
         .limit(12);
+      if (cancelled) return;
       const liveStores = (liveRows ?? [])
         .filter((r) => (r as unknown as { stores: { status: string } }).stores?.status === "active")
         .map((r, i) => {
@@ -135,7 +137,18 @@ function Home() {
           sold: String(p.stock ?? 0),
         })),
       );
-    })();
+    };
+    load();
+    // Realtime: qualquer transição de status em `lives` re-busca a listagem
+    // para garantir que a Home aponta sempre para a sessão ativa correta.
+    const ch = supabase
+      .channel("home-lives")
+      .on("postgres_changes", { event: "*", schema: "public", table: "lives" }, () => load())
+      .subscribe();
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(ch);
+    };
   }, []);
 
   return (
