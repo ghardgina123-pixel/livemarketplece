@@ -250,7 +250,7 @@ function LivesManager() {
                 <div className="flex gap-1.5">
                   {l.status === "scheduled" && (
                     <>
-                      <Button size="sm" onClick={() => setConfirmId(l.id)}>
+                      <Button size="sm" onClick={() => prepareLive(l.id)}>
                         <Play size={12} className="mr-1" /> Iniciar
                       </Button>
                       <Button size="sm" variant="outline" onClick={() => setDeleteId(l.id)} aria-label="Apagar live">
