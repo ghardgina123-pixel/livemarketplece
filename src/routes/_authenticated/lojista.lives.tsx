@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const LivePublisher = lazy(() => import("@/components/LivePublisher").then((m) => ({ default: m.LivePublisher })));
+const LojistaLivePanel = lazy(() => import("@/components/LojistaLivePanel").then((m) => ({ default: m.LojistaLivePanel })));
 
 export const Route = createFileRoute("/_authenticated/lojista/lives")({
   head: () => ({ meta: [{ title: "Lives — Lojista" }] }),
@@ -211,6 +212,9 @@ function LivesManager() {
               onError={(msg) => rollbackLive(activeLive.id, msg)}
             />
           </Suspense>
+          <Suspense fallback={<div className="mt-3 flex justify-center py-6"><Loader2 className="animate-spin text-primary" size={16} /></div>}>
+            <LojistaLivePanel liveId={activeLive.id} />
+          </Suspense>
           <Link to="/live/$id" params={{ id: activeLive.id }} className="mt-3 inline-flex items-center gap-1 text-xs text-primary underline">
             Ver como espetador <ExternalLink size={11} />
           </Link>
@@ -246,7 +250,7 @@ function LivesManager() {
                 <div className="flex gap-1.5">
                   {l.status === "scheduled" && (
                     <>
-                      <Button size="sm" onClick={() => setConfirmId(l.id)}>
+                      <Button size="sm" onClick={() => prepareLive(l.id)}>
                         <Play size={12} className="mr-1" /> Iniciar
                       </Button>
                       <Button size="sm" variant="outline" onClick={() => setDeleteId(l.id)} aria-label="Apagar live">
