@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search, Radio, ShieldCheck, Truck, BadgeCheck, ChevronRight, Star, PlayCircle } from "lucide-react";
+import { Search, Radio, ShieldCheck, Truck, BadgeCheck, ChevronRight, Star, PlayCircle, Store as StoreIcon } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { formatPrice, useCurrency } from "@/lib/currency";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import logoAsset from "@/assets/live-market-logo.png.asset.json";
 import homeHero from "@/assets/marketing/home-hero.jpg";
 import organicosAsset from "@/assets/sellers/organicos.jpg.asset.json";
@@ -71,9 +72,24 @@ const DEMO_LIVES: LiveStore[] = [
 function Home() {
   const currency = useCurrency();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [q, setQ] = useState("");
   const [lives, setLives] = useState<LiveStore[]>([]);
   const [feed, setFeed] = useState<FeedProduct[]>([]);
+  const [hasStore, setHasStore] = useState(false);
+
+  useEffect(() => {
+    if (!user) { setHasStore(false); return; }
+    let cancelled = false;
+    supabase
+      .from("stores")
+      .select("id")
+      .eq("owner_id", user.id)
+      .eq("status", "active")
+      .maybeSingle()
+      .then(({ data }) => { if (!cancelled) setHasStore(Boolean(data)); });
+    return () => { cancelled = true; };
+  }, [user?.id]);
 
   useEffect(() => {
     let cancelled = false;
@@ -154,8 +170,8 @@ function Home() {
   return (
     <AppShell>
       <header className="px-5 pt-6 pb-3 text-white" style={{ background: "var(--gradient-brand)" }}>
-        <div className="flex items-center gap-3 pr-14">
-          <div className="flex min-w-0 items-center gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
             <img
               src={logoAsset.url}
               alt="Live Market"
@@ -171,6 +187,17 @@ function Home() {
               <p className="text-[10px] uppercase tracking-wider text-white/70">O mercado ao vivo no seu ecrã.</p>
             </div>
           </div>
+          {hasStore && (
+            <Link
+              to="/lojista"
+              aria-label="Painel do Lojista"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/15 px-3 py-2 text-[11px] font-semibold text-white ring-1 ring-white/25 transition active:scale-95 active:bg-white/25"
+              style={{ touchAction: "manipulation" }}
+            >
+              <StoreIcon size={14} />
+              <span>Painel</span>
+            </Link>
+          )}
         </div>
         <form
           className="relative mt-4 block"
