@@ -195,8 +195,7 @@ function Home() {
               style={{ touchAction: "manipulation" }}
             >
               <StoreIcon size={14} />
-              <span className="hidden xs:inline">Painel</span>
-              <span className="xs:hidden">Lojista</span>
+              <span>Painel</span>
             </Link>
           )}
         </div>
