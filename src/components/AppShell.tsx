@@ -2,6 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { Home, Store, Play, ShoppingCart, User } from "lucide-react";
 import { useCartCount } from "@/lib/cart-store";
 import { NotificationBell } from "@/components/NotificationBell";
+import { LojistaShortcut } from "@/components/LojistaShortcut";
 import type { ReactNode } from "react";
 
 const tabs = [
@@ -19,9 +20,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col bg-background pb-20">
       <div className="pointer-events-none fixed top-3 left-1/2 z-40 w-full max-w-[480px] -translate-x-1/2 px-3">
         <div className="flex justify-end">
-          {/* Só a sineta captura toques; a área restante fica transparente para não sobrepor botões do header. */}
-          <div className="pointer-events-auto">
+          <div className="pointer-events-auto flex flex-col items-end gap-2">
             <NotificationBell />
+            <LojistaShortcut />
           </div>
         </div>
       </div>
