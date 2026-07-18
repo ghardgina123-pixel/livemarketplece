@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search, Radio, ShieldCheck, Truck, BadgeCheck, ChevronRight, Star, Store as StoreIcon, PlayCircle } from "lucide-react";
+import { Search, Radio, ShieldCheck, Truck, BadgeCheck, ChevronRight, Star, PlayCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { formatPrice, useCurrency } from "@/lib/currency";
@@ -154,8 +154,8 @@ function Home() {
   return (
     <AppShell>
       <header className="px-5 pt-6 pb-3 text-white" style={{ background: "var(--gradient-brand)" }}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 pr-14">
+          <div className="flex min-w-0 items-center gap-3">
             <img
               src={logoAsset.url}
               alt="Live Market"
@@ -163,23 +163,13 @@ function Home() {
               height={44}
               loading="eager"
               decoding="async"
-              className="h-11 w-11 rounded-xl bg-white/90 object-contain p-1 shadow-sm"
+              className="h-11 w-11 shrink-0 rounded-xl bg-white/90 object-contain p-1 shadow-sm"
             />
-            <div>
+            <div className="min-w-0">
               <p className="text-xs text-white/70">Olá, bem-vindo 👋</p>
-              <h1 className="text-lg font-bold leading-tight">Live Market — Mercado ao Vivo em Angola</h1>
+              <h1 className="text-base font-bold leading-tight">Live Market — Mercado ao Vivo em Angola</h1>
               <p className="text-[10px] uppercase tracking-wider text-white/70">O mercado ao vivo no seu ecrã.</p>
             </div>
-          </div>
-          {/* Reservar espaço à direita para o sino flutuante fixo (NotificationBell no AppShell). */}
-          <div className="flex items-center gap-2 pr-12">
-            <Link
-              to="/lojista"
-              className="flex h-9 items-center gap-1.5 rounded-full bg-white/15 px-3 text-[11px] font-semibold backdrop-blur-md hover:bg-white/25"
-              style={{ touchAction: "manipulation" }}
-            >
-              <StoreIcon size={14} /> Área do Lojista
-            </Link>
           </div>
         </div>
         <form
