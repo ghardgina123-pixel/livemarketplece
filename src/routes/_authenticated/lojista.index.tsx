@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { LocationCascade, type LocationValue } from "@/components/LocationCascade";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/lojista/")({
@@ -162,6 +163,7 @@ function StoreRegistration({ onCreated, feeRequired, feeAoa }: { onCreated: () =
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [proofFile, setProofFile] = useState<File | null>(null);
+  const [loc, setLoc] = useState<LocationValue>({ country_id: "", province_id: "", municipality_id: "", district_id: "" });
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -190,6 +192,7 @@ function StoreRegistration({ onCreated, feeRequired, feeAoa }: { onCreated: () =
     if (!form.nif.trim()) return toast.error("NIF é obrigatório");
     if (!form.bank_name.trim() || !form.bank_account.trim() || !form.bank_holder.trim())
       return toast.error("Dados bancários completos são obrigatórios");
+    if (!loc.province_id || !loc.municipality_id) return toast.error("Selecione província e município");
     if (feeRequired && !proofFile) return toast.error("Anexe o comprovativo da Taxa de Inscrição");
     setSubmitting(true);
     try {
@@ -208,6 +211,10 @@ function StoreRegistration({ onCreated, feeRequired, feeAoa }: { onCreated: () =
         phone: form.phone || null,
         logo_url,
         cover_url,
+        country_id: loc.country_id || null,
+        province_id: loc.province_id,
+        municipality_id: loc.municipality_id,
+        district_id: loc.district_id || null,
         lat: coords?.lat ?? null,
         lng: coords?.lng ?? null,
       }).select("id").single();
@@ -304,6 +311,7 @@ function StoreRegistration({ onCreated, feeRequired, feeAoa }: { onCreated: () =
       </Field>
 
       <h3 className="pt-2 text-xs font-bold uppercase text-muted-foreground">Localização</h3>
+      <LocationCascade value={loc} onChange={setLoc} required />
       <Button type="button" variant="outline" onClick={captureLocation} disabled={geoBusy} className="h-11 w-full">
         {geoBusy ? <Loader2 className="animate-spin" /> : <><MapPin size={16} className="mr-2" /> {coords ? "Atualizar" : "Usar minha localização"}</>}
       </Button>
