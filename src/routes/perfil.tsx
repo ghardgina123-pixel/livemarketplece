@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { CurrencySelector } from "@/components/CurrencySelector";
+import { CountrySelect } from "@/components/LocationCascade";
 import { SettingsSheet } from "@/components/SettingsSheet";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,14 +32,26 @@ function Perfil() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [countryId, setCountryId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!user) { setIsAdmin(false); return; }
     supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle()
       .then(({ data }) => setIsAdmin(!!data));
-    supabase.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle()
-      .then(({ data }) => setAvatarUrl(data?.avatar_url ?? null));
+    supabase.from("profiles").select("avatar_url, country_id").eq("id", user.id).maybeSingle()
+      .then(({ data }) => {
+        setAvatarUrl(data?.avatar_url ?? null);
+        setCountryId((data as { country_id?: string | null } | null)?.country_id ?? null);
+      });
   }, [user?.id]);
+
+  const persistCountry = async (id: string) => {
+    if (!user) return;
+    setCountryId(id);
+    const { error } = await supabase.from("profiles").update({ country_id: id || null }).eq("id", user.id);
+    if (error) toast.error("Não foi possível salvar o país");
+    else toast.success("País atualizado");
+  };
   const displayName = (user?.user_metadata?.display_name as string) || user?.email?.split("@")[0] || "Convidado";
   const initials = displayName.slice(0, 2).toUpperCase();
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
