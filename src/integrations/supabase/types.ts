@@ -16,8 +16,10 @@ export type Database = {
     Tables: {
       addresses: {
         Row: {
+          country_id: string | null
           created_at: string
           district: string | null
+          district_id: string | null
           id: string
           is_default: boolean
           label: string
@@ -33,8 +35,10 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          country_id?: string | null
           created_at?: string
           district?: string | null
+          district_id?: string | null
           id?: string
           is_default?: boolean
           label?: string
@@ -50,8 +54,10 @@ export type Database = {
           user_id: string
         }
         Update: {
+          country_id?: string | null
           created_at?: string
           district?: string | null
+          district_id?: string | null
           id?: string
           is_default?: boolean
           label?: string
@@ -67,6 +73,20 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "addresses_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "addresses_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "addresses_municipality_id_fkey"
             columns: ["municipality_id"]
@@ -205,12 +225,44 @@ export type Database = {
           },
         ]
       }
+      countries: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          currency_code: string | null
+          id: string
+          name: string
+          phone_prefix: string | null
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          currency_code?: string | null
+          id?: string
+          name: string
+          phone_prefix?: string | null
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          currency_code?: string | null
+          id?: string
+          name?: string
+          phone_prefix?: string | null
+        }
+        Relationships: []
+      }
       couriers: {
         Row: {
           company_name: string | null
+          country_id: string | null
           courier_type: Database["public"]["Enums"]["courier_type"]
           created_at: string
           district: string | null
+          district_id: string | null
           document_id: string
           document_photo_url: string | null
           driver_license: string | null
@@ -239,9 +291,11 @@ export type Database = {
         }
         Insert: {
           company_name?: string | null
+          country_id?: string | null
           courier_type: Database["public"]["Enums"]["courier_type"]
           created_at?: string
           district?: string | null
+          district_id?: string | null
           document_id: string
           document_photo_url?: string | null
           driver_license?: string | null
@@ -270,9 +324,11 @@ export type Database = {
         }
         Update: {
           company_name?: string | null
+          country_id?: string | null
           courier_type?: Database["public"]["Enums"]["courier_type"]
           created_at?: string
           district?: string | null
+          district_id?: string | null
           document_id?: string
           document_photo_url?: string | null
           driver_license?: string | null
@@ -299,7 +355,22 @@ export type Database = {
           vehicle_photo_url?: string | null
           vehicle_plate?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "couriers_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "couriers_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       deliveries: {
         Row: {
@@ -392,6 +463,35 @@ export type Database = {
             columns: ["delivery_id"]
             isOneToOne: false
             referencedRelation: "deliveries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      districts: {
+        Row: {
+          created_at: string
+          id: string
+          municipality_id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          municipality_id: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          municipality_id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "districts_municipality_id_fkey"
+            columns: ["municipality_id"]
+            isOneToOne: false
+            referencedRelation: "municipalities"
             referencedColumns: ["id"]
           },
         ]
@@ -1139,6 +1239,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           country_code: string
+          country_id: string | null
           created_at: string
           display_name: string | null
           id: string
@@ -1150,6 +1251,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           country_code?: string
+          country_id?: string | null
           created_at?: string
           display_name?: string | null
           id: string
@@ -1161,6 +1263,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           country_code?: string
+          country_id?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -1169,7 +1272,15 @@ export type Database = {
           phone?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       properties: {
         Row: {
@@ -1177,10 +1288,12 @@ export type Database = {
           area_m2: number | null
           bathrooms: number | null
           bedrooms: number | null
+          country_id: string | null
           cover_url: string | null
           created_at: string
           description: string | null
           district: string | null
+          district_id: string | null
           featured: boolean
           furnished: boolean
           id: string
@@ -1204,10 +1317,12 @@ export type Database = {
           area_m2?: number | null
           bathrooms?: number | null
           bedrooms?: number | null
+          country_id?: string | null
           cover_url?: string | null
           created_at?: string
           description?: string | null
           district?: string | null
+          district_id?: string | null
           featured?: boolean
           furnished?: boolean
           id?: string
@@ -1231,10 +1346,12 @@ export type Database = {
           area_m2?: number | null
           bathrooms?: number | null
           bedrooms?: number | null
+          country_id?: string | null
           cover_url?: string | null
           created_at?: string
           description?: string | null
           district?: string | null
+          district_id?: string | null
           featured?: boolean
           furnished?: boolean
           id?: string
@@ -1259,6 +1376,20 @@ export type Database = {
             columns: ["agency_id"]
             isOneToOne: false
             referencedRelation: "real_estate_agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "properties_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "properties_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
             referencedColumns: ["id"]
           },
           {
@@ -1358,21 +1489,32 @@ export type Database = {
       }
       provinces: {
         Row: {
+          country_id: string
           created_at: string
           id: string
           name: string
         }
         Insert: {
+          country_id: string
           created_at?: string
           id?: string
           name: string
         }
         Update: {
+          country_id?: string
           created_at?: string
           id?: string
           name?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "provinces_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       push_subscriptions: {
         Row: {
@@ -1406,10 +1548,12 @@ export type Database = {
       }
       real_estate_agencies: {
         Row: {
+          country_id: string | null
           cover_url: string | null
           created_at: string
           description: string | null
           district: string | null
+          district_id: string | null
           email: string | null
           id: string
           lat: number | null
@@ -1427,10 +1571,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          country_id?: string | null
           cover_url?: string | null
           created_at?: string
           description?: string | null
           district?: string | null
+          district_id?: string | null
           email?: string | null
           id?: string
           lat?: number | null
@@ -1448,10 +1594,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          country_id?: string | null
           cover_url?: string | null
           created_at?: string
           description?: string | null
           district?: string | null
+          district_id?: string | null
           email?: string | null
           id?: string
           lat?: number | null
@@ -1469,6 +1617,20 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "real_estate_agencies_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "real_estate_agencies_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "real_estate_agencies_municipality_id_fkey"
             columns: ["municipality_id"]
@@ -1637,9 +1799,11 @@ export type Database = {
       stores: {
         Row: {
           category: string | null
+          country_id: string | null
           cover_url: string | null
           created_at: string
           description: string | null
+          district_id: string | null
           id: string
           is_online: boolean
           last_seen_at: string | null
@@ -1660,9 +1824,11 @@ export type Database = {
         }
         Insert: {
           category?: string | null
+          country_id?: string | null
           cover_url?: string | null
           created_at?: string
           description?: string | null
+          district_id?: string | null
           id?: string
           is_online?: boolean
           last_seen_at?: string | null
@@ -1683,9 +1849,11 @@ export type Database = {
         }
         Update: {
           category?: string | null
+          country_id?: string | null
           cover_url?: string | null
           created_at?: string
           description?: string | null
+          district_id?: string | null
           id?: string
           is_online?: boolean
           last_seen_at?: string | null
@@ -1705,6 +1873,20 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "stores_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stores_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "stores_municipality_id_fkey"
             columns: ["municipality_id"]
