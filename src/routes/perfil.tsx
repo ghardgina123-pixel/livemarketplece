@@ -202,6 +202,16 @@ function Perfil() {
         <CurrencySelector variant="row" />
       </div>
 
+      {user && (
+        <div className="px-5 pt-4">
+          <h3 className="mb-2 text-xs font-bold uppercase text-muted-foreground">País</h3>
+          <CountrySelect value={countryId} onChange={persistCountry} />
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            Define o país padrão para entregas, lojas e imóveis.
+          </p>
+        </div>
+      )}
+
       <div className="px-5 pt-3">
         {user ? (
           <button onClick={handleLogout} className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-border text-sm font-semibold text-destructive">
