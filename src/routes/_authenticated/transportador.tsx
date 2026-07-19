@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { LocationCascade, type LocationValue } from "@/components/LocationCascade";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -17,15 +18,12 @@ export const Route = createFileRoute("/_authenticated/transportador")({
 
 type CourierType = "motoboy" | "carro" | "van" | "empresa";
 type Status = "pending" | "active" | "rejected" | "suspended";
-type Province = { id: string; name: string };
-type Municipality = { id: string; name: string; province_id: string };
-
 type Courier = {
   id: string; status: Status; courier_type: CourierType; full_name: string;
   company_name: string | null; document_id: string; driver_license: string | null;
   phone: string; email: string | null;
   vehicle_plate: string | null; vehicle_brand: string | null; vehicle_model: string | null; vehicle_color: string | null;
-  province_id: string | null; municipality_id: string | null; district: string | null; street: string | null;
+  country_id: string | null; province_id: string | null; municipality_id: string | null; district_id: string | null; district: string | null; street: string | null;
   lat: number | null; lng: number | null;
   emergency_contact_name: string | null; emergency_contact_phone: string | null;
   notes: string | null; rejection_reason: string | null;
@@ -54,8 +52,7 @@ function TransportadorPage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [existing, setExisting] = useState<Courier | null>(null);
-  const [provinces, setProvinces] = useState<Province[]>([]);
-  const [munis, setMunis] = useState<Municipality[]>([]);
+  const [loc, setLoc] = useState<LocationValue>({ country_id: "", province_id: "", municipality_id: "", district_id: "" });
   const [busy, setBusy] = useState(false);
   const [coords, setCoords] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
   const [form, setForm] = useState({
@@ -63,19 +60,9 @@ function TransportadorPage() {
     full_name: "", company_name: "", document_id: "", driver_license: "",
     phone: "", email: "",
     vehicle_plate: "", vehicle_brand: "", vehicle_model: "", vehicle_color: "",
-    province_id: "", municipality_id: "", district: "", street: "",
+    district: "", street: "",
     emergency_contact_name: "", emergency_contact_phone: "", notes: "",
   });
-
-  useEffect(() => {
-    supabase.from("provinces").select("*").order("name").then(({ data }) => setProvinces((data as Province[]) ?? []));
-  }, []);
-
-  useEffect(() => {
-    if (!form.province_id) { setMunis([]); return; }
-    supabase.from("municipalities").select("*").eq("province_id", form.province_id).order("name")
-      .then(({ data }) => setMunis((data as Municipality[]) ?? []));
-  }, [form.province_id]);
 
   useEffect(() => {
     if (!user) return;
@@ -91,11 +78,16 @@ function TransportadorPage() {
           phone: c.phone ?? "", email: c.email ?? "",
           vehicle_plate: c.vehicle_plate ?? "", vehicle_brand: c.vehicle_brand ?? "",
           vehicle_model: c.vehicle_model ?? "", vehicle_color: c.vehicle_color ?? "",
-          province_id: c.province_id ?? "", municipality_id: c.municipality_id ?? "",
           district: c.district ?? "", street: c.street ?? "",
           emergency_contact_name: c.emergency_contact_name ?? "",
           emergency_contact_phone: c.emergency_contact_phone ?? "",
           notes: c.notes ?? "",
+        });
+        setLoc({
+          country_id: c.country_id ?? "",
+          province_id: c.province_id ?? "",
+          municipality_id: c.municipality_id ?? "",
+          district_id: c.district_id ?? "",
         });
         setCoords({ lat: c.lat, lng: c.lng });
       }
@@ -137,8 +129,10 @@ function TransportadorPage() {
       vehicle_brand: form.vehicle_brand || null,
       vehicle_model: form.vehicle_model || null,
       vehicle_color: form.vehicle_color || null,
-      province_id: form.province_id || null,
-      municipality_id: form.municipality_id || null,
+      country_id: loc.country_id || null,
+      province_id: loc.province_id || null,
+      municipality_id: loc.municipality_id || null,
+      district_id: loc.district_id || null,
       district: form.district || null,
       street: form.street || null,
       lat: coords.lat,
@@ -234,26 +228,8 @@ function TransportadorPage() {
 
             <section className="space-y-3">
               <h2 className="text-xs font-bold uppercase text-muted-foreground">Localização base</h2>
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="Província">
-                  <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                    value={form.province_id}
-                    onChange={(e) => setForm({ ...form, province_id: e.target.value, municipality_id: "" })}>
-                    <option value="">Selecione…</option>
-                    {provinces.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                  </select>
-                </Field>
-                <Field label="Município">
-                  <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                    value={form.municipality_id}
-                    onChange={(e) => setForm({ ...form, municipality_id: e.target.value })}
-                    disabled={!form.province_id}>
-                    <option value="">Selecione…</option>
-                    {munis.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-                  </select>
-                </Field>
-              </div>
-              <Field label="Bairro / Distrito"><Input value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} /></Field>
+              <LocationCascade value={loc} onChange={setLoc} />
+              <Field label="Referência de bairro"><Input value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} placeholder="Detalhes complementares" /></Field>
               <Field label="Rua / Endereço"><Input value={form.street} onChange={(e) => setForm({ ...form, street: e.target.value })} /></Field>
 
               <div className="rounded-xl border border-border p-3">
