@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { LocationCascade, type LocationValue } from "@/components/LocationCascade";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/enderecos")({
@@ -15,8 +16,6 @@ export const Route = createFileRoute("/_authenticated/enderecos")({
   component: AddressesPage,
 });
 
-type Province = { id: string; name: string };
-type Municipality = { id: string; name: string; province_id: string; shipping_fee_aoa: number };
 type Address = {
   id: string; label: string; street: string; district: string | null; reference: string | null;
   recipient_name: string | null; phone: string | null; is_default: boolean;
@@ -131,30 +130,23 @@ function AddressesPage() {
 
 function AddressForm({ onDone }: { onDone: () => void }) {
   const { user } = useAuth();
-  const [provinces, setProvinces] = useState<Province[]>([]);
-  const [munis, setMunis] = useState<Municipality[]>([]);
   const [busy, setBusy] = useState(false);
+  const [loc, setLoc] = useState<LocationValue>({ country_id: "", province_id: "", municipality_id: "", district_id: "" });
+  const [shippingFee, setShippingFee] = useState<number | null>(null);
   const [form, setForm] = useState({
-    label: "Casa", province_id: "", municipality_id: "", district: "",
-    street: "", reference: "", recipient_name: "", phone: "",
+    label: "Casa", district: "", street: "", reference: "", recipient_name: "", phone: "",
   });
 
   useEffect(() => {
-    supabase.from("provinces").select("*").order("name").then(({ data }) => setProvinces((data as Province[]) ?? []));
-  }, []);
-
-  useEffect(() => {
-    if (!form.province_id) { setMunis([]); return; }
-    supabase.from("municipalities").select("*").eq("province_id", form.province_id).order("name")
-      .then(({ data }) => setMunis((data as Municipality[]) ?? []));
-  }, [form.province_id]);
-
-  const selectedMuni = munis.find((m) => m.id === form.municipality_id);
+    if (!loc.municipality_id) { setShippingFee(null); return; }
+    supabase.from("municipalities").select("shipping_fee_aoa,name").eq("id", loc.municipality_id).maybeSingle()
+      .then(({ data }) => setShippingFee(data ? Number((data as { shipping_fee_aoa: number }).shipping_fee_aoa) : null));
+  }, [loc.municipality_id]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    if (!form.province_id || !form.municipality_id || !form.street.trim()) {
+    if (!loc.province_id || !loc.municipality_id || !form.street.trim()) {
       return toast.error("Província, município e rua são obrigatórios");
     }
     setBusy(true);
@@ -163,8 +155,10 @@ function AddressForm({ onDone }: { onDone: () => void }) {
     const { error } = await supabase.from("addresses").insert({
       user_id: user.id,
       label: form.label || "Casa",
-      province_id: form.province_id,
-      municipality_id: form.municipality_id,
+      country_id: loc.country_id || null,
+      province_id: loc.province_id,
+      municipality_id: loc.municipality_id,
+      district_id: loc.district_id || null,
       district: form.district || null,
       street: form.street,
       reference: form.reference || null,
@@ -184,40 +178,12 @@ function AddressForm({ onDone }: { onDone: () => void }) {
         <Label className="text-xs">Identificação</Label>
         <Input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="Casa / Trabalho" />
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-xs">Província *</Label>
-          <select
-            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            value={form.province_id}
-            onChange={(e) => setForm({ ...form, province_id: e.target.value, municipality_id: "" })}
-          >
-            <option value="">Selecione…</option>
-            {provinces.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs">Município *</Label>
-          <select
-            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            value={form.municipality_id}
-            onChange={(e) => setForm({ ...form, municipality_id: e.target.value })}
-            disabled={!form.province_id}
-          >
-            <option value="">Selecione…</option>
-            {munis.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-          </select>
-        </div>
-      </div>
-      {selectedMuni && (
+      <LocationCascade value={loc} onChange={setLoc} required />
+      {shippingFee != null && (
         <div className="rounded-lg bg-accent/50 px-3 py-2 text-[11px] text-accent-foreground">
-          Frete estimado para {selectedMuni.name}: <strong>Kz {Number(selectedMuni.shipping_fee_aoa).toLocaleString("pt-AO")}</strong>
+          Frete estimado: <strong>Kz {shippingFee.toLocaleString("pt-AO")}</strong>
         </div>
       )}
-      <div className="space-y-1.5">
-        <Label className="text-xs">Bairro / Distrito</Label>
-        <Input value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} placeholder="Ex: Benfica" />
-      </div>
       <div className="space-y-1.5">
         <Label className="text-xs">Rua / Avenida *</Label>
         <Input value={form.street} onChange={(e) => setForm({ ...form, street: e.target.value })} placeholder="Rua, número, casa…" />
