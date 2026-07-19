@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { LocationCascade, type LocationValue } from "@/components/LocationCascade";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -16,8 +17,6 @@ export const Route = createFileRoute("/_authenticated/imobiliaria")({
   component: ImobiliariaPage,
 });
 
-type Province = { id: string; name: string };
-type Municipality = { id: string; name: string; province_id: string };
 type Agency = {
   id: string; status: "pending" | "active" | "rejected" | "suspended";
   name: string; nif: string; phone: string; email: string | null;
@@ -106,23 +105,13 @@ function AgencyStatusBanner({ agency }: { agency: Agency }) {
 
 function AgencyRegistration({ onCreated }: { onCreated: () => void }) {
   const { user } = useAuth();
-  const [provinces, setProvinces] = useState<Province[]>([]);
-  const [munis, setMunis] = useState<Municipality[]>([]);
+  const [loc, setLoc] = useState<LocationValue>({ country_id: "", province_id: "", municipality_id: "", district_id: "" });
   const [busy, setBusy] = useState(false);
   const [coords, setCoords] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
   const [form, setForm] = useState({
     name: "", nif: "", phone: "", email: "", description: "",
-    province_id: "", municipality_id: "", district: "", street: "",
+    district: "", street: "",
   });
-
-  useEffect(() => {
-    supabase.from("provinces").select("*").order("name").then(({ data }) => setProvinces((data as Province[]) ?? []));
-  }, []);
-  useEffect(() => {
-    if (!form.province_id) return setMunis([]);
-    supabase.from("municipalities").select("*").eq("province_id", form.province_id).order("name")
-      .then(({ data }) => setMunis((data as Municipality[]) ?? []));
-  }, [form.province_id]);
 
   const captureLocation = () => {
     if (!("geolocation" in navigator)) return toast.error("Geolocalização não suportada");
@@ -143,7 +132,10 @@ function AgencyRegistration({ onCreated }: { onCreated: () => void }) {
       owner_id: user.id,
       name: form.name, nif: form.nif, phone: form.phone,
       email: form.email || null, description: form.description || null,
-      province_id: form.province_id || null, municipality_id: form.municipality_id || null,
+      country_id: loc.country_id || null,
+      province_id: loc.province_id || null,
+      municipality_id: loc.municipality_id || null,
+      district_id: loc.district_id || null,
       district: form.district || null, street: form.street || null,
       lat: coords.lat, lng: coords.lng,
     });
@@ -171,24 +163,8 @@ function AgencyRegistration({ onCreated }: { onCreated: () => void }) {
 
       <section className="space-y-3">
         <h2 className="text-xs font-bold uppercase text-muted-foreground">Localização</h2>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Província">
-            <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-              value={form.province_id} onChange={(e) => setForm({ ...form, province_id: e.target.value, municipality_id: "" })}>
-              <option value="">Selecione…</option>
-              {provinces.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-          </Field>
-          <Field label="Município">
-            <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-              value={form.municipality_id} disabled={!form.province_id}
-              onChange={(e) => setForm({ ...form, municipality_id: e.target.value })}>
-              <option value="">Selecione…</option>
-              {munis.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-            </select>
-          </Field>
-        </div>
-        <Field label="Bairro / Distrito"><Input value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} /></Field>
+        <LocationCascade value={loc} onChange={setLoc} />
+        <Field label="Referência de bairro"><Input value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} placeholder="Detalhes complementares" /></Field>
         <Field label="Rua"><Input value={form.street} onChange={(e) => setForm({ ...form, street: e.target.value })} /></Field>
 
         <div className="rounded-xl border border-border p-3">
