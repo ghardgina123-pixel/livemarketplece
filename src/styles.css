@@ -157,12 +157,24 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     overflow-x: hidden;
+    overflow-y: auto;
     -webkit-tap-highlight-color: transparent;
-    overscroll-behavior-y: contain;
+    overscroll-behavior-y: auto;
+    touch-action: pan-y;
   }
 
   html {
     overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: auto;
+    touch-action: pan-y;
+  }
+
+  #root {
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: visible;
+    touch-action: pan-y;
   }
 
   /* Comfortable touch targets on coarse pointers (phones/tablets) */
@@ -236,6 +248,7 @@
 /* Smooth, momentum-based scrolling on iOS / Android webviews. */
 .smooth-scroll {
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
+  overscroll-behavior: auto;
   scroll-behavior: smooth;
+  touch-action: pan-y;
 }
