@@ -19,15 +19,28 @@ export const Route = createFileRoute("/api/public/push-dispatch")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const expected = process.env.PUSH_WEBHOOK_SECRET;
         const publicKey = process.env.VAPID_PUBLIC_KEY;
         const privateKey = process.env.VAPID_PRIVATE_KEY;
         const subject = process.env.VAPID_SUBJECT || "mailto:admin@livemarketplece.live";
-        if (!expected || !publicKey || !privateKey) {
+        if (!publicKey || !privateKey) {
           return new Response("Push not configured", { status: 503 });
         }
         const auth = request.headers.get("authorization") ?? "";
         const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        // Read the shared secret from vault (single source of truth), not from
+        // an env var — the env-var value was previously seeded via a committed
+        // migration and has been rotated. Vault holds the current value.
+        const { data: vaultRow } = await supabaseAdmin
+          .schema("vault" as never)
+          .from("decrypted_secrets" as never)
+          .select("decrypted_secret")
+          .eq("name", "push_webhook_secret")
+          .maybeSingle();
+        const expected = (vaultRow as { decrypted_secret?: string } | null)?.decrypted_secret;
+        if (!expected || !token) {
+          return new Response("Unauthorized", { status: 401 });
+        }
         const { timingSafeEqual } = await import("crypto");
         const a = Buffer.from(token);
         const b = Buffer.from(expected);
@@ -36,7 +49,6 @@ export const Route = createFileRoute("/api/public/push-dispatch")({
         }
 
         const json = (await request.json()) as { kind: string; payload: Payload };
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
         // Resolve target user ids
         let userIds: string[] = [];
